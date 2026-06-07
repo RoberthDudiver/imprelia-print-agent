@@ -1,8 +1,9 @@
 param(
     [string] $Version = "1.0.0.0",
-    [string] $Publisher = "CN=Roberth Dudiver",
-    [string] $PackageName = "RoberthDudiver.ImpreliaPrintAgent",
+    [string] $Publisher = "CN=18FB64AB-5A7B-47F7-AD1B-5E66071B7C0F",
+    [string] $PackageName = "Dudiver.ImpreliaPrintAgent",
     [string] $DisplayName = "Imprelia Print Agent",
+    [string] $PublisherDisplayName = "Dudiver",
     [switch] $CreateUploadZip
 )
 
@@ -112,7 +113,7 @@ $manifest = @"
 
   <Properties>
     <DisplayName>$DisplayName</DisplayName>
-    <PublisherDisplayName>Roberth Dudiver</PublisherDisplayName>
+    <PublisherDisplayName>$PublisherDisplayName</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
