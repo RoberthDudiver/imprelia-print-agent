@@ -1,5 +1,6 @@
 bin/
 obj/
+artifacts/
 .vs/
 .vscode/
 *.user
@@ -11,4 +12,8 @@ obj/
 TestResults/
 publish/
 build-check/
+installer/bin/
+installer/obj/
+installer/GeneratedFiles.wxs
 *.zip
+*.msi

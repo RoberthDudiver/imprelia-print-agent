@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="Imprelia Print Agent"
+    Manufacturer="Roberth Dudiver"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="{A9867D5E-E681-47BA-8DE2-A5A1E41D0F45}"
+    Scope="perMachine">
+
+    <SummaryInformation
+      Manufacturer="Roberth Dudiver"
+      Description="Windows local print agent with HTTP API for ESC/POS, RAW, ZPL, PDF and Windows printers" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Imprelia Print Agent is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon.ico" SourceFile="$(var.PublishDir)\images\icono.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://dudiver.net" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/RoberthDudiver/imprelia-print-agent/issues" />
+
+    <Feature Id="MainFeature" Title="Imprelia Print Agent" Level="1">
+      <ComponentGroupRef Id="PublishedFiles" />
+      <ComponentRef Id="ApplicationShortcuts" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ManufacturerFolder" Name="Imprelia">
+        <Directory Id="INSTALLFOLDER" Name="Print Agent" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Imprelia Print Agent" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Component Id="ApplicationShortcuts" Directory="ApplicationProgramsFolder" Guid="{D818B41F-D94A-4038-BED9-E4F4734DF465}">
+      <Shortcut
+        Id="StartMenuShortcut"
+        Name="Imprelia Print Agent"
+        Description="Local print agent for Windows printers"
+        Target="[INSTALLFOLDER]GastroPrintAgent.exe"
+        WorkingDirectory="INSTALLFOLDER"
+        Icon="AppIcon.ico" />
+
+      <Shortcut
+        Id="DesktopShortcut"
+        Directory="DesktopFolder"
+        Name="Imprelia Print Agent"
+        Description="Local print agent for Windows printers"
+        Target="[INSTALLFOLDER]GastroPrintAgent.exe"
+        WorkingDirectory="INSTALLFOLDER"
+        Icon="AppIcon.ico" />
+
+      <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\Imprelia\PrintAgent" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+  </Package>
+</Wix>

@@ -20,6 +20,7 @@
   <a href="#español">Español</a> ·
   <a href="docs/API.md">API</a> ·
   <a href="docs/INSTALLATION.md">Installation</a> ·
+  <a href="docs/STORE_SUBMISSION.md">Store</a> ·
   <a href="LICENSE.md">License</a>
 </p>
 
@@ -81,9 +82,16 @@ Content-Type: application/json
 - [Installation and build](docs/INSTALLATION.md)
 - [API reference and examples](docs/API.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Microsoft Store submission](docs/STORE_SUBMISSION.md)
 - [Security policy](SECURITY.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
+
+### Build the v1 MSI Installer
+
+```powershell
+dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj -c Release -p:ProductVersion=1.0.0
+```
 
 ### License Summary
 
@@ -149,9 +157,16 @@ Content-Type: application/json
 - [Instalación y compilación](docs/INSTALLATION.md)
 - [Referencia API y ejemplos](docs/API.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
+- [Publicación en Microsoft Store](docs/STORE_SUBMISSION.md)
 - [Política de seguridad](SECURITY.md)
 - [Guía para contribuir](CONTRIBUTING.md)
 - [Historial de cambios](CHANGELOG.md)
+
+### Generar instalador MSI v1
+
+```powershell
+dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj -c Release -p:ProductVersion=1.0.0
+```
 
 ### Resumen de licencia
 

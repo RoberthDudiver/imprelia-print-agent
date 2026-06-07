@@ -25,3 +25,15 @@ jobs:
 
       - name: Build
         run: dotnet build .\GastroManager.PrintAgent.sln --configuration Release --no-restore
+
+      - name: Restore runtime packages
+        run: dotnet restore .\Imprelia.PrintAgent.csproj -r win-x64
+
+      - name: Build MSI installer
+        run: dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj --configuration Release -p:ProductVersion=1.0.0
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ImpreliaPrintAgent-Setup
+          path: installer/bin/Release/*.msi

@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Extract version
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${env:GITHUB_REF_NAME}".TrimStart("v")
+          "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore runtime packages
+        run: dotnet restore .\Imprelia.PrintAgent.csproj -r win-x64
+
+      - name: Build MSI installer
+        run: dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj -c Release -p:ProductVersion=${{ steps.version.outputs.value }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Imprelia Print Agent ${{ github.ref_name }}
+          body: |
+            Imprelia Print Agent ${{ github.ref_name }}
+
+            See CHANGELOG.md and docs/STORE_SUBMISSION.md before submitting to Microsoft Store.
+
+            Important: Store submission requires trusted code signing for MSI/EXE packages.
+          files: installer/bin/Release/*.msi
