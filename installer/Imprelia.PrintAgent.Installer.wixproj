@@ -3,10 +3,16 @@
     <OutputType>Package</OutputType>
     <OutputName>ImpreliaPrintAgent-Setup</OutputName>
     <InstallerPlatform>x64</InstallerPlatform>
+    <EnableDefaultItems>false</EnableDefaultItems>
     <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
     <PublishDir>$(MSBuildThisFileDirectory)..\artifacts\publish\win-x64</PublishDir>
     <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="GeneratedFiles.wxs" />
+  </ItemGroup>
 
   <Target Name="PublishApplication" BeforeTargets="CoreCompile">
     <MSBuild
