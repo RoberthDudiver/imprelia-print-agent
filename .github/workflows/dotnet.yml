@@ -23,11 +23,11 @@ jobs:
       - name: Restore
         run: dotnet restore .\GastroManager.PrintAgent.sln
 
-      - name: Build
-        run: dotnet build .\GastroManager.PrintAgent.sln --configuration Release --no-restore
-
       - name: Restore runtime packages
         run: dotnet restore .\Imprelia.PrintAgent.csproj -r win-x64
+
+      - name: Build
+        run: dotnet build .\GastroManager.PrintAgent.sln --configuration Release --no-restore
 
       - name: Build MSI installer
         run: dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj --configuration Release -p:ProductVersion=1.0.0
