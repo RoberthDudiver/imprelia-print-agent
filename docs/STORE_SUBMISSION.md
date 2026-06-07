@@ -9,6 +9,21 @@ Microsoft Store supports more than one path for desktop Win32 apps:
 
 For Imprelia Print Agent v1, this repository can generate a **WiX MSI installer** and a local **MSIX/MSIXUPLOAD package**.
 
+### Partner Center Identity
+
+Use the identity assigned by Microsoft Partner Center:
+
+```text
+Package/Identity/Name: Dudiver.ImpreliaPrintAgent
+Package/Identity/Publisher: CN=18FB64AB-5A7B-47F7-AD1B-5E66071B7C0F
+Package/Properties/PublisherDisplayName: Dudiver
+Package Family Name: Dudiver.ImpreliaPrintAgent_8yv65d0br4jdr
+Store ID: 9NCJR51W2DTP
+Store URL: https://apps.microsoft.com/detail/9NCJR51W2DTP
+Store protocol link: ms-windows-store://pdp/?productid=9NCJR51W2DTP
+MSA app ID: 6cba8127-096b-432a-8e82-87278f33a9e4
+```
+
 ### Build MSI
 
 ```powershell
@@ -34,13 +49,14 @@ artifacts\msix\out\ImpreliaPrintAgent-1.0.0.0.msix
 artifacts\msix\out\ImpreliaPrintAgent-1.0.0.0.msixupload
 ```
 
-Before final Store submission, make sure the MSIX identity matches the app identity reserved in Partner Center:
+The default script values already match the Partner Center identity above. If you need to override them explicitly:
 
 ```powershell
 .\scripts\Build-MSIX.ps1 `
   -Version 1.0.0.0 `
-  -PackageName "YourPartnerCenter.PackageName" `
-  -Publisher "CN=Your Partner Center Publisher" `
+  -PackageName "Dudiver.ImpreliaPrintAgent" `
+  -Publisher "CN=18FB64AB-5A7B-47F7-AD1B-5E66071B7C0F" `
+  -PublisherDisplayName "Dudiver" `
   -CreateUploadZip
 ```
 
@@ -85,6 +101,21 @@ Microsoft Store soporta más de un camino para apps Win32 de escritorio:
 
 Para Imprelia Print Agent v1, este repositorio puede generar un **instalador MSI con WiX** y un paquete local **MSIX/MSIXUPLOAD**.
 
+### Identidad de Partner Center
+
+Usa la identidad asignada por Microsoft Partner Center:
+
+```text
+Package/Identity/Name: Dudiver.ImpreliaPrintAgent
+Package/Identity/Publisher: CN=18FB64AB-5A7B-47F7-AD1B-5E66071B7C0F
+Package/Properties/PublisherDisplayName: Dudiver
+Package Family Name: Dudiver.ImpreliaPrintAgent_8yv65d0br4jdr
+Store ID: 9NCJR51W2DTP
+Store URL: https://apps.microsoft.com/detail/9NCJR51W2DTP
+Store protocol link: ms-windows-store://pdp/?productid=9NCJR51W2DTP
+MSA app ID: 6cba8127-096b-432a-8e82-87278f33a9e4
+```
+
 ### Generar MSI
 
 ```powershell
@@ -110,13 +141,14 @@ artifacts\msix\out\ImpreliaPrintAgent-1.0.0.0.msix
 artifacts\msix\out\ImpreliaPrintAgent-1.0.0.0.msixupload
 ```
 
-Antes del envío final a Store, asegúrate de que la identidad MSIX coincida con la app reservada en Partner Center:
+Los valores por defecto del script ya coinciden con la identidad de Partner Center anterior. Si necesitas pasarlos explícitamente:
 
 ```powershell
 .\scripts\Build-MSIX.ps1 `
   -Version 1.0.0.0 `
-  -PackageName "TuPartnerCenter.PackageName" `
-  -Publisher "CN=Tu Publisher de Partner Center" `
+  -PackageName "Dudiver.ImpreliaPrintAgent" `
+  -Publisher "CN=18FB64AB-5A7B-47F7-AD1B-5E66071B7C0F" `
+  -PublisherDisplayName "Dudiver" `
   -CreateUploadZip
 ```
 
