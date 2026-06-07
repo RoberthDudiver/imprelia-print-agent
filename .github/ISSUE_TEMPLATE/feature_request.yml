@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an improvement or printer integration.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow or printer scenario should this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you want.
+    validations:
+      required: true
+  - type: input
+    id: printer
+    attributes:
+      label: Printer / content type
+      placeholder: ZPL, fiscal, PDF, ESC/POS...
