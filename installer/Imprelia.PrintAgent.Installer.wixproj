@@ -1,0 +1,18 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>ImpreliaPrintAgent-Setup</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <PublishDir>$(MSBuildThisFileDirectory)..\artifacts\publish\win-x64</PublishDir>
+    <DefineConstants>ProductVersion=$(ProductVersion);PublishDir=$(PublishDir)</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="PublishApplication" BeforeTargets="CoreCompile">
+    <MSBuild
+      Projects="$(MSBuildThisFileDirectory)..\Imprelia.PrintAgent.csproj"
+      Targets="Publish"
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;RestoreRuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=false;PublishDir=$(PublishDir)" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\scripts\Generate-WixFiles.ps1&quot; -SourceDir &quot;$(PublishDir)\.&quot; -OutputPath &quot;$(MSBuildThisFileDirectory)GeneratedFiles.wxs&quot;" />
+  </Target>
+</Project>

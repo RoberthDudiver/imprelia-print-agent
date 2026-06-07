@@ -1,23 +1,54 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.5.11716.220 stable
+VisualStudioVersion = 18.5.11716.220
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imprelia.PrintAgent", "Imprelia.PrintAgent.csproj", "{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installer", "installer", "{1860D2E4-5C43-71D5-59A5-599A4DE1DF67}"
+EndProject
+Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "Imprelia.PrintAgent.Installer", "installer\Imprelia.PrintAgent.Installer.wixproj", "{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|x64.Build.0 = Debug|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Debug|x86.Build.0 = Debug|Any CPU
 		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|x64.ActiveCfg = Release|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|x64.Build.0 = Release|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|x86.ActiveCfg = Release|Any CPU
+		{87F91BB2-F2BC-3BCA-C187-D49D13EE6E3B}.Release|x86.Build.0 = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|x64.Build.0 = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Debug|x86.Build.0 = Debug|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|x64.ActiveCfg = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|x64.Build.0 = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|x86.ActiveCfg = Release|Any CPU
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C11D6A01-FD79-4C3C-8EA3-8E652E8A5C01} = {1860D2E4-5C43-71D5-59A5-599A4DE1DF67}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8A43A83-D142-49CF-ADC2-FD3E6F76E70B}
