@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a reproducible issue.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include endpoint payloads, printer type, and exact behavior.
+      placeholder: |
+        1. Start the agent
+        2. Call POST /api/print
+        3. Observe...
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 23H2
+  - type: input
+    id: printer
+    attributes:
+      label: Printer model / driver
+      placeholder: EPSON TM-T20III
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error response
+      render: text
