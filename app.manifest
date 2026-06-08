@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
-  <assemblyIdentity version="1.0.0.0" name="GastroManager.PrintAgent"/>
+  <assemblyIdentity version="1.0.0.0" name="Imprelia.PrintAgent"/>
   <!-- asInvoker: no requiere permisos de admin. El agente solo escucha en
        localhost y manda a la cola de impresión del usuario actual. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">

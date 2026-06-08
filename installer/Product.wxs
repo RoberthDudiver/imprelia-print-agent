@@ -16,7 +16,9 @@
 
     <Icon Id="AppIcon.ico" SourceFile="$(var.PublishDir)\images\icono.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
-    <Property Id="ARPURLINFOABOUT" Value="https://dudiver.net" />
+    <Property Id="ARPURLINFOABOUT" Value="https://www.dudiver.net" />
+    <Property Id="ARPCONTACT" Value="Roberth Dudiver" />
+    <Property Id="ARPCOMMENTS" Value="© 2026 Roberth Dudiver — www.dudiver.net" />
     <Property Id="ARPHELPLINK" Value="https://github.com/RoberthDudiver/imprelia-print-agent/issues" />
 
     <Feature Id="MainFeature" Title="Imprelia Print Agent" Level="1">
@@ -41,7 +43,7 @@
         Id="StartMenuShortcut"
         Name="Imprelia Print Agent"
         Description="Local print agent for Windows printers"
-        Target="[INSTALLFOLDER]GastroPrintAgent.exe"
+        Target="[INSTALLFOLDER]ImpreliaPrintAgent.exe"
         WorkingDirectory="INSTALLFOLDER"
         Icon="AppIcon.ico" />
 
@@ -50,7 +52,7 @@
         Directory="DesktopFolder"
         Name="Imprelia Print Agent"
         Description="Local print agent for Windows printers"
-        Target="[INSTALLFOLDER]GastroPrintAgent.exe"
+        Target="[INSTALLFOLDER]ImpreliaPrintAgent.exe"
         WorkingDirectory="INSTALLFOLDER"
         Icon="AppIcon.ico" />
 

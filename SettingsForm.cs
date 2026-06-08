@@ -119,7 +119,7 @@ public partial class SettingsForm : Form
         var contentType = testTypeCombo.SelectedItem?.ToString() ?? "epos";
         string? err;
         if (contentType is "epos" or "raw")
-            err = RawPrinter.SendBytes(printer, EscPosTest.Build(printer, "Ready"), "Prueba GastroManager");
+            err = RawPrinter.SendBytes(printer, EscPosTest.Build(printer, "Ready"), "Prueba Imprelia");
         else if (contentType == "zpl")
             err = RawPrinter.SendBytes(printer, System.Text.Encoding.ASCII.GetBytes(BuildZplTest(printer)), "Prueba ZPL");
         else if (contentType == "text")
@@ -212,11 +212,11 @@ public partial class SettingsForm : Form
         {
             using var doc = new System.Drawing.Printing.PrintDocument();
             doc.PrinterSettings.PrinterName = printer;
-            doc.DocumentName = "Prueba GastroManager";
+            doc.DocumentName = "Prueba Imprelia";
             doc.PrintPage += (_, e) =>
             {
                 using var font = new Font("Segoe UI", 12f);
-                e.Graphics?.DrawString($"GastroManager Print Agent\r\nPrueba de impresion\r\nImpresora: {printer}\r\nFecha: {DateTime.Now:g}",
+                e.Graphics?.DrawString($"Imprelia Print Agent\r\nPrueba de impresion\r\nImpresora: {printer}\r\nFecha: {DateTime.Now:g}",
                     font, Brushes.Black, e.MarginBounds);
             };
             doc.Print();
@@ -245,7 +245,7 @@ public partial class SettingsForm : Form
     }
 
     private static string BuildZplTest(string printer) =>
-        $"^XA^CF0,32^FO40,40^FDGastroManager^FS^CF0,24^FO40,90^FDPrueba de impresion^FS^FO40,130^FD{printer.Replace("^", " ")}^FS^FO40,170^FD{DateTime.Now:g}^FS^XZ";
+        $"^XA^CF0,32^FO40,40^FDImprelia^FS^CF0,24^FO40,90^FDPrueba de impresion^FS^FO40,130^FD{printer.Replace("^", " ")}^FS^FO40,170^FD{DateTime.Now:g}^FS^XZ";
 
     private void refreshDashboardButton_Click(object sender, EventArgs e) => RefreshState();
     private void dashboardTestButton_Click(object sender, EventArgs e) => PrintTest();
@@ -298,7 +298,7 @@ public static class EscPosTest
         sb.AddRange(new byte[] { 0x1B, 0x40 });
         sb.AddRange(new byte[] { 0x1B, 0x61, 0x01 });
         sb.AddRange(new byte[] { 0x1D, 0x21, 0x11 });
-        sb.AddRange(enc.GetBytes("GastroManager\n"));
+        sb.AddRange(enc.GetBytes("Imprelia\n"));
         sb.AddRange(new byte[] { 0x1D, 0x21, 0x00 });
         sb.AddRange(enc.GetBytes("Prueba de impresion\n"));
         if (!string.IsNullOrWhiteSpace(printerName))

@@ -4,7 +4,7 @@ namespace Imprelia.PrintAgent;
 
 /// <summary>
 /// Configuración persistente del agente, guardada en
-/// %APPDATA%\GastroPrintAgent\config.json. Sobrevive reinicios.
+/// %APPDATA%\ImpreliaPrintAgent\config.json. Sobrevive reinicios.
 /// </summary>
 public class AppConfig
 {
@@ -28,7 +28,7 @@ public class AppConfig
     public Dictionary<string, string> PrinterTypes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     private static string ConfigDir =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GastroPrintAgent");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ImpreliaPrintAgent");
 
     private static string ConfigPath => Path.Combine(ConfigDir, "config.json");
 

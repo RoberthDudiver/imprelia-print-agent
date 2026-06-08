@@ -14,11 +14,18 @@
     <Compile Include="GeneratedFiles.wxs" />
   </ItemGroup>
 
+  <!--
+    PublishApplication: publica la app y regenera el manifest de archivos WiX.
+    Si ya existe contenido en PublishDir (ej: el workflow ya publicó explícitamente),
+    el MSBuild detecta que los outputs están al día y omite el publish.
+    La generación del WiX manifest siempre corre para garantizar consistencia.
+  -->
   <Target Name="PublishApplication" BeforeTargets="CoreCompile">
     <MSBuild
       Projects="$(MSBuildThisFileDirectory)..\Imprelia.PrintAgent.csproj"
       Targets="Publish"
-      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;RestoreRuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=false;PublishDir=$(PublishDir)" />
+      Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=false;PublishDir=$(PublishDir)"
+      Condition="!Exists('$(PublishDir)\ImpreliaPrintAgent.exe')" />
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\scripts\Generate-WixFiles.ps1&quot; -SourceDir &quot;$(PublishDir)\.&quot; -OutputPath &quot;$(MSBuildThisFileDirectory)GeneratedFiles.wxs&quot;" />
   </Target>
 </Project>
