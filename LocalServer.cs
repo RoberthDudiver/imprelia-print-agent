@@ -111,7 +111,7 @@ public class LocalServer
                 WriteJson(res, 200, new
                 {
                     ok = true,
-                    app = "GastroPrintAgent",
+                    app = "ImpreliaPrintAgent",
                     version = Version,
                     defaultPrinter = _getDefaultPrinter(),
                 });
@@ -329,7 +329,7 @@ public class LocalServer
         else if (contentType == "zpl")
             printRequest.Content = ZplTest(printer);
         else if (contentType == "text")
-            printRequest.Content = $"GastroManager Print Agent\r\nPrueba de impresion\r\nImpresora: {printer}\r\nFecha: {DateTime.Now:g}";
+            printRequest.Content = $"Imprelia Print Agent\r\nPprueba de impresion\r\nImpresora: {printer}\r\nFecha: {DateTime.Now:g}";
         else if (contentType == "fiscal")
             return new PrintResponse { Success = false, ErrorCode = "FISCAL_NOT_CONFIGURED", Message = "La prueba fiscal requiere configuración del controlador fiscal." };
         else if (contentType == "pdf")

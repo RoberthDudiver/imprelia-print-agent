@@ -12,7 +12,7 @@ static class Program
     [STAThread]
     static void Main()
     {
-        using var mutex = new Mutex(true, "GastroPrintAgent_SingleInstance", out bool isNew);
+        using var mutex = new Mutex(true, "ImpreliaPrintAgent_SingleInstance", out bool isNew);
         if (!isNew)
         {
             MessageBox.Show("El agente de impresión ya está corriendo (mirá la bandeja del sistema, al lado del reloj).",
@@ -52,11 +52,15 @@ public class TrayApp : ApplicationContext
         _tray.DoubleClick += (_, _) => ShowSettings();
         _tray.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) ShowSettings(); };
 
-        // Menú mínimo en clic derecho: Abrir / Salir.
+        // Menú en clic derecho: Abrir / Acerca de / Salir.
         var menu = new ContextMenuStrip();
         var openItem = new ToolStripMenuItem("Abrir configuración");
         openItem.Click += (_, _) => ShowSettings();
         menu.Items.Add(openItem);
+        menu.Items.Add(new ToolStripSeparator());
+        var aboutItem = new ToolStripMenuItem("Acerca de Imprelia Print Agent");
+        aboutItem.Click += (_, _) => ShowAbout();
+        menu.Items.Add(aboutItem);
         menu.Items.Add(new ToolStripSeparator());
         var exitItem = new ToolStripMenuItem("Salir");
         exitItem.Click += (_, _) => ExitApp();
@@ -106,6 +110,22 @@ public class TrayApp : ApplicationContext
         _tray.Text = txt.Length > 63 ? txt.Substring(0, 63) : txt;
     }
 
+    private static void ShowAbout()
+    {
+        var version = System.Reflection.Assembly.GetExecutingAssembly()
+            .GetName().Version?.ToString(3) ?? "1.0.0";
+        MessageBox.Show(
+            $"Imprelia Print Agent  v{version}\n\n" +
+            "Agente local de impresión para aplicaciones web.\n" +
+            "Escucha en localhost y envía trabajos a impresoras Windows.\n\n" +
+            "Autor:   Roberth Dudiver\n" +
+            "Web:     www.dudiver.net\n" +
+            "© 2026 Dudiver — Todos los derechos reservados.",
+            "Acerca de Imprelia Print Agent",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+    }
+
     private void ExitApp()
     {
         _server.Stop();
@@ -120,7 +140,7 @@ public class TrayApp : ApplicationContext
 public static class StartupRegistry
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "GastroPrintAgent";
+    private const string ValueName = "ImpreliaPrintAgent";
 
     public static bool IsEnabled()
     {

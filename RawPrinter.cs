@@ -62,7 +62,7 @@ public static class RawPrinter
 
             var di = new DOCINFO
             {
-                pDocName = string.IsNullOrWhiteSpace(jobName) ? "GastroManager Print Job" : jobName,
+                pDocName = string.IsNullOrWhiteSpace(jobName) ? "Imprelia Print Job" : jobName,
                 pOutputFile = null,
                 pDataType = "RAW",
             };
