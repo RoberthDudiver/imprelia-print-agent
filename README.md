@@ -18,10 +18,57 @@
 <p align="center">
   <a href="#english">English</a> ·
   <a href="#español">Español</a> ·
+  <a href="#screenshots--capturas">Screenshots</a> ·
   <a href="docs/API.md">API</a> ·
   <a href="docs/INSTALLATION.md">Installation</a> ·
   <a href="docs/STORE_SUBMISSION.md">Store</a> ·
   <a href="LICENSE.md">License</a>
+</p>
+
+---
+
+## Screenshots · Capturas
+
+A modern WPF interface with a dark theme. Five sections: Dashboard, Printers, Routes, Settings, and Logs.
+
+### Dashboard
+
+Agent status at a glance: HTTP port, version, local URL, uptime, detected printers, configured routes, and recent events.
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard" width="820" />
+</p>
+
+### Impresoras · Printers
+
+Detected Windows printers with status, type, capabilities (PDF / RAW / ZPL), and the default selector. Print a test page from the detail panel.
+
+<p align="center">
+  <img src="docs/screenshots/printers.png" alt="Printers" width="820" />
+</p>
+
+### Rutas · Routes
+
+Map a purpose (`ticket`, `kitchen_order`, `report`, `label`, `fiscal`) to a printer and content type. Web apps print by purpose without knowing the physical printer.
+
+<p align="center">
+  <img src="docs/screenshots/routes.png" alt="Routes" width="820" />
+</p>
+
+### Configuración · Settings
+
+Network and security preferences: HTTP port, CORS and allowed origins, and Windows startup behavior.
+
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="Settings" width="820" />
+</p>
+
+### Logs
+
+Real-time agent activity for diagnostics: filter by level (Info / Warning / Error), search, auto-refresh, and a daily summary.
+
+<p align="center">
+  <img src="docs/screenshots/logs.png" alt="Logs" width="820" />
 </p>
 
 ---
@@ -43,7 +90,7 @@ Created by **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Print by explicit printer name or by configured purpose.
 - Supports `epos`, `raw`, `text`, `pdf`, `zpl`, and `fiscal` contracts.
 - Configurable port, CORS origins, routes, default printer, and optional API key.
-- UI is editable in Visual Studio WinForms Designer.
+- Modern WPF + MVVM interface with a dark theme.
 
 ### Quick Start
 
@@ -118,7 +165,7 @@ Creado por **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Impresión por impresora explícita o por propósito configurado.
 - Contratos para `epos`, `raw`, `text`, `pdf`, `zpl` y `fiscal`.
 - Puerto, CORS, orígenes, rutas, impresora default y API key opcional configurables.
-- UI editable con el diseñador WinForms de Visual Studio.
+- Interfaz moderna en WPF + MVVM con tema oscuro.
 
 ### Inicio rápido
 
