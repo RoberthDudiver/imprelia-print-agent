@@ -16,7 +16,7 @@
     <Copyright>© 2026 Roberth Dudiver — dudiver.net</Copyright>
     <Description>Local print agent with HTTP API for Windows printers (ESC/POS, RAW, ZPL, PDF).</Description>
     <PackageProjectUrl>https://www.dudiver.net</PackageProjectUrl>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <!-- Para publicar como un solo .exe portable, ver README del agente. -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
