@@ -9,7 +9,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="20"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header -->
@@ -18,303 +18,317 @@
                 <TextBlock Text="Estado general del agente de impresión." Style="{StaticResource T.PageSub}"/>
             </StackPanel>
 
-            <!-- Main grid -->
+            <!-- Main grid: 2 columns, cada una con StackPanel -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="320"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="16"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="16"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
 
-                <!-- ── Card: Estado del agente ── -->
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="16"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="20"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                <!-- COLUMNA IZQUIERDA -->
+                <StackPanel Grid.Column="0">
 
-                        <DockPanel Grid.Row="0">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <TextBlock Text="⚡" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="Estado del agente" Style="{StaticResource T.CardTitle}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                            <Border DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                    Style="{StaticResource Badge.Green}" CornerRadius="12" Padding="10,4">
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="7" Height="7" Fill="#22C55E"
-                                             VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="{Binding Status}" FontSize="12"
-                                               Foreground="#22C55E" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Border>
-                        </DockPanel>
-
-                        <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,24,0,0"
-                                   Text="El agente está funcionando correctamente."
-                                   Foreground="#64748B" FontSize="13"/>
-
-                        <!-- Info grid -->
-                        <Grid Grid.Row="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                    <!-- ── Card: Estado del agente ── -->
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="16"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="20"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Puerto -->
-                            <Border Grid.Row="0" Grid.Column="0" Background="#0F172A" CornerRadius="8" Padding="14,10">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                        <TextBlock Text="🌐 " FontSize="12" Foreground="#64748B"/>
-                                        <TextBlock Text="Puerto HTTP" FontSize="12" Foreground="#64748B"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding Port}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
+                            <DockPanel Grid.Row="0">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <TextBlock Text="⚡" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Estado del agente" Style="{StaticResource T.CardTitle}" VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </Border>
+                                <Ellipse DockPanel.Dock="Right" Width="12" Height="12"
+                                         VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="#22C55E"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRunning}" Value="False">
+                                                    <Setter Property="Fill" Value="#EF4444"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                            </DockPanel>
 
-                            <!-- Versión -->
-                            <Border Grid.Row="0" Grid.Column="2" Background="#0F172A" CornerRadius="8" Padding="14,10">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                        <TextBlock Text="&lt;/&gt; " FontSize="12" Foreground="#64748B" FontFamily="Consolas"/>
-                                        <TextBlock Text="Versión" FontSize="12" Foreground="#64748B"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,40,0,8"
+                                   Text="El agente está funcionando correctamente."
+                                   Foreground="#64748B" FontSize="13" Grid.RowSpan="2"/>
+
+                            <!-- Info grid -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="12"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Puerto -->
+                                <Border Grid.Row="0" Grid.Column="0" Background="#0F172A" CornerRadius="8" Padding="14,10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <TextBlock Text="🌐 " FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="Puerto HTTP" FontSize="12" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Port}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Version}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
-                                </StackPanel>
-                            </Border>
+                                </Border>
 
-                            <!-- URL -->
-                            <Border Grid.Row="2" Grid.Column="0" Background="#0F172A" CornerRadius="8" Padding="14,10">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                        <TextBlock Text="🔗 " FontSize="12" Foreground="#64748B"/>
-                                        <TextBlock Text="URL local" FontSize="12" Foreground="#64748B"/>
+                                <!-- Versión -->
+                                <Border Grid.Row="0" Grid.Column="2" Background="#0F172A" CornerRadius="8" Padding="14,10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <TextBlock Text="&lt;/&gt; " FontSize="12" Foreground="#64748B" FontFamily="Consolas"/>
+                                            <TextBlock Text="Versión" FontSize="12" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Version}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding LocalUrl}" FontSize="14" Foreground="#60A5FA" FontFamily="Consolas"/>
-                                </StackPanel>
-                            </Border>
+                                </Border>
 
-                            <!-- Estado -->
-                            <Border Grid.Row="2" Grid.Column="2" Background="#0F172A" CornerRadius="8" Padding="14,10">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                        <TextBlock Text="🛡 " FontSize="12" Foreground="#64748B"/>
-                                        <TextBlock Text="Estado" FontSize="12" Foreground="#64748B"/>
+                                <!-- URL -->
+                                <Border Grid.Row="2" Grid.Column="0" Background="#0F172A" CornerRadius="8" Padding="14,10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <TextBlock Text="🔗 " FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="URL local" FontSize="12" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding LocalUrl}" FontSize="14" Foreground="#60A5FA" FontFamily="Consolas"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding TechnicalStatus}" FontSize="14" Foreground="#22C55E"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
+                                </Border>
 
-                        <!-- Quick actions -->
-                        <StackPanel Grid.Row="4">
-                            <TextBlock Text="⚡ Acciones rápidas" FontSize="12" Foreground="#64748B" Margin="0,0,0,10"/>
-                            <WrapPanel>
-                                <Button Content="🔗 Copiar URL" Command="{Binding CopyUrlCommand}"
+                                <!-- Estado -->
+                                <Border Grid.Row="2" Grid.Column="2" Background="#0F172A" CornerRadius="8" Padding="14,10">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                            <TextBlock Text="🛡 " FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="Estado" FontSize="12" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding TechnicalStatus}" FontSize="14" Foreground="#22C55E"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Quick actions -->
+                            <StackPanel Grid.Row="4">
+                                <TextBlock Text="⚡ Acciones rápidas" FontSize="12" Foreground="#64748B" Margin="0,0,0,10"/>
+                                <WrapPanel>
+                                    <Button Content="🔗 Copiar URL" Command="{Binding CopyUrlCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                <Button Content="&lt;/&gt; Copiar endpoint" Command="{Binding CopyEndpointCommand}"
+                                    <Button Content="&lt;/&gt; Copiar endpoint" Command="{Binding CopyEndpointCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                <Button Content="🖨 Imprimir prueba" Command="{Binding PrintTestCommand}"
+                                    <Button Content="🖨 Imprimir prueba" Command="{Binding PrintTestCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                <Button Content="📖 Guía API" Command="{Binding OpenApiGuideCommand}"
+                                    <Button Content="📖 Guía API" Command="{Binding OpenApiGuideCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,0,8" Height="32"/>
-                            </WrapPanel>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                <!-- ── Card: Impresoras ── -->
-                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,12">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <TextBlock Text="🖨 " FontSize="14"/>
-                                <TextBlock Style="{StaticResource T.CardTitle}">
+                    <Border Height="16"/>
+
+                    <!-- ── Card: Impresoras ── -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <TextBlock Text="🖨 " FontSize="14"/>
+                                    <TextBlock Style="{StaticResource T.CardTitle}">
                                     Impresoras detectadas
                                     <Run Text="{Binding PrinterCount, StringFormat='  {0}', Mode=OneWay}"
                                          Foreground="#2563EB" FontWeight="Bold"/>
-                                </TextBlock>
-                            </StackPanel>
-                            <Button Content="Ver todas →" DockPanel.Dock="Right"
+                                    </TextBlock>
+                                </StackPanel>
+                                <Button Content="Ver todas →" DockPanel.Dock="Right"
                                     Command="{Binding NavPrintersCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
-                        </DockPanel>
-                        <ItemsControl ItemsSource="{Binding DetectedPrinters}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Padding="0,7" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
-                                        <DockPanel>
-                                            <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding DetectedPrinters}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="0,7" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
+                                            <DockPanel>
+                                                <Ellipse Width="7" Height="7" VerticalAlignment="Center"
                                                      Margin="0,0,8,0">
-                                                <Ellipse.Style>
-                                                    <Style TargetType="Ellipse">
-                                                        <Setter Property="Fill" Value="#22C55E"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                                <Setter Property="Fill" Value="#64748B"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Ellipse.Style>
-                                            </Ellipse>
-                                            <TextBlock Text="{Binding Name}" FontSize="13"
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="#22C55E"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsOnline}" Value="False">
+                                                                    <Setter Property="Fill" Value="#64748B"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding Name}" FontSize="13"
                                                        Foreground="#E2E8F0" VerticalAlignment="Center"/>
-                                            <Border DockPanel.Dock="Right" Background="#1E293B"
+                                                <Border DockPanel.Dock="Right" Background="#1E293B"
                                                     CornerRadius="4" Padding="6,2" Margin="8,0,0,0">
-                                                <TextBlock Text="{Binding Type}" FontSize="10"
+                                                    <TextBlock Text="{Binding Type}" FontSize="10"
                                                            Foreground="#94A3B8"/>
-                                            </Border>
-                                        </DockPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
+                                                </Border>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
 
-                <!-- ── Card: Rutas ── -->
-                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,12">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <TextBlock Text="⇄ " FontSize="14"/>
-                                <TextBlock Style="{StaticResource T.CardTitle}">
+                    <Border Height="16"/>
+
+                    <!-- ── Card: Rutas ── -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <TextBlock Text="⇄ " FontSize="14"/>
+                                    <TextBlock Style="{StaticResource T.CardTitle}">
                                     Rutas configuradas
                                     <Run Text="{Binding RouteCount, StringFormat='  {0}', Mode=OneWay}"
                                          Foreground="#2563EB" FontWeight="Bold"/>
-                                </TextBlock>
-                            </StackPanel>
-                            <Button Content="Ver todas →" DockPanel.Dock="Right"
+                                    </TextBlock>
+                                </StackPanel>
+                                <Button Content="Ver todas →" DockPanel.Dock="Right"
                                     Command="{Binding NavRoutesCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
-                        </DockPanel>
-                        <ItemsControl ItemsSource="{Binding ConfiguredRoutes}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Padding="0,7" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
-                                        <DockPanel>
-                                            <TextBlock Text="{Binding Purpose}" FontSize="13"
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding ConfiguredRoutes}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="0,7" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
+                                            <DockPanel>
+                                                <TextBlock Text="{Binding Purpose}" FontSize="13"
                                                        Foreground="#E2E8F0" FontWeight="SemiBold" Width="120"/>
-                                            <TextBlock FontSize="12" Foreground="#64748B" Margin="4,0">→</TextBlock>
-                                            <TextBlock Text="{Binding PrinterName, TargetNullValue='(sin impresora)'}"
+                                                <TextBlock FontSize="12" Foreground="#64748B" Margin="4,0">→</TextBlock>
+                                                <TextBlock Text="{Binding PrinterName, TargetNullValue='(sin impresora)'}"
                                                        FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                                            <Border DockPanel.Dock="Right" Background="#1E293B"
+                                                <Border DockPanel.Dock="Right" Background="#1E293B"
                                                     CornerRadius="4" Padding="6,2">
-                                                <TextBlock Text="{Binding ContentType}" FontSize="10"
+                                                    <TextBlock Text="{Binding ContentType}" FontSize="10"
                                                            Foreground="#60A5FA" FontFamily="Consolas"/>
-                                            </Border>
-                                        </DockPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
+                                                </Border>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
 
-                <!-- RIGHT COLUMN -->
-                <!-- ── Card: Últimos eventos ── -->
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,14">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <TextBlock Text="☰ " FontSize="14"/>
-                                <TextBlock Text="Últimos eventos" Style="{StaticResource T.CardTitle}"/>
-                            </StackPanel>
-                            <Button Content="Ver logs →" DockPanel.Dock="Right"
+                </StackPanel>
+                <!-- /COLUMNA IZQUIERDA -->
+
+                <!-- COLUMNA DERECHA -->
+                <StackPanel Grid.Column="2">
+
+                    <!-- ── Card: Últimos eventos ── -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,14">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <TextBlock Text="☰ " FontSize="14"/>
+                                    <TextBlock Text="Últimos eventos" Style="{StaticResource T.CardTitle}"/>
+                                </StackPanel>
+                                <Button Content="Ver logs →" DockPanel.Dock="Right"
                                     Command="{Binding NavLogsCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
-                        </DockPanel>
-                        <ItemsControl ItemsSource="{Binding RecentLogs}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                        <Ellipse Width="7" Height="7" Fill="#22C55E"
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding RecentLogs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Ellipse Width="7" Height="7" Fill="#22C55E"
                                                  VerticalAlignment="Top" Margin="0,4,8,0"/>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding TimeFormatted}" FontSize="10"
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding TimeFormatted}" FontSize="10"
                                                        Foreground="#64748B" Margin="0,0,0,2"/>
-                                            <TextBlock Text="{Binding Message}" FontSize="12"
+                                                <TextBlock Text="{Binding Message}" FontSize="12"
                                                        Foreground="#94A3B8" TextWrapping="Wrap"/>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <!-- ── Card: Resumen rápido ── -->
-                <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="2" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <TextBlock Text="📊 " FontSize="14"/>
-                            <TextBlock Text="Resumen rápido" Style="{StaticResource T.CardTitle}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
+                    </Border>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <Border Height="16"/>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Estado del agente"
+                    <!-- ── Card: Resumen rápido ── -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <TextBlock Text="📊 " FontSize="14"/>
+                                <TextBlock Text="Resumen rápido" Style="{StaticResource T.CardTitle}"/>
+                            </StackPanel>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Estado del agente"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
-                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Badge.Green}"
+                                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Badge.Green}"
                                     CornerRadius="4" Padding="8,3">
-                                <TextBlock Text="Activo" FontSize="11" Foreground="#22C55E" FontWeight="SemiBold"/>
-                            </Border>
+                                    <TextBlock Text="Activo" FontSize="11" Foreground="#22C55E" FontWeight="SemiBold"/>
+                                </Border>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Puerto HTTP"
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Puerto HTTP"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Port}"
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Port}"
                                        Foreground="#E2E8F0" FontSize="12"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Versión"
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Versión"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Version}"
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Version}"
                                        Foreground="#E2E8F0" FontSize="12"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Uptime"
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Uptime"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Uptime}"
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Uptime}"
                                        Foreground="#E2E8F0" FontSize="12" FontFamily="Consolas"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="URL local"
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="URL local"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LocalUrl}"
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LocalUrl}"
                                        Foreground="#60A5FA" FontSize="11" FontFamily="Consolas"/>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Impresoras"
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Impresoras"
                                        Foreground="#64748B" FontSize="12"/>
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding PrinterCount}"
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding PrinterCount}"
                                        Foreground="#E2E8F0" FontSize="12"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+                <!-- /COLUMNA DERECHA -->
+
             </Grid>
         </Grid>
     </ScrollViewer>

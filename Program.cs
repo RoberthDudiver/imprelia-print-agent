@@ -23,6 +23,21 @@ static class Program
         }
 
         ApplicationConfiguration.Initialize();
+
+        // Registra la infraestructura WPF y carga los estilos globales en Application.Resources
+        // para que los UserControls instanciados desde DataTemplates puedan resolverlos
+        // con StaticResource (los recursos de Window.Resources no son visibles desde UserControls
+        // en tiempo de parse de BAML).
+        if (System.Windows.Application.Current == null)
+        {
+            var wpfApp = new System.Windows.Application { ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown };
+            var styles = new System.Windows.ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Styles/MainStyles.xaml")
+            };
+            wpfApp.Resources.MergedDictionaries.Add(styles);
+        }
+
         Application.Run(new TrayApp());
     }
 }

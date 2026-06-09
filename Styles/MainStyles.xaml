@@ -97,7 +97,7 @@
         <Setter Property="BorderBrush" Value="{StaticResource Bg.CardBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="10"/>
-        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Padding" Value="20,14"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════

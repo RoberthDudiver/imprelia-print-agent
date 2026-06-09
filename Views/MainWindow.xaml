@@ -12,28 +12,22 @@
         Foreground="#E2E8F0">
 
     <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Styles/MainStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-
-            <!-- DataTemplate: ViewModel → View mapping -->
-            <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-                <views:DashboardView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:PrintersViewModel}">
-                <views:PrintersView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:RoutesViewModel}">
-                <views:RoutesView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
-                <views:SettingsView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:LogsViewModel}">
-                <views:LogsView/>
-            </DataTemplate>
-        </ResourceDictionary>
+        <!-- DataTemplate: ViewModel → View mapping -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PrintersViewModel}">
+            <views:PrintersView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:RoutesViewModel}">
+            <views:RoutesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:LogsViewModel}">
+            <views:LogsView/>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>

@@ -56,6 +56,23 @@ public sealed class PrintersViewModel : ViewModelBase
     public void Refresh()
     {
         var printers = _discovery.ListPrinters();
+
+        // Si el config no tiene impresora guardada, adoptar la predeterminada de Windows.
+        if (string.IsNullOrWhiteSpace(_config.DefaultPrinter))
+        {
+            var winDefault = printers.FirstOrDefault(p => p.IsDefault);
+            if (winDefault != null)
+            {
+                _config.DefaultPrinter = winDefault.Name;
+                _config.Save();
+                _log.Info($"Impresora predeterminada adoptada automáticamente: {winDefault.Name}", "Impresoras");
+            }
+        }
+
+        // IsDefault en PrinterInfo refleja la impresora configurada en Imprelia (no la de Windows).
+        foreach (var p in printers)
+            p.IsDefault = string.Equals(p.Name, _config.DefaultPrinter, StringComparison.OrdinalIgnoreCase);
+
         Printers.Clear();
         foreach (var p in printers) Printers.Add(p);
         ApplyFilter();
