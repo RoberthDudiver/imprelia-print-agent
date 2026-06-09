@@ -131,7 +131,7 @@ public class TrayApp : ApplicationContext
     private static void ShowAbout()
     {
         var version = System.Reflection.Assembly.GetExecutingAssembly()
-            .GetName().Version?.ToString(3) ?? "1.1.0";
+            .GetName().Version?.ToString(3) ?? "1.1.1";
         MessageBox.Show(
             $"Imprelia Print Agent  v{version}\n\n" +
             "Agente local de impresión para aplicaciones web.\n" +
