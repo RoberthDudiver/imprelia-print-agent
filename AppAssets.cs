@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace Imprelia.PrintAgent;
 
 public static class AppAssets

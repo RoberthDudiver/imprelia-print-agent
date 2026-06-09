@@ -1,12 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <!-- net8.0-windows habilita WinForms (NotifyIcon de la bandeja del sistema) -->
+    <!-- net8.0-windows habilita WinForms (NotifyIcon de la bandeja del sistema) + WPF -->
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>ImpreliaPrintAgent</AssemblyName>
     <Product>Imprelia Print Agent</Product>
@@ -24,15 +25,6 @@
 
   <ItemGroup>
     <Content Include="images\*.*" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Update="SettingsForm.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Drawing.Printing;
+using System.IO;
 using System.Text;
 
 namespace Imprelia.PrintAgent;
