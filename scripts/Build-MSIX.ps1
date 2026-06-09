@@ -129,7 +129,7 @@ $manifest = @"
   <Applications>
     <Application
       Id="ImpreliaPrintAgent"
-      Executable="GastroPrintAgent.exe"
+      Executable="ImpreliaPrintAgent.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="$DisplayName"
