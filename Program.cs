@@ -1,11 +1,13 @@
 using System.Diagnostics;
+using System.Windows.Threading;
+using Imprelia.PrintAgent.Views;
 
 namespace Imprelia.PrintAgent;
 
 /// <summary>
 /// Agente de impresión de GastroManager. Corre en la bandeja del sistema
 /// (al lado del reloj) y escucha en localhost. Doble-click en el ícono abre
-/// la ventana de configuración.
+/// la ventana de configuración WPF.
 /// </summary>
 static class Program
 {
@@ -27,18 +29,20 @@ static class Program
 
 /// <summary>
 /// Contexto de la app: administra el ícono de la bandeja, el servidor local y
-/// la ventana de configuración (que se crea perezosamente y se reutiliza).
+/// la ventana de configuración WPF (que se crea perezosamente y se reutiliza).
 /// </summary>
 public class TrayApp : ApplicationContext
 {
     private readonly NotifyIcon _tray;
     private readonly AppConfig _config;
     private readonly LocalServer _server;
-    private SettingsForm? _settings;
+    private readonly AgentLogService _log;
+    private MainWindow? _mainWindow;
 
     public TrayApp()
     {
         _config = AppConfig.Load();
+        _log = new AgentLogService(Dispatcher.CurrentDispatcher);
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
 
         _tray = new NotifyIcon
@@ -48,11 +52,9 @@ public class TrayApp : ApplicationContext
             Text = "Imprelia - Agente de impresion",
         };
 
-        // Doble-click (o click izquierdo) abre la ventana de configuración.
         _tray.DoubleClick += (_, _) => ShowSettings();
         _tray.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) ShowSettings(); };
 
-        // Menú en clic derecho: Abrir / Acerca de / Salir.
         var menu = new ContextMenuStrip();
         var openItem = new ToolStripMenuItem("Abrir configuración");
         openItem.Click += (_, _) => ShowSettings();
@@ -71,17 +73,19 @@ public class TrayApp : ApplicationContext
         {
             _server.Start();
             UpdateTrayText();
+            _log.Info("Agente iniciado correctamente.");
+            _log.Info($"Escuchando en puerto {_config.Port}.");
+
             _tray.ShowBalloonTip(3500, "Imprelia Print Agent",
                 "Agente de impresion activo. Hace doble click aca para configurarlo.",
                 ToolTipIcon.None);
 
-            // Si todavía no eligió impresora, abrir la ventana directamente para
-            // que no quede "perdido" sin saber qué hacer.
             if (string.IsNullOrWhiteSpace(_config.DefaultPrinter))
                 ShowSettings();
         }
         catch (Exception ex)
         {
+            _log.Error($"No se pudo iniciar el servidor: {ex.Message}");
             MessageBox.Show($"No se pudo iniciar el servidor local en el puerto {_config.Port}.\n\n{ex.Message}\n\n" +
                 "Puede que otro programa esté usando ese puerto.",
                 "Imprelia Print Agent", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -90,24 +94,23 @@ public class TrayApp : ApplicationContext
 
     private void ShowSettings()
     {
-        if (_settings == null || _settings.IsDisposed)
+        if (_mainWindow == null)
         {
-            _settings = new SettingsForm(_config, _config.Port);
-            _settings.ExitRequested += (_, _) => ExitApp();
-            _settings.FormClosed += (_, _) => UpdateTrayText();
+            _mainWindow = new MainWindow(_config, _config.Port, _log);
+            _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
-        _settings.RefreshState();
-        _settings.Show();
-        _settings.WindowState = FormWindowState.Normal;
-        _settings.Activate();
-        _settings.BringToFront();
+
+        _mainWindow.Show();
+        _mainWindow.WindowState = System.Windows.WindowState.Normal;
+        _mainWindow.Activate();
+        UpdateTrayText();
     }
 
     private void UpdateTrayText()
     {
         var pr = _config.DefaultPrinter ?? "sin elegir impresora";
         var txt = $"Imprelia - {pr}";
-        _tray.Text = txt.Length > 63 ? txt.Substring(0, 63) : txt;
+        _tray.Text = txt.Length > 63 ? txt[..63] : txt;
     }
 
     private static void ShowAbout()
@@ -131,7 +134,7 @@ public class TrayApp : ApplicationContext
         _server.Stop();
         _tray.Visible = false;
         _tray.Dispose();
-        _settings?.Dispose();
+        _mainWindow?.Close();
         Application.Exit();
     }
 }
@@ -168,6 +171,6 @@ public static class StartupRegistry
                 key.DeleteValue(ValueName, false);
             }
         }
-        catch { /* ignore */ }
+        catch { }
     }
 }

@@ -1,0 +1,340 @@
+<UserControl x:Class="Imprelia.PrintAgent.Views.RoutesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#0B1426">
+
+    <Grid Margin="28,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="290"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+            <TextBlock Text="Rutas por propósito" Style="{StaticResource T.PageTitle}"/>
+            <TextBlock Text="Cada propósito envía el contenido a una impresora específica y en el formato adecuado."
+                       Style="{StaticResource T.PageSub}"/>
+        </StackPanel>
+
+        <!-- Toolbar -->
+        <DockPanel Grid.Row="2" Grid.Column="0">
+            <Button Content="＋ Nueva ruta" Command="{Binding AddRouteCommand}"
+                    Style="{StaticResource Btn.Primary}" DockPanel.Dock="Left"/>
+            <Button Content="✏ Editar" Command="{Binding EditRouteCommand}"
+                    Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
+            <Button Content="▷ Probar" Command="{Binding TestRouteCommand}"
+                    Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
+            <Button Content="🗑 Eliminar" Command="{Binding DeleteRouteCommand}"
+                    Style="{StaticResource Btn.Danger}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
+        </DockPanel>
+
+        <!-- Edit form (inline) -->
+        <Border Grid.Row="4" Grid.Column="0"
+                Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}"
+                Style="{StaticResource Card}" Padding="16">
+            <StackPanel>
+                <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#E2E8F0" Margin="0,0,0,14">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="Editar ruta"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsNewRoute}" Value="True">
+                                    <Setter Property="Text" Value="Nueva ruta"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Error -->
+                <Border Visibility="{Binding EditError, Converter={StaticResource StrToVis}}"
+                        Background="{StaticResource Accent.RedBg}" CornerRadius="6" Padding="10,6" Margin="0,0,0,12">
+                    <TextBlock Text="{Binding EditError}" FontSize="12" Foreground="{StaticResource Accent.Red}"/>
+                </Border>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Propósito" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding EditPurpose, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input.Text}"
+                                 IsReadOnly="{Binding IsNewRoute, Converter={StaticResource InvBoolToVis}}"/>
+                        <TextBlock Text="Solo letras, números y guiones bajos" FontSize="10"
+                                   Foreground="#64748B" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Impresora" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding AvailablePrinters}"
+                                  SelectedItem="{Binding EditPrinterName}"
+                                  Style="{StaticResource Input.Combo}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="Tipo de contenido" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding ContentTypes}"
+                                  SelectedItem="{Binding EditContentType}"
+                                  Style="{StaticResource Input.Combo}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                    <Button Content="Cancelar" Command="{Binding CancelEditCommand}"
+                            Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0"/>
+                    <Button Content="Guardar ruta" Command="{Binding SaveEditCommand}"
+                            Style="{StaticResource Btn.Primary}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Routes table -->
+        <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource Card}" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Border Grid.Row="0" Background="#0B1E3A" CornerRadius="10,10,0,0" Padding="16,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Propósito" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="Impresora" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="2" Text="Tipo" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="3" Text="Estado" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="4" Text="Acciones" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Routes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="16,12" BorderBrush="#1E293B" BorderThickness="0,0,0,1"
+                                        Cursor="Hand">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#111E36"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick"
+                                                      Command="{Binding DataContext.SelectRouteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                    </Border.InputBindings>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Purpose}" FontSize="13"
+                                                       Foreground="#E2E8F0" FontWeight="SemiBold"
+                                                       FontFamily="Consolas"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding PrinterName, TargetNullValue='(sin asignar)'}"
+                                                       FontSize="12" Foreground="#94A3B8"/>
+                                        </StackPanel>
+
+                                        <!-- Content type badge -->
+                                        <Border Grid.Column="2" CornerRadius="4" Padding="8,3"
+                                                VerticalAlignment="Center" HorizontalAlignment="Left">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#1E3A8A"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ContentType}" Value="zpl">
+                                                            <Setter Property="Background" Value="#134E4A"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ContentType}" Value="pdf">
+                                                            <Setter Property="Background" Value="#450A0A"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ContentType}" Value="fiscal">
+                                                            <Setter Property="Background" Value="#134E4A"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ContentType}" Value="text">
+                                                            <Setter Property="Background" Value="#1E293B"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding ContentType}" FontSize="10"
+                                                       FontWeight="Bold" FontFamily="Consolas">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#60A5FA"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ContentType}" Value="zpl">
+                                                                <Setter Property="Foreground" Value="#2DD4BF"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding ContentType}" Value="pdf">
+                                                                <Setter Property="Foreground" Value="#F87171"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding ContentType}" Value="fiscal">
+                                                                <Setter Property="Foreground" Value="#34D399"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding ContentType}" Value="text">
+                                                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <!-- Estado -->
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="7" Height="7" Fill="#22C55E"
+                                                     VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Activa" FontSize="12" Foreground="#22C55E"/>
+                                        </StackPanel>
+
+                                        <!-- Acciones -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="✏" ToolTip="Editar"
+                                                    Command="{Binding DataContext.EditRouteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    Style="{StaticResource Btn.Icon}" FontSize="13" Margin="0,0,4,0"/>
+                                            <Button Content="▷" ToolTip="Probar"
+                                                    Command="{Binding DataContext.TestRouteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    Style="{StaticResource Btn.Icon}" FontSize="13" Margin="0,0,4,0"/>
+                                            <Button Content="🗑" ToolTip="Eliminar"
+                                                    Command="{Binding DataContext.DeleteRouteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    Style="{StaticResource Btn.IconDanger}" FontSize="13"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Footer hint -->
+                <Border Grid.Row="2" Background="#0B1E3A" CornerRadius="0,0,10,10" Padding="16,10">
+                    <DockPanel>
+                        <TextBlock FontSize="11" Foreground="#64748B" TextWrapping="Wrap">
+                            💡 Ejemplos: ticket, kitchen_order, report, label, fiscal.
+                            Solo letras, números y guiones bajos.
+                        </TextBlock>
+                        <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding Routes}" IsHitTestVisible="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontSize="10" Foreground="#64748B" Margin="0,0,8,0">
+                                        <Run Text="Mostrando "/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Route detail panel -->
+        <Border Grid.Row="2" Grid.RowSpan="5" Grid.Column="2" Style="{StaticResource Card}">
+            <Grid>
+            <!-- Empty -->
+            <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource InvBoolToVis}}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="⇄" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,12" Foreground="#334155"/>
+                <TextBlock Text="Selecciona una ruta" FontSize="13"
+                           Foreground="#64748B" TextAlignment="Center"/>
+                <TextBlock Text="para ver sus detalles" FontSize="13"
+                           Foreground="#64748B" TextAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Detail -->
+            <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="Detalles de la ruta seleccionada"
+                           FontSize="12" Foreground="#64748B" Margin="0,0,0,16"/>
+
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Propósito" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedRoute.Purpose}" FontSize="16"
+                               Foreground="#E2E8F0" FontWeight="Bold" FontFamily="Consolas"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Impresora" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedRoute.PrinterName, TargetNullValue='(sin asignar)'}"
+                               FontSize="13" Foreground="#E2E8F0"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Tipo de contenido" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <Border CornerRadius="4" Padding="8,4" HorizontalAlignment="Left"
+                            Background="#1E3A8A">
+                        <TextBlock Text="{Binding SelectedRoute.ContentType}" FontSize="12"
+                                   Foreground="#60A5FA" FontWeight="Bold" FontFamily="Consolas"/>
+                    </Border>
+                </StackPanel>
+
+                <Separator Background="#1E293B" Margin="0,10,0,14"/>
+
+                <StackPanel Margin="0,0,0,10">
+                    <TextBlock Text="Validaciones recomendadas" FontSize="11"
+                               Foreground="#64748B" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
+                        <TextBlock Text="El propósito debe ser único." FontSize="12" Foreground="#94A3B8"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
+                        <TextBlock Text="La impresora debe estar disponible." FontSize="12" Foreground="#94A3B8"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
+                        <TextBlock Text="El tipo debe coincidir con la app." FontSize="12"
+                                   Foreground="#94A3B8" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Separator Background="#1E293B" Margin="0,10,0,14"/>
+
+                <Button Content="▷ Probar esta ruta" Command="{Binding TestRouteCommand}"
+                        Style="{StaticResource Btn.Primary}" HorizontalAlignment="Stretch" Height="38"/>
+            </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
