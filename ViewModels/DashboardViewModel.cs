@@ -16,6 +16,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private string _uptime = "00:00:00";
 
     public string Status => "Activo";
+    public bool IsRunning => true;
     public string Version => LocalServer.Version;
     public int Port => _port;
     public string LocalUrl => $"http://localhost:{_port}";
