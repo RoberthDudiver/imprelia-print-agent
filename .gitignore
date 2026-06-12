@@ -8,6 +8,7 @@ artifacts/
 *.cache
 *.log
 *.tmp
+UpgradeLog.htm
 *.nupkg
 TestResults/
 publish/

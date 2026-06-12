@@ -166,7 +166,7 @@ public sealed class WindowsPrinterDiscoveryService : IPrinterDiscoveryService
             Type = type,
             SupportsPdf = SupportsPdf(type, printer),
             SupportsRaw = SupportsRaw(type),
-            SupportsZpl = type.Equals("Zebra / ZPL", StringComparison.OrdinalIgnoreCase),
+            SupportsZpl = SupportsZpl(type),
             SupportsFiscal = type.Equals("Fiscal", StringComparison.OrdinalIgnoreCase),
             PaperSizes = paperSizes,
         };
@@ -178,7 +178,9 @@ public sealed class WindowsPrinterDiscoveryService : IPrinterDiscoveryService
             return configured;
 
         var p = printer.ToLowerInvariant();
-        if (p.Contains("zebra") || p.Contains("zdesigner") || p.Contains("zpl")) return "Zebra / ZPL";
+        if (p.Contains("zebra") || p.Contains("zdesigner") || p.Contains("zpl")) return "Label / ZPL";
+        if (p.Contains("xprinter") && (p.Contains("xp-470b") || p.Contains("label") || p.Contains("barcode"))) return "Label / ZPL";
+        if (p.Contains("tspl") || p.Contains("epl") || p.Contains("dpl")) return "Label / ZPL";
         if (p.Contains("fiscal")) return "Fiscal";
         if (p.Contains("pdf") || p.Contains("laser") || p.Contains("hp ") || p.Contains("laserjet")) return "PDF / Laser";
         if (p.Contains("epson") || p.Contains("tm-") || p.Contains("pos") || p.Contains("thermal")) return "EPOS / Thermal";
@@ -189,7 +191,10 @@ public sealed class WindowsPrinterDiscoveryService : IPrinterDiscoveryService
         type is "PDF / Laser" or "Generic / Windows" || printer.Contains("PDF", StringComparison.OrdinalIgnoreCase);
 
     private static bool SupportsRaw(string type) =>
-        type is "EPOS / Thermal" or "Zebra / ZPL" or "Generic / Windows";
+        type is "EPOS / Thermal" or "Label / ZPL" or "Zebra / ZPL" or "Generic / Windows";
+
+    private static bool SupportsZpl(string type) =>
+        type is "Label / ZPL" or "Zebra / ZPL";
 }
 
 public interface IJobHistoryService
