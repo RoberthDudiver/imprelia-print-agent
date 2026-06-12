@@ -8,8 +8,8 @@ $root = Split-Path -Parent $PSScriptRoot
 
 Push-Location $root
 try {
-    dotnet clean .\GastroManager.PrintAgent.sln -c Release
-    dotnet build .\GastroManager.PrintAgent.sln -c Release
+    dotnet clean .\Imprelia.PrintAgent.sln -c Release
+    dotnet build .\Imprelia.PrintAgent.sln -c Release
 
     if (-not $SkipInstaller) {
         dotnet build .\installer\Imprelia.PrintAgent.Installer.wixproj -c Release -p:ProductVersion=$Version
