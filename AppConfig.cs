@@ -22,7 +22,9 @@ public class AppConfig
         ["ticket"] = new PrinterRoute { Purpose = "ticket", ContentType = "epos" },
         ["kitchen_order"] = new PrinterRoute { Purpose = "kitchen_order", ContentType = "epos" },
         ["report"] = new PrinterRoute { Purpose = "report", ContentType = "pdf" },
-        ["label"] = new PrinterRoute { Purpose = "label", ContentType = "zpl" },
+        // "raw": GastroManager manda la etiqueta como bitmap TSPL (XP-470B y
+        // compatibles). NO usar "zpl" — ese modo va en ASCII y rompe el binario.
+        ["label"] = new PrinterRoute { Purpose = "label", ContentType = "raw" },
         ["fiscal"] = new PrinterRoute { Purpose = "fiscal", ContentType = "fiscal" },
     };
 
