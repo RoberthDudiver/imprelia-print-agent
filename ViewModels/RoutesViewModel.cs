@@ -20,7 +20,7 @@ public sealed class RoutesViewModel : ViewModelBase
     public ObservableCollection<PrinterRoute> Routes { get; } = new();
     public ObservableCollection<string> AvailablePrinters { get; } = new();
     public ObservableCollection<string> ContentTypes { get; } = new(
-        new[] { "epos", "zpl", "pdf", "text", "raw", "fiscal" });
+        new[] { "epos", "zpl", "tspl", "epl", "dpl", "pdf", "text", "raw", "fiscal" });
 
     public PrinterRoute? SelectedRoute
     {

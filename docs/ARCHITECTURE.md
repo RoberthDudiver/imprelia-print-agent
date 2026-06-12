@@ -28,7 +28,7 @@ flowchart LR
 - `WindowsPrinterDiscoveryService`: installed printer discovery.
 - `PrintService`: central print dispatcher.
 - `IPrintAdapter`: adapter contract.
-- `RawPrintAdapter`: `epos`, `raw`, and `zpl`.
+- `RawPrintAdapter`: `epos`, `raw`, `zpl`, `tspl`, `epl`, and `dpl`.
 - `TextPrintAdapter`: text through Windows printing.
 - `PdfPrintAdapter`: PDF handoff through Windows shell association.
 - `FiscalPrintAdapter`: explicit placeholder until fiscal drivers are configured.
@@ -60,7 +60,7 @@ Imprelia Print Agent es pequeño y orientado a adaptadores. El servidor HTTP loc
 - `WindowsPrinterDiscoveryService`: detección de impresoras instaladas.
 - `PrintService`: despachador central.
 - `IPrintAdapter`: contrato de adaptadores.
-- `RawPrintAdapter`: `epos`, `raw` y `zpl`.
+- `RawPrintAdapter`: `epos`, `raw`, `zpl`, `tspl`, `epl` y `dpl`.
 - `TextPrintAdapter`: texto vía impresión Windows.
 - `PdfPrintAdapter`: PDF vía asociación de Windows.
 - `FiscalPrintAdapter`: placeholder explícito hasta configurar drivers fiscales.

@@ -13,7 +13,7 @@ public static class ApiDocumentation
             {
                 title = "Imprelia Print Agent API",
                 version = LocalServer.Version,
-                description = "Local HTTP API for printing to Windows printers, EPOS/ESC-POS devices, ZPL label printers, PDF-capable printers, and future fiscal adapters.",
+                description = "Local HTTP API for printing to Windows printers, EPOS/ESC-POS devices, TSPL/ZPL/EPL/DPL label printers, PDF-capable printers, and future fiscal adapters.",
                 contact = new
                 {
                     name = "Roberth Dudiver",
@@ -222,8 +222,8 @@ public static class ApiDocumentation
             {
                 ["printerName"] = new { type = "string", nullable = true },
                 ["jobName"] = new { type = "string", example = "Ticket #123" },
-                ["contentType"] = new { type = "string", example = "epos", description = "epos, raw, text, pdf, zpl, fiscal" },
-                ["content"] = new { type = "string", description = "Plain text/ZPL or base64 for PDF/RAW/EPOS." },
+                ["contentType"] = new { type = "string", example = "epos", description = "epos, raw, text, pdf, zpl, tspl, epl, dpl, fiscal" },
+                ["content"] = new { type = "string", description = "Plain text/label commands or base64 for PDF/RAW/EPOS." },
                 ["copies"] = new { type = "integer", example = 1 },
                 ["options"] = Ref("PrintOptions"),
             },

@@ -5,7 +5,7 @@
 <h1 align="center">Imprelia Print Agent</h1>
 
 <p align="center">
-  Local Windows print agent for web applications. Print to ESC/POS, RAW, ZPL, PDF-capable and Windows printers through a localhost HTTP API.
+  Local Windows print agent for web applications. Print to ESC/POS, RAW, TSPL/ZPL/EPL/DPL, PDF-capable and Windows printers through a localhost HTTP API.
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@ Agent status at a glance: HTTP port, version, local URL, uptime, detected printe
 
 ### Impresoras · Printers
 
-Detected Windows printers with status, type, capabilities (PDF / RAW / ZPL), and the default selector. Print a test page from the detail panel.
+Detected Windows printers with status, type, capabilities (PDF / RAW / label commands), and the default selector. Print a test page from the detail panel.
 
 <p align="center">
   <img src="docs/screenshots/printers.png" alt="Printers" width="820" />
@@ -88,7 +88,7 @@ Created by **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Backward-compatible legacy EPOS/RAW API.
 - Printer discovery from Windows installed printers.
 - Print by explicit printer name or by configured purpose.
-- Supports `epos`, `raw`, `text`, `pdf`, `zpl`, and `fiscal` contracts.
+- Supports `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl`, and `fiscal` contracts.
 - Configurable port, CORS origins, routes, default printer, and optional API key.
 - Modern WPF + MVVM interface with a dark theme.
 
@@ -163,7 +163,7 @@ Creado por **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - API legacy EPOS/RAW compatible hacia atrás.
 - Detección de impresoras instaladas en Windows.
 - Impresión por impresora explícita o por propósito configurado.
-- Contratos para `epos`, `raw`, `text`, `pdf`, `zpl` y `fiscal`.
+- Contratos para `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl` y `fiscal`.
 - Puerto, CORS, orígenes, rutas, impresora default y API key opcional configurables.
 - Interfaz moderna en WPF + MVVM con tema oscuro.
 

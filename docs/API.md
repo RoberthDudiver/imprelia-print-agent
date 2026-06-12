@@ -83,6 +83,9 @@ Supported content types:
 - `text`
 - `pdf`
 - `zpl`
+- `tspl`
+- `epl`
+- `dpl`
 - `fiscal`
 
 ### Print by Purpose
@@ -223,6 +226,9 @@ Tipos soportados:
 - `text`
 - `pdf`
 - `zpl`
+- `tspl`
+- `epl`
+- `dpl`
 - `fiscal`
 
 ### Impresión por Propósito

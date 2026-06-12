@@ -33,7 +33,14 @@ New-Item -ItemType Directory -Force -Path $publishDir, $packageDir, $outDir | Ou
 Push-Location $root
 try {
     dotnet restore ".\Imprelia.PrintAgent.csproj" -r win-x64
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet restore failed with exit code $LASTEXITCODE."
+    }
+
     dotnet publish ".\Imprelia.PrintAgent.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o $publishDir
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet publish failed with exit code $LASTEXITCODE."
+    }
 }
 finally {
     Pop-Location
@@ -153,7 +160,14 @@ Set-Content -LiteralPath (Join-Path $packageDir "AppxManifest.xml") -Value $mani
 Push-Location $packageDir
 try {
     & $makePri createconfig /cf priconfig.xml /dq en-US /o | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "makepri.exe createconfig failed with exit code $LASTEXITCODE."
+    }
+
     & $makePri new /pr . /cf priconfig.xml /o | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "makepri.exe new failed with exit code $LASTEXITCODE."
+    }
 }
 finally {
     Pop-Location

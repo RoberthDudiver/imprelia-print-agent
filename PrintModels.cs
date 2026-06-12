@@ -257,7 +257,7 @@ public interface IPrintAdapter
 public sealed class RawPrintAdapter : IPrintAdapter
 {
     public bool CanHandle(string contentType) =>
-        contentType is "raw" or "epos" or "zpl";
+        contentType is "raw" or "epos" or "zpl" or "tspl" or "epl" or "dpl";
 
     public PrintResponse Print(string printerName, UniversalPrintRequest request)
     {
