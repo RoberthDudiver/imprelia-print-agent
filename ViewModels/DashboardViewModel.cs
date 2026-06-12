@@ -104,7 +104,12 @@ public sealed class DashboardViewModel : ViewModelBase
             _log.Warn("No hay impresora predeterminada configurada.", "Dashboard");
             return;
         }
-        var err = RawPrinter.SendBytes(printer, EscPosTest.Build(printer, "Ready"), "Prueba Imprelia");
+        var type = _discovery.ListPrinters().FirstOrDefault(p => p.Name.Equals(printer, StringComparison.OrdinalIgnoreCase))?.Type;
+        var payload = PrintTestBuilder.Build(printer, null, type);
+        var bytes = payload.ContentType is "raw" or "epos"
+            ? RawPrintAdapter.DecodeMaybeBase64(payload.Content)
+            : System.Text.Encoding.ASCII.GetBytes(payload.Content);
+        var err = RawPrinter.SendBytes(printer, bytes, payload.JobName);
         if (err == null) _log.Info($"Prueba enviada a {printer}.", "Dashboard");
         else _log.Error($"Error prueba {printer}: {err}", "Dashboard");
     }

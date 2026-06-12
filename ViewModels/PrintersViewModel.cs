@@ -106,7 +106,11 @@ public sealed class PrintersViewModel : ViewModelBase
     private void PrintTest()
     {
         if (_selectedPrinter == null) return;
-        var err = RawPrinter.SendBytes(_selectedPrinter.Name, EscPosTest.Build(_selectedPrinter.Name, "Ready"), "Prueba Imprelia");
+        var payload = PrintTestBuilder.Build(_selectedPrinter.Name, null, _selectedPrinter.Type);
+        var bytes = payload.ContentType is "raw" or "epos"
+            ? RawPrintAdapter.DecodeMaybeBase64(payload.Content)
+            : System.Text.Encoding.ASCII.GetBytes(payload.Content);
+        var err = RawPrinter.SendBytes(_selectedPrinter.Name, bytes, payload.JobName);
         if (err == null)
         {
             _log.Info($"Prueba enviada a {_selectedPrinter.Name}.", "Impresoras");

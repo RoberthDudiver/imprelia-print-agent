@@ -179,8 +179,10 @@ public sealed class WindowsPrinterDiscoveryService : IPrinterDiscoveryService
 
         var p = printer.ToLowerInvariant();
         if (p.Contains("zebra") || p.Contains("zdesigner") || p.Contains("zpl")) return "Label / ZPL";
-        if (p.Contains("xprinter") && (p.Contains("xp-470b") || p.Contains("label") || p.Contains("barcode"))) return "Label / ZPL";
-        if (p.Contains("tspl") || p.Contains("epl") || p.Contains("dpl")) return "Label / ZPL";
+        if (p.Contains("xprinter") && (p.Contains("xp-470b") || p.Contains("label") || p.Contains("barcode"))) return "Label / TSPL";
+        if (p.Contains("tspl")) return "Label / TSPL";
+        if (p.Contains("epl")) return "Label / EPL";
+        if (p.Contains("dpl")) return "Label / DPL";
         if (p.Contains("fiscal")) return "Fiscal";
         if (p.Contains("pdf") || p.Contains("laser") || p.Contains("hp ") || p.Contains("laserjet")) return "PDF / Laser";
         if (p.Contains("epson") || p.Contains("tm-") || p.Contains("pos") || p.Contains("thermal")) return "EPOS / Thermal";
@@ -191,7 +193,7 @@ public sealed class WindowsPrinterDiscoveryService : IPrinterDiscoveryService
         type is "PDF / Laser" or "Generic / Windows" || printer.Contains("PDF", StringComparison.OrdinalIgnoreCase);
 
     private static bool SupportsRaw(string type) =>
-        type is "EPOS / Thermal" or "Label / ZPL" or "Zebra / ZPL" or "Generic / Windows";
+        type is "EPOS / Thermal" or "Label / ZPL" or "Zebra / ZPL" or "Label / TSPL" or "Label / EPL" or "Label / DPL" or "Generic / Windows";
 
     private static bool SupportsZpl(string type) =>
         type is "Label / ZPL" or "Zebra / ZPL";
@@ -262,9 +264,7 @@ public sealed class RawPrintAdapter : IPrintAdapter
     public PrintResponse Print(string printerName, UniversalPrintRequest request)
     {
         var contentType = request.ContentType.ToLowerInvariant();
-        var bytes = contentType == "raw" || contentType == "epos"
-            ? DecodeMaybeBase64(request.Content)
-            : Encoding.ASCII.GetBytes(request.Content ?? "");
+        var bytes = DecodeMaybeBase64(request.Content);
 
         if (bytes.Length == 0)
             return Error("EMPTY_CONTENT", "No hay contenido para imprimir.");
@@ -396,7 +396,7 @@ public sealed class PrintService : IPrintService
             return RawPrintAdapter.Error("PRINTER_ROUTE_NOT_FOUND", $"No hay una ruta de impresión configurada para '{request.Purpose}'.");
 
         request.PrinterName = !string.IsNullOrWhiteSpace(request.PrinterName) ? request.PrinterName : route.PrinterName;
-        if (string.IsNullOrWhiteSpace(request.ContentType)) request.ContentType = route.ContentType;
+        request.ContentType = route.ContentType;
         return Print(request, "/api/print/by-purpose");
     }
 

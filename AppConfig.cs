@@ -65,7 +65,7 @@ public class AppConfig
         AddRouteDefault("ticket", "epos");
         AddRouteDefault("kitchen_order", "epos");
         AddRouteDefault("report", "pdf");
-        AddRouteDefault("label", "zpl");
+        AddRouteDefault("label", "raw");
         AddRouteDefault("fiscal", "fiscal");
     }
 

@@ -30,7 +30,7 @@ public class LocalServer
     private readonly IPrintService _printService;
     private CancellationTokenSource? _cts;
 
-    public const string Version = "1.1.2";
+    public const string Version = "1.1.3";
 
     public LocalServer(AppConfig config, Func<string?> getDefaultPrinter)
     {
@@ -325,43 +325,21 @@ public class LocalServer
             Copies = 1,
         };
 
-        if (contentType is "epos" or "raw")
-            printRequest.Content = Convert.ToBase64String(EscPosTest.Build(printer, "Ready"));
-        else if (contentType == "zpl")
-            printRequest.Content = ZplTest(printer);
-        else if (contentType == "tspl")
-            printRequest.Content = TsplTest(printer);
-        else if (contentType == "epl")
-            printRequest.Content = EplTest(printer);
-        else if (contentType == "dpl")
-            printRequest.Content = DplTest(printer);
-        else if (contentType == "text")
-            printRequest.Content = $"Imprelia Print Agent\r\nPrueba de impresion\r\nImpresora: {printer}\r\nFecha: {DateTime.Now:g}";
-        else if (contentType == "fiscal")
+        if (contentType == "fiscal")
             return new PrintResponse { Success = false, ErrorCode = "FISCAL_NOT_CONFIGURED", Message = "La prueba fiscal requiere configuración del controlador fiscal." };
-        else if (contentType == "pdf")
+        if (contentType == "pdf")
             return new PrintResponse { Success = false, ErrorCode = "PDF_TEST_NOT_AVAILABLE", Message = "La prueba PDF requiere enviar un PDF base64 desde la aplicación." };
-        else
+
+        var payload = PrintTestBuilder.Build(printer, contentType);
+        if (string.IsNullOrWhiteSpace(payload.Content))
             return new PrintResponse { Success = false, ErrorCode = "UNSUPPORTED_CONTENT_TYPE", Message = $"Tipo de contenido no soportado: {contentType}." };
+
+        printRequest.ContentType = payload.ContentType;
+        printRequest.Content = payload.Content;
+        printRequest.JobName = payload.JobName;
 
         return _printService.Print(printRequest, "/api/printers/test");
     }
-
-    private static string ZplTest(string printer) =>
-        $"^XA^CF0,32^FO40,40^FDGastroManager^FS^CF0,24^FO40,90^FDPrueba de impresion^FS^FO40,130^FD{EscapeZpl(printer)}^FS^FO40,170^FD{DateTime.Now:g}^FS^XZ";
-
-    private static string TsplTest(string printer) =>
-        $"SIZE 100 mm,50 mm\r\nGAP 3 mm,0 mm\r\nCLS\r\nTEXT 40,40,\"3\",0,1,1,\"Imprelia Print Agent\"\r\nTEXT 40,90,\"2\",0,1,1,\"Prueba de impresion\"\r\nTEXT 40,130,\"2\",0,1,1,\"{EscapeLabelText(printer)}\"\r\nPRINT 1\r\n";
-
-    private static string EplTest(string printer) =>
-        $"N\r\nA40,40,0,4,1,1,N,\"Imprelia Print Agent\"\r\nA40,90,0,3,1,1,N,\"Prueba de impresion\"\r\nA40,130,0,3,1,1,N,\"{EscapeLabelText(printer)}\"\r\nP1\r\n";
-
-    private static string DplTest(string printer) =>
-        $"\u0002L\r\nD11\r\n191100000400040Imprelia Print Agent\r\n191100000900040Prueba de impresion\r\n191100001300040{EscapeLabelText(printer)}\r\nE\r\n";
-
-    private static string EscapeZpl(string value) => value.Replace("^", " ").Replace("~", " ");
-
-    private static string EscapeLabelText(string value) => value.Replace("\"", "'").Replace("\r", " ").Replace("\n", " ");
 
     private object ToSettingsPayload(bool restartRequired = false) => new
     {

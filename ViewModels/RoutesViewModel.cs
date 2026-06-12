@@ -149,8 +149,12 @@ public sealed class RoutesViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(printer))
         { _log.Warn($"Ruta '{_selectedRoute.Purpose}' no tiene impresora asignada.", "Rutas"); return; }
 
-        var err = RawPrinter.SendBytes(printer,
-            EscPosTest.Build(printer, $"Ruta: {_selectedRoute.Purpose}"), "Prueba ruta");
+        var type = _discovery.ListPrinters().FirstOrDefault(p => p.Name.Equals(printer, StringComparison.OrdinalIgnoreCase))?.Type;
+        var payload = PrintTestBuilder.Build(printer, _selectedRoute.ContentType, type);
+        var bytes = payload.ContentType is "raw" or "epos"
+            ? RawPrintAdapter.DecodeMaybeBase64(payload.Content)
+            : System.Text.Encoding.ASCII.GetBytes(payload.Content);
+        var err = RawPrinter.SendBytes(printer, bytes, payload.JobName);
         if (err == null) _log.Info($"Prueba ruta '{_selectedRoute.Purpose}' → {printer}.", "Rutas");
         else _log.Error($"Error ruta '{_selectedRoute.Purpose}': {err}", "Rutas");
     }
