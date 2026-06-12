@@ -13,6 +13,10 @@ $sdkBin = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64"
 $makeAppx = Join-Path $sdkBin "makeappx.exe"
 $makePri = Join-Path $sdkBin "makepri.exe"
 
+if ($Version -notmatch '^\d+\.\d+\.\d+\.0$') {
+    throw "Microsoft Store packages must use a four-part version with revision 0, for example 1.1.1.0. Received: $Version"
+}
+
 if (-not (Test-Path -LiteralPath $makeAppx)) {
     throw "makeappx.exe was not found. Install Windows 10/11 SDK."
 }

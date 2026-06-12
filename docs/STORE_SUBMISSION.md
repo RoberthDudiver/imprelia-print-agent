@@ -38,6 +38,8 @@ installer\bin\Release\ImpreliaPrintAgent-Setup.msi
 
 ### Build MSIX / MSIXUPLOAD
 
+Microsoft Store requires MSIX package versions to use `major.minor.build.0`. The fourth number, revision, must be `0`.
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build-MSIX.ps1 -Version 1.0.0.0 -CreateUploadZip
 ```
@@ -129,6 +131,8 @@ installer\bin\Release\ImpreliaPrintAgent-Setup.msi
 ```
 
 ### Generar MSIX / MSIXUPLOAD
+
+Microsoft Store requiere que las versiones MSIX usen `major.minor.build.0`. El cuarto número, revisión, debe ser `0`.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build-MSIX.ps1 -Version 1.0.0.0 -CreateUploadZip
