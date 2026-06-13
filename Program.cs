@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Windows.Threading;
+using Imprelia.PrintAgent.Services;
 using Imprelia.PrintAgent.Views;
 
 namespace Imprelia.PrintAgent;
@@ -52,13 +53,15 @@ public class TrayApp : ApplicationContext
     private readonly AppConfig _config;
     private readonly LocalServer _server;
     private readonly AgentLogService _log;
+    private readonly RemoteBridgeService _bridge;
     private MainWindow? _mainWindow;
 
     public TrayApp()
     {
         _config = AppConfig.Load();
-        _log = new AgentLogService(Dispatcher.CurrentDispatcher);
+        _log    = new AgentLogService(Dispatcher.CurrentDispatcher);
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
+        _bridge = new RemoteBridgeService(_config, _log);
 
         _tray = new NotifyIcon
         {
@@ -87,6 +90,7 @@ public class TrayApp : ApplicationContext
         try
         {
             _server.Start();
+            _ = _bridge.StartAsync();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
             _log.Info($"Escuchando en puerto {_config.Port}.");
@@ -111,7 +115,7 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log);
+            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge);
             _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
 
@@ -147,6 +151,8 @@ public class TrayApp : ApplicationContext
     private void ExitApp()
     {
         _server.Stop();
+        _bridge.StopAsync().Wait(3000);
+        _bridge.Dispose();
         _tray.Visible = false;
         _tray.Dispose();
         _mainWindow?.Close();

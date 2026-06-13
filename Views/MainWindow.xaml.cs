@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using Imprelia.PrintAgent.Services;
 using Imprelia.PrintAgent.ViewModels;
 
 namespace Imprelia.PrintAgent.Views;
@@ -10,11 +11,11 @@ public partial class MainWindow : Window
 
     private readonly MainViewModel _vm;
 
-    public MainWindow(AppConfig config, int startedPort, AgentLogService log)
+    public MainWindow(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge)
     {
-        _vm = new MainViewModel(config, startedPort, log);
+        _vm = new MainViewModel(config, startedPort, log, bridge);
         _vm.MinimizeRequested += (_, _) => Hide();
-        _vm.ExitRequested += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
+        _vm.ExitRequested     += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
 
         DataContext = _vm;
         InitializeComponent();

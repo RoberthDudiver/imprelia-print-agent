@@ -4,6 +4,22 @@ using System.Text.Json;
 namespace Imprelia.PrintAgent;
 
 /// <summary>
+/// Configuración del puente remoto. Desactivado por defecto: si Enabled=false
+/// el agente no intenta conectarse a ningún servidor externo.
+/// </summary>
+public class RemoteBridgeConfig
+{
+    public bool Enabled { get; set; } = false;
+    public string ServerUrl { get; set; } = "";
+    public string AgentId { get; set; } = "";
+    public string ApiKey { get; set; } = "";
+    /// <summary>"signalr" (recomendado) o "polling".</summary>
+    public string Mode { get; set; } = "signalr";
+    public int FallbackPollingSeconds { get; set; } = 10;
+    public bool AutoReconnect { get; set; } = true;
+}
+
+/// <summary>
 /// Configuración persistente del agente, guardada en
 /// %APPDATA%\ImpreliaPrintAgent\config.json. Sobrevive reinicios.
 /// </summary>
@@ -29,6 +45,9 @@ public class AppConfig
     };
 
     public Dictionary<string, string> PrinterTypes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Puente remoto (opcional). Desactivado por defecto.</summary>
+    public RemoteBridgeConfig RemoteBridge { get; set; } = new();
 
     private static string ConfigDir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ImpreliaPrintAgent");
@@ -61,6 +80,7 @@ public class AppConfig
         AllowedOrigins ??= new List<string>();
         PrinterRoutes ??= new Dictionary<string, PrinterRoute>(StringComparer.OrdinalIgnoreCase);
         PrinterTypes ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        RemoteBridge ??= new RemoteBridgeConfig();
 
         AddRouteDefault("ticket", "epos");
         AddRouteDefault("kitchen_order", "epos");

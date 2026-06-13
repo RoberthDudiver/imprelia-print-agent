@@ -27,4 +27,20 @@
     <Content Include="images\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Imprelia.Server y examples son proyectos aparte que viven como subcarpetas
+       de este repo. El SDK hace globbing por defecto (**/*.cs); hay que excluirlos
+       para que el agente NO intente compilar código ASP.NET que no referencia. -->
+  <ItemGroup>
+    <Compile Remove="Imprelia.Server\**\*.cs;examples\**\*.cs" />
+    <Content Remove="Imprelia.Server\**\*;examples\**\*" />
+    <None Remove="Imprelia.Server\**\*;examples\**\*" />
+    <EmbeddedResource Remove="Imprelia.Server\**\*;examples\**\*" />
+    <Page Remove="Imprelia.Server\**\*.xaml;examples\**\*.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Remote Print Bridge: cliente SignalR para conectarse al servidor remoto -->
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.*" />
+  </ItemGroup>
+
 </Project>

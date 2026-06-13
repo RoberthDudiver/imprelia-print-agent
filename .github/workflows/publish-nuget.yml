@@ -1,0 +1,36 @@
+name: Publish Imprelia.Server (NuGet → GitHub Packages)
+
+# Publica el paquete Imprelia.Server en GitHub Packages de este repo.
+# Disparo: tag  server-v*.*.*  (ej: server-v1.0.2)  o manual.
+on:
+  push:
+    tags:
+      - 'server-v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # GITHUB_TOKEN puede publicar en los packages de este repo
+
+    defaults:
+      run:
+        working-directory: Imprelia.Server
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Pack
+        run: dotnet pack -c Release -o ${{ github.workspace }}/nupkgs
+
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget push "${{ github.workspace }}/nupkgs/*.nupkg" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
+            --skip-duplicate

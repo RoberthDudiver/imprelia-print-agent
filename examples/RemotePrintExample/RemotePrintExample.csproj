@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- En este repo se referencia el proyecto para que compile standalone.
+         En tu app real lo instalás como NuGet:  dotnet add package Imprelia.Server
+         (ver ../../Imprelia.Server/PUBLISHING.md). -->
+    <ProjectReference Include="..\..\Imprelia.Server\Imprelia.Server.csproj" />
+  </ItemGroup>
+
+</Project>

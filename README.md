@@ -91,6 +91,7 @@ Created by **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Supports `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl`, and `fiscal` contracts.
 - Configurable port, CORS origins, routes, default printer, and optional API key.
 - Modern WPF + MVVM interface with a dark theme.
+- **Optional [Remote Print Bridge](docs/REMOTE_PRINT_BRIDGE.md)**: a backend can push print jobs to the agent over an outbound secure connection (no public ports) via the [`Imprelia.Server`](Imprelia.Server) NuGet package.
 
 ### Quick Start
 
@@ -128,6 +129,7 @@ Content-Type: application/json
 
 - [Installation and build](docs/INSTALLATION.md)
 - [API reference and examples](docs/API.md)
+- [Remote Print Bridge (print from a backend)](docs/REMOTE_PRINT_BRIDGE.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Microsoft Store submission](docs/STORE_SUBMISSION.md)
 - [Security policy](SECURITY.md)
@@ -166,6 +168,7 @@ Creado por **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Contratos para `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl` y `fiscal`.
 - Puerto, CORS, orígenes, rutas, impresora default y API key opcional configurables.
 - Interfaz moderna en WPF + MVVM con tema oscuro.
+- **[Puente de impresión remota](docs/REMOTE_PRINT_BRIDGE.md) opcional**: un backend puede empujar trabajos al agente por una conexión saliente segura (sin puertos públicos) usando el paquete NuGet [`Imprelia.Server`](Imprelia.Server).
 
 ### Inicio rápido
 
@@ -203,6 +206,7 @@ Content-Type: application/json
 
 - [Instalación y compilación](docs/INSTALLATION.md)
 - [Referencia API y ejemplos](docs/API.md)
+- [Puente de impresión remota (imprimir desde un backend)](docs/REMOTE_PRINT_BRIDGE.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Publicación en Microsoft Store](docs/STORE_SUBMISSION.md)
 - [Política de seguridad](SECURITY.md)

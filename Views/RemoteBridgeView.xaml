@@ -1,0 +1,167 @@
+<UserControl x:Class="Imprelia.PrintAgent.Views.RemoteBridgeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+        <StackPanel Margin="24,20,24,24" MaxWidth="620">
+
+            <!-- Título -->
+            <TextBlock Style="{StaticResource T.PageTitle}" Text="Remote Print Bridge"/>
+            <TextBlock Style="{StaticResource T.PageSub}" TextWrapping="Wrap">
+                Recibí trabajos de impresión desde un backend remoto.
+                El agente se conecta hacia afuera — no abre puertos públicos.
+                Toda la comunicación es HTTPS/WSS.
+            </TextBlock>
+
+            <!-- ── Estado de conexión ─────────────────────────────── -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Indicador de color -->
+                    <Ellipse Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#6B7280"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="#22C55E"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsConnecting}" Value="True">
+                                        <Setter Property="Fill" Value="#F59E0B"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsError}" Value="True">
+                                        <Setter Property="Fill" Value="#EF4444"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+
+                    <!-- Texto estado -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ConnectionStateLabel}"
+                                   Style="{StaticResource T.Value}" FontWeight="Medium"/>
+                        <TextBlock Text="{Binding LastError}"
+                                   Foreground="{StaticResource Accent.Red}"
+                                   FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Visibility="{Binding LastError, Converter={StaticResource StrToVis}}"/>
+                        <TextBlock Foreground="{StaticResource Text.Muted}"
+                                   FontSize="11" Margin="0,2,0,0"
+                                   Text="{Binding LastConnectedAt, Mode=OneWay, StringFormat='Última conexión: {0}'}"
+                                   Visibility="{Binding LastConnectedAt, Converter={StaticResource StrToVis}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── Habilitar bridge ───────────────────────────────── -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}"
+                          Style="{StaticResource Input.Check}">
+                    <StackPanel>
+                        <TextBlock Text="Habilitar Remote Print Bridge"
+                                   Foreground="{StaticResource Text.Primary}"
+                                   FontSize="13" FontWeight="Medium"/>
+                        <TextBlock Text="Cuando está desactivado el agente no intenta conectarse a ningún servidor externo."
+                                   Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </CheckBox>
+            </Border>
+
+            <!-- ── Campos de configuración ───────────────────────── -->
+            <StackPanel IsEnabled="{Binding Enabled}">
+
+                <!-- Server URL -->
+                <TextBlock Text="Server URL" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding ServerUrl, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Text}" Margin="0,0,0,4"/>
+                <TextBlock Style="{StaticResource T.Muted}" Margin="0,0,0,12">
+                    URL base del servidor. Ejemplo: https://api.tudominio.com
+                </TextBlock>
+
+                <!-- Agent ID -->
+                <TextBlock Text="Agent ID" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding AgentId, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Text}" Margin="0,0,0,4"/>
+                <TextBlock Style="{StaticResource T.Muted}" Margin="0,0,0,12">
+                    Identificador único de este agente en el servidor.
+                </TextBlock>
+
+                <!-- API Key (code-behind maneja PasswordBox → ViewModel) -->
+                <TextBlock Text="API Key" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <PasswordBox x:Name="ApiKeyBox"
+                             PasswordChanged="ApiKeyBox_PasswordChanged"
+                             Background="{StaticResource Bg.Input}"
+                             Foreground="{StaticResource Text.Primary}"
+                             BorderBrush="{StaticResource Bg.InputBorder}"
+                             BorderThickness="1"
+                             Padding="10,6"
+                             FontSize="13"
+                             Margin="0,0,0,12"/>
+
+                <!-- Modo de conexión -->
+                <TextBlock Text="Modo de conexión" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <ComboBox SelectedValue="{Binding Mode, Mode=TwoWay}"
+                          SelectedValuePath="Tag"
+                          Margin="0,0,0,12">
+                    <ComboBoxItem Content="SignalR (recomendado)" Tag="signalr"/>
+                    <ComboBoxItem Content="Polling HTTP" Tag="polling"/>
+                </ComboBox>
+
+                <!-- Intervalo polling (solo visible en modo polling) -->
+                <StackPanel Margin="0,0,0,12"
+                            Visibility="{Binding IsPollingMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Intervalo de polling (segundos)"
+                               Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding PollingSeconds, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource Input.Number}"/>
+                </StackPanel>
+
+                <!-- Auto-reconexión -->
+                <CheckBox IsChecked="{Binding AutoReconnect, Mode=TwoWay}"
+                          Style="{StaticResource Input.Check}"
+                          Margin="0,0,0,20">
+                    Reconectar automáticamente si se pierde la conexión
+                </CheckBox>
+
+            </StackPanel>
+
+            <!-- ── Botones ────────────────────────────────────────── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <Button Content="Guardar y aplicar"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource Btn.Primary}"
+                        Margin="0,0,10,0"/>
+                <Button Command="{Binding TestConnectionCommand}"
+                        Style="{StaticResource Btn.Ghost}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Probar conexión" VerticalAlignment="Center"/>
+                        <TextBlock Text=" (…)" VerticalAlignment="Center"
+                                   Visibility="{Binding IsTesting, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- Resultado del test -->
+            <TextBlock Text="{Binding TestResult}"
+                       FontSize="12" TextWrapping="Wrap"
+                       Visibility="{Binding TestResult, Converter={StaticResource StrToVis}}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource Accent.Red}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TestResultIsSuccess}" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource Accent.Green}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

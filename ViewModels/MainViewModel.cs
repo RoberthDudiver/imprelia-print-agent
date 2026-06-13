@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Imprelia.PrintAgent.Services;
 
 namespace Imprelia.PrintAgent.ViewModels;
 
@@ -19,6 +20,7 @@ public sealed class MainViewModel : ViewModelBase
     public RoutesViewModel Routes { get; }
     public SettingsViewModel Settings { get; }
     public LogsViewModel Logs { get; }
+    public RemoteBridgeViewModel Bridge { get; }
 
     public ViewModelBase CurrentPage { get => _currentPage; private set => Set(ref _currentPage, value); }
     public int SelectedNavIndex { get => _selectedNavIndex; private set => Set(ref _selectedNavIndex, value); }
@@ -32,11 +34,12 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand NavRoutesCommand { get; }
     public ICommand NavSettingsCommand { get; }
     public ICommand NavLogsCommand { get; }
+    public ICommand NavBridgeCommand { get; }
     public ICommand OpenApiGuideCommand { get; }
     public ICommand MinimizeCommand { get; }
     public ICommand ExitCommand { get; }
 
-    public MainViewModel(AppConfig config, int startedPort, AgentLogService log)
+    public MainViewModel(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge)
     {
         _config = config;
         _startedPort = startedPort;
@@ -45,21 +48,23 @@ public sealed class MainViewModel : ViewModelBase
         var discovery = new WindowsPrinterDiscoveryService(config);
 
         Dashboard = new DashboardViewModel(config, startedPort, log, discovery, NavigateTo);
-        Printers = new PrintersViewModel(config, log, discovery);
-        Routes = new RoutesViewModel(config, log, discovery);
-        Settings = new SettingsViewModel(config, startedPort, log);
-        Logs = new LogsViewModel(log);
+        Printers  = new PrintersViewModel(config, log, discovery);
+        Routes    = new RoutesViewModel(config, log, discovery);
+        Settings  = new SettingsViewModel(config, startedPort, log);
+        Logs      = new LogsViewModel(log);
+        Bridge    = new RemoteBridgeViewModel(config, bridge, log);
 
         _currentPage = Dashboard;
 
         NavDashboardCommand = new RelayCommand(() => Navigate(Dashboard, 0));
-        NavPrintersCommand = new RelayCommand(() => Navigate(Printers, 1));
-        NavRoutesCommand = new RelayCommand(() => Navigate(Routes, 2));
-        NavSettingsCommand = new RelayCommand(() => Navigate(Settings, 3));
-        NavLogsCommand = new RelayCommand(() => Navigate(Logs, 4));
+        NavPrintersCommand  = new RelayCommand(() => Navigate(Printers,  1));
+        NavRoutesCommand    = new RelayCommand(() => Navigate(Routes,    2));
+        NavSettingsCommand  = new RelayCommand(() => Navigate(Settings,  3));
+        NavLogsCommand      = new RelayCommand(() => Navigate(Logs,      4));
+        NavBridgeCommand    = new RelayCommand(() => Navigate(Bridge,    5));
         OpenApiGuideCommand = new RelayCommand(OpenApiGuide);
-        MinimizeCommand = new RelayCommand(() => MinimizeRequested?.Invoke(this, EventArgs.Empty));
-        ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
+        MinimizeCommand     = new RelayCommand(() => MinimizeRequested?.Invoke(this, EventArgs.Empty));
+        ExitCommand         = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
     }
 
     public void NavigateTo(int index)
@@ -67,10 +72,11 @@ public sealed class MainViewModel : ViewModelBase
         switch (index)
         {
             case 0: Navigate(Dashboard, 0); break;
-            case 1: Navigate(Printers, 1); break;
-            case 2: Navigate(Routes, 2); break;
-            case 3: Navigate(Settings, 3); break;
-            case 4: Navigate(Logs, 4); break;
+            case 1: Navigate(Printers,  1); break;
+            case 2: Navigate(Routes,    2); break;
+            case 3: Navigate(Settings,  3); break;
+            case 4: Navigate(Logs,      4); break;
+            case 5: Navigate(Bridge,    5); break;
         }
     }
 
