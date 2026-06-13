@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- ── Metadatos del paquete NuGet ──────────────────────────────────── -->
+    <IsPackable>true</IsPackable>
+    <PackageId>Imprelia.Server</PackageId>
+    <Version>1.0.2</Version>
+    <Title>Imprelia Server — Remote Print Bridge</Title>
+    <Authors>Roberth Dudiver</Authors>
+    <Company>Dudiver</Company>
+    <Description>ASP.NET Core integration for the Imprelia Remote Print Bridge. Provides the SignalR hub and HTTP endpoints that the Imprelia Print Agent (Windows) connects to outbound, so a backend can push print jobs (ESC/POS, ZPL, PDF, raw) to thermal/label printers without exposing the agent to the internet.</Description>
+    <PackageTags>imprelia;printing;print;thermal;escpos;zpl;signalr;aspnetcore;remote-print</PackageTags>
+    <Copyright>© 2026 Roberth Dudiver</Copyright>
+
+    <!-- Repo público del agente (GitHub Packages publica bajo este repo) -->
+    <PackageProjectUrl>https://github.com/RoberthDudiver/imprelia-print-agent</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RoberthDudiver/imprelia-print-agent</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- README + licencia embebidos en el paquete -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+
+    <!-- Símbolos para debugging (.snupkg) + build reproducible -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- No exigir XML doc en cada miembro público: la API que consume el
+         programador (IImpreliaService, ImpreliaServiceExtensions) ya está documentada -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <!-- Misma licencia que el agente (LICENSE.md en la raíz del repo) -->
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="LICENSE.md"/>
+  </ItemGroup>
+
+</Project>

@@ -27,4 +27,9 @@
     <Content Include="images\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Remote Print Bridge: cliente SignalR para conectarse al servidor remoto -->
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.*" />
+  </ItemGroup>
+
 </Project>

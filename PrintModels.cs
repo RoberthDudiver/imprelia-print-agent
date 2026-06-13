@@ -86,6 +86,24 @@ public sealed class PrintJobHistory
     public string? Error { get; set; }
 }
 
+/// <summary>
+/// Trabajo de impresión recibido desde el servidor remoto vía SignalR o polling.
+/// Route se mapea a las mismas rutas configuradas en printerRoutes del agente.
+/// </summary>
+public sealed class RemotePrintJob
+{
+    public string JobId { get; set; } = "";
+    public string AgentId { get; set; } = "";
+    /// <summary>ticket | comanda | label | report | fiscal</summary>
+    public string Route { get; set; } = "";
+    /// <summary>escpos | zpl | pdf | text | raw</summary>
+    public string Type { get; set; } = "escpos";
+    /// <summary>Contenido del trabajo (texto plano o base64 para binarios).</summary>
+    public string Content { get; set; } = "";
+    public int Copies { get; set; } = 1;
+    public Dictionary<string, string>? Metadata { get; set; }
+}
+
 public interface IPrinterDiscoveryService
 {
     List<PrinterInfo> ListPrinters();
