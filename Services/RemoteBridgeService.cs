@@ -100,7 +100,9 @@ public sealed class RemoteBridgeService : IDisposable
     private async Task RunSignalRAsync(CancellationToken ct)
     {
         var cfg = _config.RemoteBridge;
-        var hubUrl = cfg.ServerUrl.TrimEnd('/') + "/imprelia/hub";
+        // El hub vive bajo /hubs/ (los reverse proxies suelen tener el WebSocket
+        // configurado para ese prefijo). Los endpoints HTTP siguen en /imprelia/*.
+        var hubUrl = cfg.ServerUrl.TrimEnd('/') + "/hubs/imprelia";
 
         _log.Info($"Conectando al servidor remoto: {hubUrl}", "Bridge");
         SetState(BridgeConnectionState.Connecting);
