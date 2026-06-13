@@ -23,7 +23,7 @@ Open the agent → **Remote Bridge** tab:
 
 | Field          | Value |
 |----------------|-------|
-| Enable         | ✅ |
+| Enable         | Yes |
 | **Server URL** | Origin of your backend, e.g. `https://api.midominio.com` (no `/api`, no trailing path — the hub is at `/imprelia/hub`) |
 | **Agent ID**   | A unique id for this venue's agent, e.g. `kitchen-01` (your backend decides the convention) |
 | **API Key**    | A shared secret your backend accepts (leave empty if the server runs in dev mode with no keys) |

@@ -107,6 +107,7 @@
                 <TextBlock Text="Modo de conexión" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                 <ComboBox SelectedValue="{Binding Mode, Mode=TwoWay}"
                           SelectedValuePath="Tag"
+                          Style="{StaticResource Input.Combo}"
                           Margin="0,0,0,12">
                     <ComboBoxItem Content="SignalR (recomendado)" Tag="signalr"/>
                     <ComboBoxItem Content="Polling HTTP" Tag="polling"/>
