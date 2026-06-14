@@ -9,6 +9,8 @@ Microsoft Store supports more than one path for desktop Win32 apps:
 
 For Imprelia Print Agent v1, this repository can generate a **WiX MSI installer** and a local **MSIX/MSIXUPLOAD package**.
 
+For the step-by-step release checklist, version rules, verification commands, and release history, see [STORE_RELEASE_PROCESS.md](STORE_RELEASE_PROCESS.md).
+
 ### Partner Center Identity
 
 Use the identity assigned by Microsoft Partner Center:
@@ -102,6 +104,8 @@ Microsoft Store soporta más de un camino para apps Win32 de escritorio:
 - **Listado MSI/EXE**: aceptado para apps Win32 existentes, pero debes hospedar una URL segura versionada y cumplir requisitos de Store.
 
 Para Imprelia Print Agent v1, este repositorio puede generar un **instalador MSI con WiX** y un paquete local **MSIX/MSIXUPLOAD**.
+
+Para el checklist paso a paso de release, reglas de versionado, comandos de verificacion e historial de versiones, consulta [STORE_RELEASE_PROCESS.md](STORE_RELEASE_PROCESS.md).
 
 ### Identidad de Partner Center
 
