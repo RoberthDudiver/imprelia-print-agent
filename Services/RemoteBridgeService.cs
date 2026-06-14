@@ -136,12 +136,16 @@ public sealed class RemoteBridgeService : IDisposable
                 return Task.CompletedTask;
             };
 
-            _hub.Reconnected += _ =>
+            _hub.Reconnected += async _ =>
             {
+                // CLAVE: al reconectar, la connectionId cambia → hay que volver a
+                // registrarse, si no el servidor no sabe a quién mandarle los trabajos
+                // (síntoma: "andaba y de golpe no imprime hasta deshabilitar/habilitar").
+                try { await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? ""); }
+                catch (Exception ex) { _log.Warn($"Bridge: re-registro tras reconexión falló — {ex.Message}", "Bridge"); }
                 SetState(BridgeConnectionState.Connected);
                 _lastConnectedAt = DateTime.Now;
-                _log.Info("Bridge reconectado.", "Bridge");
-                return Task.CompletedTask;
+                _log.Info("Bridge reconectado y re-registrado.", "Bridge");
             };
 
             _hub.Closed += async ex =>

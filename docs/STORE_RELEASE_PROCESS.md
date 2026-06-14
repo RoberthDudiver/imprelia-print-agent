@@ -219,7 +219,8 @@ Add:
 | Date | Store version | App/MSI version | Store upload file | Notes | Partner Center |
 | --- | --- | --- | --- | --- | --- |
 | 2026-06-13 | 1.1.4.0 | 1.1.4 | ImpreliaPrintAgent-1.1.4.0.msixupload | Remote Print Bridge release and package regenerated after rebase. | Superseded by 1.1.5.0 |
-| 2026-06-13 | 1.1.5.0 | 1.1.5 | ImpreliaPrintAgent-1.1.5.0.msixupload | Remote Print Bridge hub moved to /hubs/imprelia (reverse-proxy WebSocket fix). | Pending upload |
+| 2026-06-13 | 1.1.5.0 | 1.1.5 | ImpreliaPrintAgent-1.1.5.0.msixupload | Remote Print Bridge hub moved to /hubs/imprelia (reverse-proxy WebSocket fix). | Superseded by 1.1.6.0 |
+| 2026-06-14 | 1.1.6.0 | 1.1.6 | ImpreliaPrintAgent-1.1.6.0.msixupload | Remote Bridge: re-register agent on automatic reconnect (fixes "worked then stopped printing until toggling the bridge"). | Pending upload |
 
 ---
 
