@@ -40,21 +40,17 @@ public static class VirtualPrinterProvisioner
             return ProvisionResult.Fail("La impresora virtual no tiene nombre.");
 
         var name = Escape(vp.LocalName);
-        var url = $"http://localhost:{ippPort}/ipp/{vp.Id}";
+        var httpUrl = $"http://localhost:{ippPort}/ipp/{vp.Id}";
+        var ippUrl  = $"ipp://localhost:{ippPort}/ipp/{vp.Id}";
 
-        var script = $@"
-$ErrorActionPreference = 'Stop'
-try {{
-    $existing = Get-Printer -Name '{name}' -ErrorAction SilentlyContinue
-    if ($existing) {{ Remove-Printer -Name '{name}' -ErrorAction SilentlyContinue }}
-    Add-Printer -Name '{name}' -DeviceURL '{url}'
-    exit 0
-}} catch {{
-    Write-Error $_
-    exit 1
-}}";
+        // Dos intentos: esquema http y, si falla, ipp:// (Windows a veces exige uno u otro).
+        var body = $@"
+$existing = Get-Printer -Name '{name}' -ErrorAction SilentlyContinue
+if ($existing) {{ Remove-Printer -Name '{name}' -ErrorAction SilentlyContinue }}
+try {{ Add-Printer -Name '{name}' -DeviceURL '{httpUrl}' -ErrorAction Stop }}
+catch {{ Add-Printer -Name '{name}' -DeviceURL '{ippUrl}' -ErrorAction Stop }}";
 
-        return RunElevated(script, $"Impresora '{vp.LocalName}' instalada.", "No se pudo instalar la impresora.");
+        return RunElevated(body, $"Impresora '{vp.LocalName}' instalada.", "No se pudo instalar la impresora.");
     }
 
     /// <summary>Quita una impresora virtual de Windows.</summary>
@@ -64,26 +60,33 @@ try {{
             return ProvisionResult.Fail("Nombre de impresora vacío.");
 
         var name = Escape(localName);
-        var script = $@"
-$ErrorActionPreference = 'Stop'
-try {{
-    Remove-Printer -Name '{name}' -ErrorAction SilentlyContinue
-    exit 0
-}} catch {{
-    Write-Error $_
-    exit 1
-}}";
+        var body = $@"Remove-Printer -Name '{name}' -ErrorAction Stop";
 
-        return RunElevated(script, $"Impresora '{localName}' eliminada.", "No se pudo eliminar la impresora.");
+        return RunElevated(body, $"Impresora '{localName}' eliminada.", "No se pudo eliminar la impresora.");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private static ProvisionResult RunElevated(string script, string okMsg, string failMsg)
+    private static ProvisionResult RunElevated(string body, string okMsg, string failMsg)
     {
-        string? temp = null;
+        string? temp = null, errFile = null;
         try
         {
+            errFile = Path.Combine(Path.GetTempPath(), $"imprelia-err-{Guid.NewGuid():N}.txt");
+            var errPath = errFile.Replace("'", "''");
+
+            // El cuerpo corre con try/catch; cualquier error se escribe al archivo
+            // para poder mostrárselo al usuario (el proceso elevado es oculto).
+            var script = $@"
+$ErrorActionPreference = 'Stop'
+try {{
+{body}
+}} catch {{
+    ($_ | Out-String) | Set-Content -LiteralPath '{errPath}' -Encoding UTF8
+    exit 1
+}}
+exit 0";
+
             temp = Path.Combine(Path.GetTempPath(), $"imprelia-vp-{Guid.NewGuid():N}.ps1");
             File.WriteAllText(temp, script, new UTF8Encoding(false));
 
@@ -101,9 +104,14 @@ try {{
             if (p == null) return ProvisionResult.Fail(failMsg + " (no se pudo iniciar PowerShell).");
 
             p.WaitForExit();
-            return p.ExitCode == 0
-                ? ProvisionResult.Ok(okMsg)
-                : ProvisionResult.Fail($"{failMsg} PowerShell devolvió código {p.ExitCode}.");
+            if (p.ExitCode == 0) return ProvisionResult.Ok(okMsg);
+
+            var err = "";
+            try { if (File.Exists(errFile)) err = File.ReadAllText(errFile).Trim(); } catch { }
+            err = Shorten(err);
+            return ProvisionResult.Fail(string.IsNullOrEmpty(err)
+                ? $"{failMsg} (PowerShell código {p.ExitCode})."
+                : $"{failMsg} — {err}");
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
@@ -117,7 +125,15 @@ try {{
         finally
         {
             try { if (temp != null && File.Exists(temp)) File.Delete(temp); } catch { }
+            try { if (errFile != null && File.Exists(errFile)) File.Delete(errFile); } catch { }
         }
+    }
+
+    private static string Shorten(string s)
+    {
+        s = s.Replace("\r", " ").Replace("\n", " ").Trim();
+        while (s.Contains("  ")) s = s.Replace("  ", " ");
+        return s.Length > 300 ? s[..300] + "…" : s;
     }
 
     private static string Escape(string s) => s.Replace("'", "''");
