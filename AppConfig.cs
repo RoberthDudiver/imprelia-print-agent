@@ -20,11 +20,48 @@ public class RemoteBridgeConfig
 }
 
 /// <summary>
+/// Una impresora virtual del modo cliente. Aparece en Windows como una impresora
+/// normal; al imprimir, el job (PDF) viaja por el hub hasta la impresora real
+/// de otra máquina (el agente principal).
+/// </summary>
+public class ClientVirtualPrinter
+{
+    /// <summary>Identificador corto usado como ruta IPP local (/ipp/{Id}).</summary>
+    public string Id { get; set; } = Guid.NewGuid().ToString("N")[..8];
+    /// <summary>Nombre de la cola que se crea en Windows (ej. "Cocina (Remota)").</summary>
+    public string LocalName { get; set; } = "";
+    /// <summary>AgentId del agente principal que tiene la impresora real.</summary>
+    public string TargetAgentId { get; set; } = "";
+    /// <summary>Impresora explícita en el principal (ej. "Cocina"). Opcional.</summary>
+    public string TargetPrinter { get; set; } = "";
+    /// <summary>Ruta/propósito configurado en el principal (ej. "kitchen_order"). Opcional.</summary>
+    public string Route { get; set; } = "";
+    /// <summary>Si la cola de Windows fue creada correctamente.</summary>
+    public bool Installed { get; set; }
+}
+
+/// <summary>
+/// Modo cliente: convierte a este agente en un emisor. Levanta un servidor IPP
+/// local y, por cada impresora virtual, reenvía los trabajos al hub para que el
+/// agente principal los imprima. Desactivado por defecto.
+/// </summary>
+public class ClientModeConfig
+{
+    public bool Enabled { get; set; } = false;
+    /// <summary>Puerto local donde escucha el servidor IPP (distinto del API 9100).</summary>
+    public int IppPort { get; set; } = 9110;
+    public List<ClientVirtualPrinter> VirtualPrinters { get; set; } = new();
+}
+
+/// <summary>
 /// Configuración persistente del agente, guardada en
 /// %APPDATA%\ImpreliaPrintAgent\config.json. Sobrevive reinicios.
 /// </summary>
 public class AppConfig
 {
+    /// <summary>Idioma de la interfaz: "es" (español) o "en" (inglés).</summary>
+    public string Language { get; set; } = "es";
+
     public string? DefaultPrinter { get; set; }
     public int Port { get; set; } = 9100;
     public string Host { get; set; } = "127.0.0.1";
@@ -48,6 +85,9 @@ public class AppConfig
 
     /// <summary>Puente remoto (opcional). Desactivado por defecto.</summary>
     public RemoteBridgeConfig RemoteBridge { get; set; } = new();
+
+    /// <summary>Modo cliente (opcional): emite trabajos al hub. Desactivado por defecto.</summary>
+    public ClientModeConfig ClientMode { get; set; } = new();
 
     private static string ConfigDir =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ImpreliaPrintAgent");
@@ -81,6 +121,10 @@ public class AppConfig
         PrinterRoutes ??= new Dictionary<string, PrinterRoute>(StringComparer.OrdinalIgnoreCase);
         PrinterTypes ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         RemoteBridge ??= new RemoteBridgeConfig();
+        ClientMode ??= new ClientModeConfig();
+        ClientMode.VirtualPrinters ??= new List<ClientVirtualPrinter>();
+        if (ClientMode.IppPort <= 0) ClientMode.IppPort = 9110;
+        if (string.IsNullOrWhiteSpace(Language)) Language = "es";
 
         AddRouteDefault("ticket", "epos");
         AddRouteDefault("kitchen_order", "epos");

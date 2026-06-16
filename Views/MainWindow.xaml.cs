@@ -11,9 +11,10 @@ public partial class MainWindow : Window
 
     private readonly MainViewModel _vm;
 
-    public MainWindow(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge)
+    public MainWindow(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge,
+                      IppPrintServer ipp, ClientSenderService sender)
     {
-        _vm = new MainViewModel(config, startedPort, log, bridge);
+        _vm = new MainViewModel(config, startedPort, log, bridge, ipp, sender);
         _vm.MinimizeRequested += (_, _) => Hide();
         _vm.ExitRequested     += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
 

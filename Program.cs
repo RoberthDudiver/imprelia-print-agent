@@ -54,6 +54,8 @@ public class TrayApp : ApplicationContext
     private readonly LocalServer _server;
     private readonly AgentLogService _log;
     private readonly RemoteBridgeService _bridge;
+    private readonly ClientSenderService _sender;
+    private readonly IppPrintServer _ipp;
     private MainWindow? _mainWindow;
 
     public TrayApp()
@@ -62,6 +64,8 @@ public class TrayApp : ApplicationContext
         _log    = new AgentLogService(Dispatcher.CurrentDispatcher);
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
         _bridge = new RemoteBridgeService(_config, _log);
+        _sender = new ClientSenderService(_config, _log);
+        _ipp    = new IppPrintServer(_config, _log, _sender);
 
         _tray = new NotifyIcon
         {
@@ -91,6 +95,7 @@ public class TrayApp : ApplicationContext
         {
             _server.Start();
             _ = _bridge.StartAsync();
+            _ipp.Start();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
             _log.Info($"Escuchando en puerto {_config.Port}.");
@@ -115,7 +120,7 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge);
+            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _ipp, _sender);
             _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
 
@@ -151,6 +156,7 @@ public class TrayApp : ApplicationContext
     private void ExitApp()
     {
         _server.Stop();
+        _ipp.Stop();
         _bridge.StopAsync().Wait(3000);
         _bridge.Dispose();
         _tray.Visible = false;

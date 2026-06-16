@@ -255,13 +255,18 @@ public sealed class RemoteBridgeService : IDisposable
 
     private async Task HandleJobAsync(RemotePrintJob job, CancellationToken ct)
     {
-        _log.Info($"Job remoto: {job.JobId} → ruta '{job.Route}'", "Bridge");
+        // Una impresora explícita (modo cliente/impresora virtual) llega por metadata.
+        var explicitPrinter = GetMeta(job, "printer");
+
+        _log.Info(
+            $"Job remoto: {job.JobId} → {(string.IsNullOrWhiteSpace(explicitPrinter) ? $"ruta '{job.Route}'" : $"impresora '{explicitPrinter}'")}",
+            "Bridge");
         await ReportStatusAsync(job, "received_by_agent", null);
 
-        if (string.IsNullOrWhiteSpace(job.Route))
+        if (string.IsNullOrWhiteSpace(job.Route) && string.IsNullOrWhiteSpace(explicitPrinter))
         {
-            await ReportStatusAsync(job, "invalid_payload", "Route es obligatorio");
-            _log.Warn($"Job {job.JobId} rechazado: Route vacío.", "Bridge");
+            await ReportStatusAsync(job, "invalid_payload", "Falta Route o printer");
+            _log.Warn($"Job {job.JobId} rechazado: sin ruta ni impresora.", "Bridge");
             return;
         }
 
@@ -269,16 +274,33 @@ public sealed class RemoteBridgeService : IDisposable
         {
             await ReportStatusAsync(job, "printing", null);
 
-            var printReq = new PrintByPurposeRequest
-            {
-                Purpose = job.Route,
-                ContentType = NormalizeType(job.Type),
-                Content = job.Content,
-                Copies = Math.Max(1, job.Copies),
-                JobName = $"Remote/{job.JobId[..Math.Min(8, job.JobId.Length)]}",
-            };
+            var jobName = $"Remote/{job.JobId[..Math.Min(8, job.JobId.Length)]}";
 
-            var response = _print.PrintByPurpose(printReq);
+            PrintResponse response;
+            if (!string.IsNullOrWhiteSpace(explicitPrinter))
+            {
+                // Impresión directa a una impresora nombrada en el principal.
+                response = _print.Print(new UniversalPrintRequest
+                {
+                    PrinterName = explicitPrinter,
+                    ContentType = NormalizeType(job.Type),
+                    Content = job.Content,
+                    Copies = Math.Max(1, job.Copies),
+                    JobName = jobName,
+                }, "/remote/explicit");
+            }
+            else
+            {
+                // Impresión por ruta/propósito configurado.
+                response = _print.PrintByPurpose(new PrintByPurposeRequest
+                {
+                    Purpose = job.Route,
+                    ContentType = NormalizeType(job.Type),
+                    Content = job.Content,
+                    Copies = Math.Max(1, job.Copies),
+                    JobName = jobName,
+                });
+            }
 
             if (response.Success)
             {
@@ -363,6 +385,9 @@ public sealed class RemoteBridgeService : IDisposable
                msg.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase) ||
                msg.Contains("Forbidden", StringComparison.OrdinalIgnoreCase);
     }
+
+    private static string? GetMeta(RemotePrintJob job, string key) =>
+        job.Metadata != null && job.Metadata.TryGetValue(key, out var v) ? v : null;
 
     private static string NormalizeType(string? type) =>
         (type?.ToLowerInvariant() ?? "escpos") switch
