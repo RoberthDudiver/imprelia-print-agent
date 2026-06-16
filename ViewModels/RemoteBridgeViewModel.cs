@@ -176,6 +176,7 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
         _config.Save();
         TestResult = "";
         _log.Info("Remote Bridge: configuración guardada.", "Bridge");
+        ConfigApplied?.Invoke(this, EventArgs.Empty);
 
         _ = Task.Run(async () =>
         {
@@ -183,6 +184,9 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
             await _bridge.StartAsync();
         });
     }
+
+    /// <summary>Se dispara cuando la config (en particular AgentId) cambió y otros VMs deben refrescar.</summary>
+    public event EventHandler? ConfigApplied;
 
     private void ApplyToConfig()
     {

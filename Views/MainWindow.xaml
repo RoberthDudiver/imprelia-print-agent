@@ -216,6 +216,24 @@
                         <TextBlock Text="{loc:Tr sidebar.active}" FontSize="12"
                                    Foreground="#22C55E" FontWeight="SemiBold"/>
                     </StackPanel>
+                    <StackPanel Margin="0,0,0,4">
+                        <TextBlock Text="{loc:Tr sidebar.agentId}" FontSize="10" Foreground="#64748B"/>
+                        <TextBlock Text="{Binding AgentId}" FontSize="12" FontWeight="SemiBold"
+                                   FontFamily="Consolas" TextTrimming="CharacterEllipsis">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#60A5FA"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasAgentId}" Value="False">
+                                            <Setter Property="Foreground" Value="#64748B"/>
+                                            <Setter Property="FontStyle" Value="Italic"/>
+                                            <Setter Property="FontWeight" Value="Normal"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
                         <TextBlock Text="{loc:Tr sidebar.version}" FontSize="11" Foreground="#64748B"/>
                         <TextBlock Text="  " FontSize="11"/>

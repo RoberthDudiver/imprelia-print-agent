@@ -19,6 +19,7 @@ public sealed class ClientViewModel : ViewModelBase
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
     public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
     public ObservableCollection<string> Agents { get; } = new();
+    public bool HasAgents => Agents.Count > 0;
 
     private string _discoverAgentId = "";
     public string DiscoverAgentId { get => _discoverAgentId; set => Set(ref _discoverAgentId, value); }
@@ -94,6 +95,7 @@ public sealed class ClientViewModel : ViewModelBase
     public RelayCommand TestHubCommand { get; }
     public RelayCommand DiscoverCommand { get; }
     public RelayCommand FindAgentsCommand { get; }
+    public RelayCommand<string> SelectAgentCommand { get; }
     public RelayCommand<DiscoveredPrinter> InstallDiscoveredCommand { get; }
 
     public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender)
@@ -118,6 +120,7 @@ public sealed class ClientViewModel : ViewModelBase
         TestHubCommand    = new RelayCommand(async () => await TestHubAsync());
         DiscoverCommand   = new RelayCommand(async () => await DiscoverAsync(), () => !IsDiscovering);
         FindAgentsCommand = new RelayCommand(async () => await FindAgentsAsync(), () => !IsDiscovering);
+        SelectAgentCommand = new RelayCommand<string>(a => { if (!string.IsNullOrWhiteSpace(a)) DiscoverAgentId = a; });
         InstallDiscoveredCommand = new RelayCommand<DiscoveredPrinter>(InstallDiscovered);
     }
 
@@ -130,6 +133,7 @@ public sealed class ClientViewModel : ViewModelBase
             var list = await _sender.DiscoverAgentsAsync();
             Agents.Clear();
             foreach (var a in list) Agents.Add(a.AgentId);
+            OnPropertyChanged(nameof(HasAgents));
 
             if (list.Count == 0)
                 ShowError(Loc.T("client.noAgents"));

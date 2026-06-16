@@ -29,6 +29,10 @@ public sealed class MainViewModel : ViewModelBase
     public string AgentVersion => LocalServer.Version;
     public int AgentPort => _startedPort;
     public string ListeningAddress => $"127.0.0.1:{_startedPort}";
+    public string AgentId => string.IsNullOrWhiteSpace(_config.RemoteBridge.AgentId)
+        ? Localization.Loc.T("sidebar.agentIdMissing")
+        : _config.RemoteBridge.AgentId;
+    public bool HasAgentId => !string.IsNullOrWhiteSpace(_config.RemoteBridge.AgentId);
 
     public ICommand NavDashboardCommand { get; }
     public ICommand NavPrintersCommand { get; }
@@ -57,6 +61,13 @@ public sealed class MainViewModel : ViewModelBase
         Logs      = new LogsViewModel(log);
         Bridge    = new RemoteBridgeViewModel(config, bridge, log);
         Client    = new ClientViewModel(config, log, ipp, sender);
+
+        // Refrescar el AgentId de la sidebar cuando se guarda la config del bridge.
+        Bridge.ConfigApplied += (_, _) =>
+        {
+            OnPropertyChanged(nameof(AgentId));
+            OnPropertyChanged(nameof(HasAgentId));
+        };
 
         _currentPage = Dashboard;
 
