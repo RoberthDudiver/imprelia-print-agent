@@ -12,6 +12,13 @@ public sealed class DiscoveredPrinter
     public bool IsDefault { get; set; }
 }
 
+/// <summary>Agente conectado al hub (principal candidato), tal como lo lista el hub.</summary>
+public sealed class RemoteAgent
+{
+    public string AgentId { get; set; } = "";
+    public int PrinterCount { get; set; }
+}
+
 /// <summary>
 /// Emisor del modo cliente. Toma un documento capturado (PDF) por una impresora
 /// virtual y lo envía al hub para que el agente principal lo imprima en la
@@ -102,6 +109,26 @@ public sealed class ClientSenderService
             _log.Error($"Cliente: error enviando job de '{vp.LocalName}': {ex.Message}", "Cliente");
             return false;
         }
+    }
+
+    /// <summary>Lista los agentes conectados al hub (para elegir el principal).</summary>
+    public async Task<List<RemoteAgent>> DiscoverAgentsAsync(CancellationToken ct = default)
+    {
+        var server = _config.RemoteBridge.ServerUrl?.TrimEnd('/');
+        if (string.IsNullOrWhiteSpace(server))
+            throw new InvalidOperationException("ServerUrl del hub sin configurar.");
+
+        var url = $"{server}/imprelia/agents";
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.TryAddWithoutValidation("X-Api-Key", _config.RemoteBridge.ApiKey ?? "");
+        req.Headers.TryAddWithoutValidation("X-Agent-Id", _config.RemoteBridge.AgentId ?? "");
+
+        using var res = await _http.SendAsync(req, ct);
+        res.EnsureSuccessStatusCode();
+        var body = await res.Content.ReadAsStringAsync(ct);
+        var list = JsonSerializer.Deserialize<List<RemoteAgent>>(body,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        return list ?? new List<RemoteAgent>();
     }
 
     /// <summary>Descubre las impresoras que publicó un agente principal en el hub.</summary>

@@ -18,6 +18,7 @@ public sealed class ClientViewModel : ViewModelBase
 
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
     public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
+    public ObservableCollection<string> Agents { get; } = new();
 
     private string _discoverAgentId = "";
     public string DiscoverAgentId { get => _discoverAgentId; set => Set(ref _discoverAgentId, value); }
@@ -92,6 +93,7 @@ public sealed class ClientViewModel : ViewModelBase
     public RelayCommand UninstallCommand { get; }
     public RelayCommand TestHubCommand { get; }
     public RelayCommand DiscoverCommand { get; }
+    public RelayCommand FindAgentsCommand { get; }
     public RelayCommand<DiscoveredPrinter> InstallDiscoveredCommand { get; }
 
     public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender)
@@ -115,7 +117,37 @@ public sealed class ClientViewModel : ViewModelBase
         UninstallCommand  = new RelayCommand(UninstallSelected, () => HasSelection);
         TestHubCommand    = new RelayCommand(async () => await TestHubAsync());
         DiscoverCommand   = new RelayCommand(async () => await DiscoverAsync(), () => !IsDiscovering);
+        FindAgentsCommand = new RelayCommand(async () => await FindAgentsAsync(), () => !IsDiscovering);
         InstallDiscoveredCommand = new RelayCommand<DiscoveredPrinter>(InstallDiscovered);
+    }
+
+    private async Task FindAgentsAsync()
+    {
+        IsDiscovering = true;
+        Message = "";
+        try
+        {
+            var list = await _sender.DiscoverAgentsAsync();
+            Agents.Clear();
+            foreach (var a in list) Agents.Add(a.AgentId);
+
+            if (list.Count == 0)
+                ShowError(Loc.T("client.noAgents"));
+            else
+            {
+                // Si hay uno solo, lo seleccionamos directo.
+                if (list.Count == 1) DiscoverAgentId = list[0].AgentId;
+                ShowOk(string.Format(Loc.T("client.agentsFound"), list.Count));
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"{Loc.T("client.discoverError")} {ex.Message}");
+        }
+        finally
+        {
+            IsDiscovering = false;
+        }
     }
 
     // ── Descubrimiento de impresoras del principal ────────────────────────────

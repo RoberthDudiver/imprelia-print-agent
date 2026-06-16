@@ -236,6 +236,10 @@ internal static class Strings
         ["client.discoverEmpty"] = "El principal no publicó impresoras (¿está conectado al hub?).",
         ["client.discoverError"] = "No se pudo descubrir:",
         ["client.enableSaveFirst"] = "Activá el modo cliente y guardá antes de instalar (el servidor IPP debe estar corriendo).",
+        ["client.findAgents"] = "🔄 Buscar agentes",
+        ["client.agentsFound"] = "{0} agente(s) principal(es) conectado(s). Elegí uno.",
+        ["client.noAgents"] = "No hay agentes conectados al hub. Revisá que el principal esté con Remote Bridge conectado.",
+        ["client.agentIdHelp"] = "Es el AgentId que pusiste en Remote Bridge del agente principal. Tocá Buscar agentes para verlos.",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -463,5 +467,9 @@ internal static class Strings
         ["client.discoverEmpty"] = "The principal hasn't published printers (is it connected to the hub?).",
         ["client.discoverError"] = "Discovery failed:",
         ["client.enableSaveFirst"] = "Enable client mode and save before installing (the IPP server must be running).",
+        ["client.findAgents"] = "🔄 Find agents",
+        ["client.agentsFound"] = "{0} principal agent(s) connected. Pick one.",
+        ["client.noAgents"] = "No agents connected to the hub. Make sure the principal has Remote Bridge connected.",
+        ["client.agentIdHelp"] = "It's the AgentId you set in the principal's Remote Bridge. Click Find agents to see them.",
     };
 }

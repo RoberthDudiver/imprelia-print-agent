@@ -115,9 +115,16 @@
                         <Button DockPanel.Dock="Right" Content="{loc:Tr client.discoverBtn}"
                                 Command="{Binding DiscoverCommand}"
                                 Style="{StaticResource Btn.Primary}" Margin="8,0,0,0"/>
-                        <TextBox Text="{Binding DiscoverAgentId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource Input.Text}"/>
+                        <Button DockPanel.Dock="Right" Content="{loc:Tr client.findAgents}"
+                                Command="{Binding FindAgentsCommand}"
+                                Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0"/>
+                        <ComboBox IsEditable="True"
+                                  Text="{Binding DiscoverAgentId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemsSource="{Binding Agents}"
+                                  Style="{StaticResource Input.Combo}"/>
                     </DockPanel>
+                    <TextBlock Text="{loc:Tr client.agentIdHelp}" Style="{StaticResource T.Muted}"
+                               TextWrapping="Wrap" Margin="0,4,0,0"/>
 
                     <!-- Lista descubierta -->
                     <ItemsControl ItemsSource="{Binding Discovered}" Margin="0,12,0,0">
