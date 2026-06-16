@@ -11,6 +11,24 @@
             <TextBlock Style="{StaticResource T.PageTitle}" Text="{loc:Tr client.title}"/>
             <TextBlock Style="{StaticResource T.PageSub}" TextWrapping="Wrap" Text="{loc:Tr client.subtitle}"/>
 
+            <!-- Ayuda: pasos de configuración -->
+            <Expander Margin="0,8,0,4" Foreground="#94A3B8" IsExpanded="False">
+                <Expander.Header>
+                    <TextBlock Text="{loc:Tr client.helpTitle}" FontSize="12" Foreground="#60A5FA" FontWeight="SemiBold"/>
+                </Expander.Header>
+                <Border CornerRadius="8" Padding="14" Margin="0,8,0,0"
+                        Background="#0B1E3A" BorderBrush="#1E293B" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr client.help1}" FontSize="12" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr client.help2}" FontSize="12" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr client.help3}" FontSize="12" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr client.help4}" FontSize="12" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr client.help5}" FontSize="12" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <TextBlock Text="{loc:Tr client.helpHub}" FontSize="11" Foreground="#F59E0B" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Expander>
+
             <!-- Banner de mensaje -->
             <Border Margin="0,4,0,12" CornerRadius="8" Padding="12,10"
                     Visibility="{Binding Message, Converter={StaticResource StrToVis}}">

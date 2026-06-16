@@ -211,6 +211,13 @@ internal static class Strings
         ["client.provisionHint"] = "Instalar/Quitar crea o borra la impresora en Windows (requiere permisos de administrador).",
         ["client.saveBtn"] = "Guardar",
         ["client.cancelBtn"] = "Cancelar",
+        ["client.helpTitle"] = "ℹ ¿Cómo configurarlo?",
+        ["client.help1"] = "1. En la PC con la impresora: abrí Remote Bridge, habilitalo y conectalo al hub. Anotá su AgentId.",
+        ["client.help2"] = "2. Acá (PC cliente): cargá la misma URL/API key del hub en Remote Bridge, habilitá el modo cliente y Guardá.",
+        ["client.help3"] = "3. + Nueva: nombre local (ej. Cocina Remota), AgentId del principal, y la impresora (ej. Cocina) o una ruta.",
+        ["client.help4"] = "4. Seleccionala e Instalar en Windows (pide permisos de administrador).",
+        ["client.help5"] = "5. Imprimí desde cualquier app eligiendo esa impresora.",
+        ["client.helpHub"] = "El hub debe tener habilitado el endpoint de trabajos (ExposeHttpJobApi).",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -413,5 +420,12 @@ internal static class Strings
         ["client.provisionHint"] = "Install/Remove creates or deletes the printer in Windows (requires administrator permissions).",
         ["client.saveBtn"] = "Save",
         ["client.cancelBtn"] = "Cancel",
+        ["client.helpTitle"] = "ℹ How to set it up?",
+        ["client.help1"] = "1. On the PC with the printer: open Remote Bridge, enable it and connect it to the hub. Note its AgentId.",
+        ["client.help2"] = "2. Here (client PC): set the same hub URL/API key in Remote Bridge, enable client mode and Save.",
+        ["client.help3"] = "3. + New: local name (e.g. Remote Kitchen), the principal's AgentId, and the printer (e.g. Cocina) or a route.",
+        ["client.help4"] = "4. Select it and Install in Windows (asks for administrator permission).",
+        ["client.help5"] = "5. Print from any app by choosing that printer.",
+        ["client.helpHub"] = "The hub must have the jobs endpoint enabled (ExposeHttpJobApi).",
     };
 }
