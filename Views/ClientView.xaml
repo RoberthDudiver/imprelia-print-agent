@@ -104,6 +104,49 @@
                 </StackPanel>
             </Border>
 
+            <!-- ── Descubrir impresoras del principal ─────────────── -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="{loc:Tr client.discoverTitle}" Style="{StaticResource T.CardTitle}"/>
+                    <TextBlock Text="{loc:Tr client.discoverSub}" Style="{StaticResource T.Muted}"
+                               TextWrapping="Wrap" Margin="0,2,0,10"/>
+
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="{loc:Tr client.discoverBtn}"
+                                Command="{Binding DiscoverCommand}"
+                                Style="{StaticResource Btn.Primary}" Margin="8,0,0,0"/>
+                        <TextBox Text="{Binding DiscoverAgentId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input.Text}"/>
+                    </DockPanel>
+
+                    <!-- Lista descubierta -->
+                    <ItemsControl ItemsSource="{Binding Discovered}" Margin="0,12,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="8" Padding="12,10" Margin="0,0,0,6"
+                                        Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontSize="13"
+                                                       Foreground="#E2E8F0" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Type}" FontSize="11" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="{loc:Tr client.discoverInstall}"
+                                                Command="{Binding DataContext.InstallDiscoveredCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource Btn.Ghost}" Height="28" Padding="12,0" FontSize="12"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <!-- ── Impresoras virtuales ───────────────────────────── -->
             <Border Style="{StaticResource Card}">
                 <StackPanel>

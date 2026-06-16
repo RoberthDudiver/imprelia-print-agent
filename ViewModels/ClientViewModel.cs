@@ -17,6 +17,13 @@ public sealed class ClientViewModel : ViewModelBase
     private readonly ClientSenderService _sender;
 
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
+    public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
+
+    private string _discoverAgentId = "";
+    public string DiscoverAgentId { get => _discoverAgentId; set => Set(ref _discoverAgentId, value); }
+
+    private bool _isDiscovering;
+    public bool IsDiscovering { get => _isDiscovering; private set => Set(ref _isDiscovering, value); }
 
     private bool _enabled;
     public bool Enabled { get => _enabled; set => Set(ref _enabled, value); }
@@ -84,6 +91,8 @@ public sealed class ClientViewModel : ViewModelBase
     public RelayCommand InstallCommand { get; }
     public RelayCommand UninstallCommand { get; }
     public RelayCommand TestHubCommand { get; }
+    public RelayCommand DiscoverCommand { get; }
+    public RelayCommand<DiscoveredPrinter> InstallDiscoveredCommand { get; }
 
     public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender)
     {
@@ -105,6 +114,81 @@ public sealed class ClientViewModel : ViewModelBase
         InstallCommand    = new RelayCommand(InstallSelected, () => HasSelection);
         UninstallCommand  = new RelayCommand(UninstallSelected, () => HasSelection);
         TestHubCommand    = new RelayCommand(async () => await TestHubAsync());
+        DiscoverCommand   = new RelayCommand(async () => await DiscoverAsync(), () => !IsDiscovering);
+        InstallDiscoveredCommand = new RelayCommand<DiscoveredPrinter>(InstallDiscovered);
+    }
+
+    // ── Descubrimiento de impresoras del principal ────────────────────────────
+
+    private async Task DiscoverAsync()
+    {
+        IsDiscovering = true;
+        Discovered.Clear();
+        Message = "";
+        try
+        {
+            var list = await _sender.DiscoverPrintersAsync(DiscoverAgentId.Trim());
+            foreach (var p in list) Discovered.Add(p);
+            if (list.Count == 0)
+                ShowOk(Loc.T("client.discoverEmpty"));
+            else
+                ShowOk(string.Format(Loc.T("client.discoverOk"), list.Count, DiscoverAgentId.Trim()));
+        }
+        catch (Exception ex)
+        {
+            ShowError($"{Loc.T("client.discoverError")} {ex.Message}");
+        }
+        finally
+        {
+            IsDiscovering = false;
+        }
+    }
+
+    private void InstallDiscovered(DiscoveredPrinter? p)
+    {
+        if (p == null) return;
+
+        // Crear la impresora virtual espejando la real del principal.
+        var vp = new ClientVirtualPrinter
+        {
+            LocalName = $"{p.Name} (Remota)",
+            TargetAgentId = DiscoverAgentId.Trim(),
+            TargetPrinter = p.Name,
+            Route = "",
+            PaperSize = PaperSizeForType(p.Type),
+        };
+
+        // Evitar duplicados por nombre local.
+        var existing = Printers.FirstOrDefault(x =>
+            string.Equals(x.LocalName, vp.LocalName, StringComparison.OrdinalIgnoreCase));
+        if (existing != null) { Printers.Remove(existing); }
+
+        Printers.Add(vp);
+        Selected = vp;
+        Save();
+
+        if (!_ipp.IsRunning)
+        {
+            ShowError(Loc.T("client.enableSaveFirst"));
+            return;
+        }
+
+        var result = VirtualPrinterProvisioner.Install(vp, _config.ClientMode.IppPort);
+        if (result.Success)
+        {
+            vp.Installed = true;
+            Save();
+            ShowOk(result.Message);
+        }
+        else ShowError(result.Message);
+    }
+
+    private static string PaperSizeForType(string? type)
+    {
+        var t = (type ?? "").ToLowerInvariant();
+        if (t.Contains("thermal") || t.Contains("epos") || t.Contains("pos")) return "thermal80";
+        if (t.Contains("label") || t.Contains("zpl") || t.Contains("tspl") || t.Contains("epl") || t.Contains("dpl")) return "thermal80";
+        return "a4";
     }
 
     // ── Acciones de configuración ─────────────────────────────────────────────
@@ -213,7 +297,7 @@ public sealed class ClientViewModel : ViewModelBase
 
         if (!_ipp.IsRunning)
         {
-            ShowError("Activá el modo cliente y guardá antes de instalar (el servidor IPP debe estar corriendo).");
+            ShowError(Loc.T("client.enableSaveFirst"));
             return;
         }
 

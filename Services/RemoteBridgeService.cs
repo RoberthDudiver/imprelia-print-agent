@@ -141,7 +141,7 @@ public sealed class RemoteBridgeService : IDisposable
                 // CLAVE: al reconectar, la connectionId cambia → hay que volver a
                 // registrarse, si no el servidor no sabe a quién mandarle los trabajos
                 // (síntoma: "andaba y de golpe no imprime hasta deshabilitar/habilitar").
-                try { await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? ""); }
+                try { await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? ""); await PublishPrintersAsync(); }
                 catch (Exception ex) { _log.Warn($"Bridge: re-registro tras reconexión falló — {ex.Message}", "Bridge"); }
                 SetState(BridgeConnectionState.Connected);
                 _lastConnectedAt = DateTime.Now;
@@ -163,6 +163,9 @@ public sealed class RemoteBridgeService : IDisposable
 
             // Registrar el agente en el servidor
             await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? "", ct);
+
+            // Publicar las impresoras locales para que los clientes las descubran.
+            await PublishPrintersAsync();
 
             SetState(BridgeConnectionState.Connected);
             _lastConnectedAt = DateTime.Now;
@@ -384,6 +387,28 @@ public sealed class RemoteBridgeService : IDisposable
         return msg.Contains("401") || msg.Contains("403") ||
                msg.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase) ||
                msg.Contains("Forbidden", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Envía la lista de impresoras locales al hub (descubrimiento por clientes).</summary>
+    private async Task PublishPrintersAsync()
+    {
+        try
+        {
+            if (_hub == null || _hub.State != HubConnectionState.Connected) return;
+
+            var discovery = new WindowsPrinterDiscoveryService(_config);
+            var printers = discovery.ListPrinters()
+                .Select(p => new { p.Name, p.Type, p.IsDefault })
+                .ToList();
+
+            await _hub.InvokeAsync("PublishPrinters", _config.RemoteBridge.AgentId, printers);
+            _log.Info($"Bridge: {printers.Count} impresoras publicadas para descubrimiento.", "Bridge");
+        }
+        catch (Exception ex)
+        {
+            // El hub puede no soportar PublishPrinters (versión vieja): no es crítico.
+            _log.Warn($"Bridge: no se pudieron publicar impresoras — {ex.Message}", "Bridge");
+        }
     }
 
     private static string? GetMeta(RemotePrintJob job, string key) =>

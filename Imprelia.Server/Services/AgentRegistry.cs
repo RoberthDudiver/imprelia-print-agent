@@ -40,6 +40,17 @@ public sealed class AgentRegistry
     public bool IsConnected(string agentId) =>
         _agents.ContainsKey(agentId);
 
+    /// <summary>Guarda las impresoras publicadas por un agente principal.</summary>
+    public void SetPrinters(string agentId, List<RemotePrinterInfo> printers)
+    {
+        if (_agents.TryGetValue(agentId, out var info))
+            info.Printers = printers ?? new List<RemotePrinterInfo>();
+    }
+
+    /// <summary>Impresoras publicadas por un agente (vacío si no publicó o no existe).</summary>
+    public List<RemotePrinterInfo> GetPrinters(string agentId) =>
+        _agents.TryGetValue(agentId, out var info) ? info.Printers : new List<RemotePrinterInfo>();
+
     // ── Gestión de trabajos ───────────────────────────────────────────────────
 
     public PrintJobRecord EnqueueJob(PrintJobRequest request)

@@ -48,6 +48,34 @@ public static class ImpreliaServiceExtensions
                 utcNow        = DateTime.UtcNow,
             }));
 
+        // Descubrimiento: lista de agentes conectados (para el modo cliente)
+        endpoints.MapGet("/imprelia/agents", (
+            AgentRegistry registry,
+            HttpContext ctx,
+            IOptions<ImpreliaOptions> opts) =>
+        {
+            if (!IsApiKeyValid(ctx, opts.Value)) return Results.Unauthorized();
+            return Results.Ok(registry.GetAllAgents().Select(a => new
+            {
+                a.AgentId,
+                a.ConnectedAt,
+                a.LastSeenAt,
+                printerCount = a.Printers.Count,
+            }));
+        });
+
+        // Descubrimiento: impresoras publicadas por un agente principal
+        endpoints.MapGet("/imprelia/agents/{agentId}/printers", (
+            string agentId,
+            AgentRegistry registry,
+            HttpContext ctx,
+            IOptions<ImpreliaOptions> opts) =>
+        {
+            if (!IsApiKeyValid(ctx, opts.Value)) return Results.Unauthorized();
+            if (string.IsNullOrWhiteSpace(agentId)) return Results.BadRequest("agentId es obligatorio.");
+            return Results.Ok(registry.GetPrinters(agentId));
+        });
+
         // Polling: obtener trabajos pendientes (agente → servidor)
         endpoints.MapGet("/imprelia/jobs/pending", (
             string agentId,

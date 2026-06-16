@@ -226,6 +226,16 @@ internal static class Strings
         ["client.paperThermal80"] = "Térmico 80mm (comandas/tickets)",
         ["client.paperThermal58"] = "Térmico 58mm (tickets chicos)",
         ["client.paperHint"] = "Elegí según la impresora real del principal: A4/Carta para normal, Térmico para comandas y tickets.",
+        ["client.discoverTitle"] = "Descubrir impresoras del principal",
+        ["client.discoverSub"] = "Escribí el AgentId del agente principal y traé sus impresoras reales. Después instalás las que quieras con un clic.",
+        ["client.discoverAgentId"] = "AgentId del principal",
+        ["client.discoverBtn"] = "🔍 Descubrir",
+        ["client.discovering"] = "Buscando…",
+        ["client.discoverInstall"] = "Instalar",
+        ["client.discoverOk"] = "Se encontraron {0} impresoras en '{1}'.",
+        ["client.discoverEmpty"] = "El principal no publicó impresoras (¿está conectado al hub?).",
+        ["client.discoverError"] = "No se pudo descubrir:",
+        ["client.enableSaveFirst"] = "Activá el modo cliente y guardá antes de instalar (el servidor IPP debe estar corriendo).",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -443,5 +453,15 @@ internal static class Strings
         ["client.paperThermal80"] = "Thermal 80mm (kitchen/tickets)",
         ["client.paperThermal58"] = "Thermal 58mm (small tickets)",
         ["client.paperHint"] = "Match the principal's real printer: A4/Letter for normal, Thermal for kitchen orders and tickets.",
+        ["client.discoverTitle"] = "Discover the principal's printers",
+        ["client.discoverSub"] = "Enter the principal agent's AgentId and fetch its real printers. Then install the ones you want with one click.",
+        ["client.discoverAgentId"] = "Principal AgentId",
+        ["client.discoverBtn"] = "🔍 Discover",
+        ["client.discovering"] = "Searching…",
+        ["client.discoverInstall"] = "Install",
+        ["client.discoverOk"] = "Found {0} printers on '{1}'.",
+        ["client.discoverEmpty"] = "The principal hasn't published printers (is it connected to the hub?).",
+        ["client.discoverError"] = "Discovery failed:",
+        ["client.enableSaveFirst"] = "Enable client mode and save before installing (the IPP server must be running).",
     };
 }
