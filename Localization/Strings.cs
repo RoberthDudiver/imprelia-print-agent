@@ -220,6 +220,12 @@ internal static class Strings
         ["client.helpHub"] = "El hub debe tener habilitado el endpoint de trabajos (ExposeHttpJobApi).",
         ["client.needNameAgent"] = "Completá el nombre local y el AgentId del agente principal.",
         ["client.selectHint"] = "Seleccioná una impresora de la lista (clic en la fila) para editarla, instalarla o quitarla.",
+        ["client.paperSize"] = "Tipo de papel",
+        ["client.paperA4"] = "A4 (documentos)",
+        ["client.paperLetter"] = "Carta (documentos)",
+        ["client.paperThermal80"] = "Térmico 80mm (comandas/tickets)",
+        ["client.paperThermal58"] = "Térmico 58mm (tickets chicos)",
+        ["client.paperHint"] = "Elegí según la impresora real del principal: A4/Carta para normal, Térmico para comandas y tickets.",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -431,5 +437,11 @@ internal static class Strings
         ["client.helpHub"] = "The hub must have the jobs endpoint enabled (ExposeHttpJobApi).",
         ["client.needNameAgent"] = "Fill in the local name and the principal agent's AgentId.",
         ["client.selectHint"] = "Select a printer from the list (click the row) to edit, install or remove it.",
+        ["client.paperSize"] = "Paper type",
+        ["client.paperA4"] = "A4 (documents)",
+        ["client.paperLetter"] = "Letter (documents)",
+        ["client.paperThermal80"] = "Thermal 80mm (kitchen/tickets)",
+        ["client.paperThermal58"] = "Thermal 58mm (small tickets)",
+        ["client.paperHint"] = "Match the principal's real printer: A4/Letter for normal, Thermal for kitchen orders and tickets.",
     };
 }

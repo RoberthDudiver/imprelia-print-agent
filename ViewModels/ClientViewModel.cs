@@ -61,6 +61,9 @@ public sealed class ClientViewModel : ViewModelBase
     private string _editRoute = "";
     public string EditRoute { get => _editRoute; set => Set(ref _editRoute, value); }
 
+    private string _editPaperSize = "a4";
+    public string EditPaperSize { get => _editPaperSize; set => Set(ref _editPaperSize, value); }
+
     // ── Banner de mensajes ────────────────────────────────────────────────────
 
     private string _message = "";
@@ -134,6 +137,7 @@ public sealed class ClientViewModel : ViewModelBase
         EditAgentId = "";
         EditPrinter = "";
         EditRoute = "";
+        EditPaperSize = "a4";
         Message = "";
     }
 
@@ -146,6 +150,7 @@ public sealed class ClientViewModel : ViewModelBase
         EditAgentId = Selected.TargetAgentId;
         EditPrinter = Selected.TargetPrinter;
         EditRoute = Selected.Route;
+        EditPaperSize = string.IsNullOrWhiteSpace(Selected.PaperSize) ? "a4" : Selected.PaperSize;
         Message = "";
     }
 
@@ -166,6 +171,7 @@ public sealed class ClientViewModel : ViewModelBase
                 TargetAgentId = EditAgentId.Trim(),
                 TargetPrinter = EditPrinter.Trim(),
                 Route = EditRoute.Trim(),
+                PaperSize = EditPaperSize,
             };
             Printers.Add(vp);
             Selected = vp;
@@ -176,6 +182,7 @@ public sealed class ClientViewModel : ViewModelBase
             Selected.TargetAgentId = EditAgentId.Trim();
             Selected.TargetPrinter = EditPrinter.Trim();
             Selected.Route = EditRoute.Trim();
+            Selected.PaperSize = EditPaperSize;
             // refrescar la lista (ClientVirtualPrinter no notifica)
             var idx = Printers.IndexOf(Selected);
             if (idx >= 0) { Printers[idx] = Selected; Selected = Printers[idx]; }

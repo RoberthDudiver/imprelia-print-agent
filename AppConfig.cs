@@ -36,6 +36,9 @@ public class ClientVirtualPrinter
     public string TargetPrinter { get; set; } = "";
     /// <summary>Ruta/propósito configurado en el principal (ej. "kitchen_order"). Opcional.</summary>
     public string Route { get; set; } = "";
+    /// <summary>Tamaño de papel por defecto: a4 | letter | thermal80 | thermal58.
+    /// Define cómo Windows maqueta la página al imprimir a esta impresora virtual.</summary>
+    public string PaperSize { get; set; } = "a4";
     /// <summary>Si la cola de Windows fue creada correctamente.</summary>
     public bool Installed { get; set; }
 }

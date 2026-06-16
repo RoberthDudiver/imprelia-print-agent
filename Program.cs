@@ -94,12 +94,23 @@ public class TrayApp : ApplicationContext
 
         try
         {
-            _server.Start();
+            // En modo cliente la máquina es un emisor puro: NO levantamos el API
+            // local (:9100). Así GastroManager no imprime local y usa el hub que
+            // ya tiene programado. La impresión local solo existe en el principal.
+            if (!_config.ClientMode.Enabled)
+            {
+                _server.Start();
+                _log.Info($"Escuchando en puerto {_config.Port}.");
+            }
+            else
+            {
+                _log.Info("Modo cliente: API local (:9100) desactivada. La impresión va por el hub.", "Cliente");
+            }
+
             _ = _bridge.StartAsync();
             _ipp.Start();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
-            _log.Info($"Escuchando en puerto {_config.Port}.");
 
             _tray.ShowBalloonTip(3500, "Imprelia Print Agent",
                 "Agente de impresion activo. Hace doble click aca para configurarlo.",

@@ -158,6 +158,17 @@
                             <TextBlock Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,6,0,0"
                                        Text="{loc:Tr client.targetHint}"/>
 
+                            <TextBlock Text="{loc:Tr client.paperSize}" Style="{StaticResource T.Label}" Margin="0,10,0,0"/>
+                            <ComboBox SelectedValue="{Binding EditPaperSize, Mode=TwoWay}" SelectedValuePath="Tag"
+                                      Style="{StaticResource Input.Combo}">
+                                <ComboBoxItem Content="{loc:Tr client.paperA4}" Tag="a4"/>
+                                <ComboBoxItem Content="{loc:Tr client.paperLetter}" Tag="letter"/>
+                                <ComboBoxItem Content="{loc:Tr client.paperThermal80}" Tag="thermal80"/>
+                                <ComboBoxItem Content="{loc:Tr client.paperThermal58}" Tag="thermal58"/>
+                            </ComboBox>
+                            <TextBlock Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,6,0,0"
+                                       Text="{loc:Tr client.paperHint}"/>
+
                             <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                                 <Button Content="{loc:Tr client.saveBtn}" Command="{Binding SaveEditCommand}"
                                         Style="{StaticResource Btn.Primary}" Margin="0,0,8,0"/>

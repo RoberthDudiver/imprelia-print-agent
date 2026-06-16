@@ -235,13 +235,15 @@ public sealed class IppPrintServer
         w.Int(Ipp.ValInteger, "copies-default", 1);
         w.Bool("multiple-document-jobs-supported", false);
 
-        // Tamaños de papel
+        // Tamaños de papel. El default depende del tipo configurado para ESTA
+        // impresora virtual, para que comandas/etiquetas salgan con la maqueta correcta.
+        var media = MediaKeyword(vp?.PaperSize);
         w.Str(Ipp.ValKeyword, "media-supported", "iso_a4_210x297mm")
             .Add(Ipp.ValKeyword, "na_letter_8.5x11in")
             .Add(Ipp.ValKeyword, "om_80x297mm_80x297mm")
             .Add(Ipp.ValKeyword, "om_58x210mm_58x210mm");
-        w.Str(Ipp.ValKeyword, "media-default", "iso_a4_210x297mm");
-        w.Str(Ipp.ValKeyword, "media-ready", "iso_a4_210x297mm");
+        w.Str(Ipp.ValKeyword, "media-default", media);
+        w.Str(Ipp.ValKeyword, "media-ready", media);
 
         // Atributos aceptados al crear un trabajo
         w.Str(Ipp.ValKeyword, "job-creation-attributes-supported", "copies")
@@ -305,6 +307,14 @@ public sealed class IppPrintServer
     private ClientVirtualPrinter? FindPrinter(string id) =>
         _config.ClientMode.VirtualPrinters
             .FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.OrdinalIgnoreCase));
+
+    private static string MediaKeyword(string? paperSize) => (paperSize ?? "a4").ToLowerInvariant() switch
+    {
+        "letter"    => "na_letter_8.5x11in",
+        "thermal80" => "om_80x297mm_80x297mm",
+        "thermal58" => "om_58x210mm_58x210mm",
+        _           => "iso_a4_210x297mm",
+    };
 
     private static string DeterministicGuid(string seed)
     {
