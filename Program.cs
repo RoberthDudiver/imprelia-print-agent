@@ -99,15 +99,19 @@ public class TrayApp : ApplicationContext
             // ya tiene programado. La impresión local solo existe en el principal.
             if (!_config.ClientMode.Enabled)
             {
+                // PRINCIPAL: API local + receptor del hub (se registra, recibe, publica).
                 _server.Start();
                 _log.Info($"Escuchando en puerto {_config.Port}.");
+                _ = _bridge.StartAsync();
             }
             else
             {
-                _log.Info("Modo cliente: API local (:9100) desactivada. La impresión va por el hub.", "Cliente");
+                // CLIENTE: emisor puro. NO levanta :9100 ni se registra en el hub
+                // (si se registrara con el mismo AgentId del tenant, pisaría al
+                // principal). Solo usa HTTP para descubrir y mandar trabajos.
+                _log.Info("Modo cliente: API local (:9100) y receptor del hub desactivados. Solo emite al hub.", "Cliente");
             }
 
-            _ = _bridge.StartAsync();
             _ipp.Start();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");

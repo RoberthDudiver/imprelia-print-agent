@@ -229,8 +229,8 @@ internal static class Strings
         ["client.paperThermal58"] = "Térmico 58mm (tickets chicos)",
         ["client.paperHint"] = "Elegí según la impresora real del principal: A4/Carta para normal, Térmico para comandas y tickets.",
         ["client.discoverTitle"] = "Descubrir impresoras del principal",
-        ["client.discoverSub"] = "Escribí el AgentId del agente principal y traé sus impresoras reales. Después instalás las que quieras con un clic.",
-        ["client.discoverAgentId"] = "AgentId del principal",
+        ["client.discoverSub"] = "Traé las impresoras reales del agente principal de tu local y elegí cuáles instalar.",
+        ["client.discoverAgentId"] = "AgentId del local (el mismo que en GastroManager)",
         ["client.discoverBtn"] = "🔍 Descubrir",
         ["client.discovering"] = "Buscando…",
         ["client.discoverInstall"] = "Instalar",
@@ -241,8 +241,8 @@ internal static class Strings
         ["client.findAgents"] = "🔄 Buscar agentes",
         ["client.agentsFound"] = "{0} agente(s) principal(es) conectado(s). Elegí uno.",
         ["client.noAgents"] = "No hay agentes conectados al hub. Revisá que el principal esté con Remote Bridge conectado.",
-        ["client.agentIdHelp"] = "Es el AgentId que pusiste en Remote Bridge del agente principal. Tocá Buscar agentes para verlos.",
-        ["client.discoverSelf"] = "Ese AgentId es el de esta máquina. Tenés que poner el AgentId del agente principal (la PC con las impresoras), no el de este cliente.",
+        ["client.agentIdHelp"] = "Es el AgentId (GUID) de tu local — el mismo que GastroManager te muestra en 'Configurar agente'. Tanto el principal como este cliente usan el mismo AgentId y API key. Se completa solo desde Remote Bridge.",
+        ["client.discoverNoAgent"] = "Falta el AgentId. Cargalo en Remote Bridge (lo da GastroManager en 'Configurar agente').",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -463,8 +463,8 @@ internal static class Strings
         ["client.paperThermal58"] = "Thermal 58mm (small tickets)",
         ["client.paperHint"] = "Match the principal's real printer: A4/Letter for normal, Thermal for kitchen orders and tickets.",
         ["client.discoverTitle"] = "Discover the principal's printers",
-        ["client.discoverSub"] = "Enter the principal agent's AgentId and fetch its real printers. Then install the ones you want with one click.",
-        ["client.discoverAgentId"] = "Principal AgentId",
+        ["client.discoverSub"] = "Fetch your local's principal agent's real printers and choose which to install.",
+        ["client.discoverAgentId"] = "Local AgentId (same as in GastroManager)",
         ["client.discoverBtn"] = "🔍 Discover",
         ["client.discovering"] = "Searching…",
         ["client.discoverInstall"] = "Install",
@@ -475,7 +475,7 @@ internal static class Strings
         ["client.findAgents"] = "🔄 Find agents",
         ["client.agentsFound"] = "{0} principal agent(s) connected. Pick one.",
         ["client.noAgents"] = "No agents connected to the hub. Make sure the principal has Remote Bridge connected.",
-        ["client.agentIdHelp"] = "It's the AgentId you set in the principal's Remote Bridge. Click Find agents to see them.",
-        ["client.discoverSelf"] = "That AgentId belongs to this machine. You need the principal agent's AgentId (the PC with the printers), not this client's.",
+        ["client.agentIdHelp"] = "It's your local's AgentId (GUID) — the same one GastroManager shows under 'Configure agent'. Both the principal and this client use the same AgentId and API key. Auto-filled from Remote Bridge.",
+        ["client.discoverNoAgent"] = "AgentId is missing. Set it in Remote Bridge (GastroManager provides it under 'Configure agent').",
     };
 }

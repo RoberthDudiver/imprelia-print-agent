@@ -18,10 +18,9 @@ public sealed class ClientViewModel : ViewModelBase
 
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
     public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
-    public ObservableCollection<string> Agents { get; } = new();
-    public bool HasAgents => Agents.Count > 0;
 
     private string _discoverAgentId = "";
+    /// <summary>AgentId del local (= TenantId). El principal publicó sus impresoras bajo este id.</summary>
     public string DiscoverAgentId { get => _discoverAgentId; set => Set(ref _discoverAgentId, value); }
 
     private bool _isDiscovering;
@@ -94,8 +93,6 @@ public sealed class ClientViewModel : ViewModelBase
     public RelayCommand UninstallCommand { get; }
     public RelayCommand TestHubCommand { get; }
     public RelayCommand DiscoverCommand { get; }
-    public RelayCommand FindAgentsCommand { get; }
-    public RelayCommand<string> SelectAgentCommand { get; }
     public RelayCommand<DiscoveredPrinter> InstallDiscoveredCommand { get; }
 
     public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender)
@@ -107,6 +104,9 @@ public sealed class ClientViewModel : ViewModelBase
 
         _enabled = config.ClientMode.Enabled;
         _ippPort = config.ClientMode.IppPort;
+        // El AgentId a descubrir es el del propio local (= TenantId): el principal
+        // publicó sus impresoras bajo ese id. Lo tomamos de la config del bridge.
+        _discoverAgentId = config.RemoteBridge.AgentId ?? "";
         foreach (var vp in config.ClientMode.VirtualPrinters) Printers.Add(vp);
 
         SaveCommand       = new RelayCommand(Save);
@@ -119,45 +119,7 @@ public sealed class ClientViewModel : ViewModelBase
         UninstallCommand  = new RelayCommand(UninstallSelected, () => HasSelection);
         TestHubCommand    = new RelayCommand(async () => await TestHubAsync());
         DiscoverCommand   = new RelayCommand(async () => await DiscoverAsync(), () => !IsDiscovering);
-        FindAgentsCommand = new RelayCommand(async () => await FindAgentsAsync(), () => !IsDiscovering);
-        SelectAgentCommand = new RelayCommand<string>(a => { if (!string.IsNullOrWhiteSpace(a)) DiscoverAgentId = a; });
         InstallDiscoveredCommand = new RelayCommand<DiscoveredPrinter>(InstallDiscovered);
-    }
-
-    private async Task FindAgentsAsync()
-    {
-        IsDiscovering = true;
-        Message = "";
-        try
-        {
-            var list = await _sender.DiscoverAgentsAsync();
-            // Excluir el propio agente: este cliente no es un principal candidato.
-            var self = _config.RemoteBridge.AgentId?.Trim() ?? "";
-            var others = list
-                .Where(a => !string.Equals(a.AgentId, self, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            Agents.Clear();
-            foreach (var a in others) Agents.Add(a.AgentId);
-            OnPropertyChanged(nameof(HasAgents));
-
-            if (others.Count == 0)
-                ShowError(Loc.T("client.noAgents"));
-            else
-            {
-                // Si hay uno solo, lo seleccionamos directo.
-                if (others.Count == 1) DiscoverAgentId = others[0].AgentId;
-                ShowOk(string.Format(Loc.T("client.agentsFound"), others.Count));
-            }
-        }
-        catch (Exception ex)
-        {
-            ShowError($"{Loc.T("client.discoverError")} {ex.Message}");
-        }
-        finally
-        {
-            IsDiscovering = false;
-        }
     }
 
     // ── Descubrimiento de impresoras del principal ────────────────────────────
@@ -168,14 +130,13 @@ public sealed class ClientViewModel : ViewModelBase
         Discovered.Clear();
         Message = "";
 
-        // Defensa: si el usuario apuntó a su propio AgentId, eso traería las
-        // impresoras locales del cliente, no de un principal — error frecuente.
+        // El AgentId a descubrir es el del local (= TenantId). El agente PRINCIPAL
+        // publicó sus impresoras bajo ese mismo id; este cliente las consulta.
         var target = DiscoverAgentId.Trim();
-        var self = _config.RemoteBridge.AgentId?.Trim() ?? "";
-        if (!string.IsNullOrEmpty(self) && string.Equals(target, self, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(target))
         {
             IsDiscovering = false;
-            ShowError(Loc.T("client.discoverSelf"));
+            ShowError(Loc.T("client.discoverNoAgent"));
             return;
         }
 
