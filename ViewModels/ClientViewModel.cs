@@ -19,9 +19,9 @@ public sealed class ClientViewModel : ViewModelBase
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
     public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
 
-    private string _discoverAgentId = "";
-    /// <summary>AgentId del local (= TenantId). El principal publicó sus impresoras bajo este id.</summary>
-    public string DiscoverAgentId { get => _discoverAgentId; set => Set(ref _discoverAgentId, value); }
+    private string _principalToken = "";
+    /// <summary>Token (base64) del principal: trae ServerUrl + AgentId + ApiKey.</summary>
+    public string PrincipalToken { get => _principalToken; set => Set(ref _principalToken, value); }
 
     private bool _isDiscovering;
     public bool IsDiscovering { get => _isDiscovering; private set => Set(ref _isDiscovering, value); }
@@ -104,9 +104,10 @@ public sealed class ClientViewModel : ViewModelBase
 
         _enabled = config.ClientMode.Enabled;
         _ippPort = config.ClientMode.IppPort;
-        // El AgentId a descubrir es el del propio local (= TenantId): el principal
-        // publicó sus impresoras bajo ese id. Lo tomamos de la config del bridge.
-        _discoverAgentId = config.RemoteBridge.AgentId ?? "";
+        // Prefijar el token con lo que ya haya configurado (onboarding), así
+        // descubrir es un solo clic.
+        if (!string.IsNullOrWhiteSpace(config.RemoteBridge.AgentId))
+            _principalToken = SetupToken.Encode(config.RemoteBridge.ServerUrl, config.RemoteBridge.AgentId, config.RemoteBridge.ApiKey);
         foreach (var vp in config.ClientMode.VirtualPrinters) Printers.Add(vp);
 
         SaveCommand       = new RelayCommand(Save);
@@ -130,24 +131,30 @@ public sealed class ClientViewModel : ViewModelBase
         Discovered.Clear();
         Message = "";
 
-        // El AgentId a descubrir es el del local (= TenantId). El agente PRINCIPAL
-        // publicó sus impresoras bajo ese mismo id; este cliente las consulta.
-        var target = DiscoverAgentId.Trim();
-        if (string.IsNullOrEmpty(target))
+        // El token trae todo: ServerUrl + AgentId + ApiKey. Lo decodificamos,
+        // guardamos las credenciales (para descubrir, instalar e imprimir) y
+        // consultamos las impresoras que publicó el principal bajo ese AgentId.
+        var data = SetupToken.Decode(PrincipalToken);
+        if (data == null)
         {
             IsDiscovering = false;
-            ShowError(Loc.T("client.discoverNoAgent"));
+            ShowError(Loc.T("client.tokenInvalid"));
             return;
         }
 
+        _config.RemoteBridge.ServerUrl = data.ServerUrl;
+        _config.RemoteBridge.AgentId   = data.AgentId;
+        _config.RemoteBridge.ApiKey    = data.ApiKey;
+        _config.Save();
+
         try
         {
-            var list = await _sender.DiscoverPrintersAsync(target);
+            var list = await _sender.DiscoverPrintersAsync(data.AgentId);
             foreach (var p in list) Discovered.Add(p);
             if (list.Count == 0)
                 ShowOk(Loc.T("client.discoverEmpty"));
             else
-                ShowOk(string.Format(Loc.T("client.discoverOk"), list.Count, target));
+                ShowOk(string.Format(Loc.T("client.discoverOk"), list.Count, data.AgentId));
         }
         catch (Exception ex)
         {
@@ -164,10 +171,11 @@ public sealed class ClientViewModel : ViewModelBase
         if (p == null) return;
 
         // Crear la impresora virtual espejando la real del principal.
+        // El destino es el AgentId del local (ya guardado al descubrir desde el token).
         var vp = new ClientVirtualPrinter
         {
             LocalName = $"{p.Name} (Remota)",
-            TargetAgentId = DiscoverAgentId.Trim(),
+            TargetAgentId = _config.RemoteBridge.AgentId.Trim(),
             TargetPrinter = p.Name,
             Route = "",
             PaperSize = PaperSizeForType(p.Type),

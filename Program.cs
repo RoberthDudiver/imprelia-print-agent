@@ -39,6 +39,17 @@ static class Program
             wpfApp.Resources.MergedDictionaries.Add(styles);
         }
 
+        // Onboarding del primer arranque (rol principal/cliente + token). Va ACÁ,
+        // antes del loop de WinForms: un WPF ShowDialog corre su propio frame de
+        // dispatcher y funciona standalone. (Si se hace dentro de TrayApp, el loop
+        // todavía no arrancó y la ventana no se muestra bien.)
+        var bootConfig = AppConfig.Load();
+        Localization.Loc.SetLanguage(bootConfig.Language);
+        if (!bootConfig.SetupCompleted)
+        {
+            try { new SetupWindow(bootConfig).ShowDialog(); } catch { /* si falla, sigue como principal */ }
+        }
+
         Application.Run(new TrayApp());
     }
 }

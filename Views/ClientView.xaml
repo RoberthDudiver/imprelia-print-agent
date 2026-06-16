@@ -111,16 +111,15 @@
                     <TextBlock Text="{loc:Tr client.discoverSub}" Style="{StaticResource T.Muted}"
                                TextWrapping="Wrap" Margin="0,2,0,10"/>
 
-                    <TextBlock Text="{loc:Tr client.discoverAgentId}" Style="{StaticResource T.Label}"/>
-                    <DockPanel>
-                        <Button DockPanel.Dock="Right" Content="{loc:Tr client.discoverBtn}"
-                                Command="{Binding DiscoverCommand}"
-                                Style="{StaticResource Btn.Primary}" Margin="8,0,0,0"/>
-                        <TextBox Text="{Binding DiscoverAgentId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource Input.Text}" FontFamily="Consolas"/>
-                    </DockPanel>
-                    <TextBlock Text="{loc:Tr client.agentIdHelp}" Style="{StaticResource T.Muted}"
-                               TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{loc:Tr client.principalToken}" Style="{StaticResource T.Label}"/>
+                    <TextBox Text="{Binding PrincipalToken, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource Input.Text}" Height="56" TextWrapping="Wrap"
+                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                             FontFamily="Consolas" FontSize="11"/>
+                    <TextBlock Text="{loc:Tr client.tokenHelp}" Style="{StaticResource T.Muted}"
+                               TextWrapping="Wrap" Margin="0,4,0,8"/>
+                    <Button Content="{loc:Tr client.discoverBtn}" Command="{Binding DiscoverCommand}"
+                            Style="{StaticResource Btn.Primary}" HorizontalAlignment="Left"/>
 
                     <!-- Lista descubierta -->
                     <ItemsControl ItemsSource="{Binding Discovered}" Margin="0,12,0,0">

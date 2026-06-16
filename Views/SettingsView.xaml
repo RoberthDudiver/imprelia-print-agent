@@ -16,6 +16,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="24"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -180,8 +182,33 @@
                 </StackPanel>
             </Border>
 
+            <!-- Section: Rol -->
+            <Border Grid.Row="10" Style="{StaticResource Card}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Border Width="34" Height="34" Background="#1D3A6E" CornerRadius="7" Margin="0,0,12,0">
+                            <TextBlock Text="🖧" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{loc:Tr settings.role}" FontSize="14"
+                                       Foreground="#E2E8F0" FontWeight="SemiBold"/>
+                            <TextBlock Text="{loc:Tr settings.roleSub}" FontSize="12" Foreground="#64748B" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Separator Background="#1E293B" Margin="0,0,0,16"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="{loc:Tr settings.reconfigure}"
+                                Command="{Binding ReconfigureCommand}" Style="{StaticResource Btn.Primary}"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="9" Height="9" Fill="#22C55E" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding RoleLabel}" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+
             <!-- Action bar -->
-            <DockPanel Grid.Row="10">
+            <DockPanel Grid.Row="12">
                 <Button Content="↩" Command="{Binding RestoreDefaultsCommand}"
                         Style="{StaticResource Btn.Ghost}" DockPanel.Dock="Left" Margin="0,0,8,0"/>
                 <Button Content="🔗" Command="{Binding CopyUrlCommand}"

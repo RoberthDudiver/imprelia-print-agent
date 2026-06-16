@@ -155,6 +155,20 @@
                 </TextBlock.Style>
             </TextBlock>
 
+            <!-- ── Token para clientes ────────────────────────────── -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Token para clientes" Style="{StaticResource T.CardTitle}"/>
+                    <TextBlock Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,2,0,10"
+                               Text="Copiá este token y pegalo en cada PC cliente (al elegir rol Cliente). Trae la URL del hub, el AgentId y la API key — no hace falta cargar nada a mano."/>
+                    <TextBox Text="{Binding ClientToken, Mode=OneWay}" IsReadOnly="True"
+                             Style="{StaticResource Input.Text}" Height="56" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="11"/>
+                    <Button Content="📋 Copiar token" Command="{Binding CopyTokenCommand}"
+                            Style="{StaticResource Btn.Primary}" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>

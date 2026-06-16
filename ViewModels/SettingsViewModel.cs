@@ -39,6 +39,15 @@ public sealed class SettingsViewModel : ViewModelBase
     public ICommand SaveCommand { get; }
     public ICommand RestoreDefaultsCommand { get; }
     public ICommand CopyUrlCommand { get; }
+    public ICommand ReconfigureCommand { get; }
+
+    /// <summary>Pide reabrir el onboarding (rol/token). La vista lo maneja.</summary>
+    public event EventHandler? ReconfigureRequested;
+
+    /// <summary>Rol actual para mostrar en la UI.</summary>
+    public string RoleLabel => _config.ClientMode.Enabled
+        ? Localization.Loc.T("settings.roleClient")
+        : Localization.Loc.T("settings.rolePrincipal");
 
     public SettingsViewModel(AppConfig config, int startedPort, AgentLogService log)
     {
@@ -49,6 +58,7 @@ public sealed class SettingsViewModel : ViewModelBase
         SaveCommand = new RelayCommand(Save);
         RestoreDefaultsCommand = new RelayCommand(RestoreDefaults);
         CopyUrlCommand = new RelayCommand(() => SetClipboard($"http://localhost:{_startedPort}"));
+        ReconfigureCommand = new RelayCommand(() => ReconfigureRequested?.Invoke(this, EventArgs.Empty));
 
         LoadFromConfig();
     }

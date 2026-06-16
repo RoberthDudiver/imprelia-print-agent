@@ -65,6 +65,12 @@ public class AppConfig
     /// <summary>Idioma de la interfaz: "es" (español) o "en" (inglés).</summary>
     public string Language { get; set; } = "es";
 
+    /// <summary>true cuando el usuario ya eligió rol (principal/cliente) en el onboarding.</summary>
+    public bool SetupCompleted { get; set; }
+
+    /// <summary>Rol elegido: "principal" o "client". Derivado de ClientMode/RemoteBridge.</summary>
+    public string Role { get; set; } = "";
+
     public string? DefaultPrinter { get; set; }
     public int Port { get; set; } = 9100;
     public string Host { get; set; } = "127.0.0.1";

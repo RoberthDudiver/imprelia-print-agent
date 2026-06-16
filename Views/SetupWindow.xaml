@@ -1,0 +1,79 @@
+<Window x:Class="Imprelia.PrintAgent.Views.SetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configurar Imprelia" Height="640" Width="560"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="#0B1426" FontFamily="Segoe UI" Foreground="#E2E8F0">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <Border Width="40" Height="40" CornerRadius="9" Background="#1D3A6E" Margin="0,0,12,0">
+                    <TextBlock Text="🖨" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Configurá esta computadora" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Elegí qué rol cumple en la impresión." FontSize="12" Foreground="#64748B"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,20,0,0">
+            <!-- Rol Principal -->
+            <RadioButton x:Name="RolePrincipal" GroupName="role" IsChecked="True" Margin="0,0,0,10"
+                         Checked="Role_Changed">
+                <Border Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="10" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="🖨  Principal — esta PC tiene las impresoras" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                        <TextBlock Text="Recibe los trabajos del hub e imprime en sus impresoras. Publica su lista para que los clientes la usen."
+                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </RadioButton>
+
+            <!-- Rol Cliente -->
+            <RadioButton x:Name="RoleClient" GroupName="role" Margin="0,0,0,16" Checked="Role_Changed">
+                <Border Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="10" Padding="14">
+                    <StackPanel>
+                        <TextBlock Text="🖧  Cliente — esta PC imprime en otra máquina" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0"/>
+                        <TextBlock Text="No tiene impresoras. Descubre las del principal y las instala como impresoras virtuales; al imprimir, el trabajo viaja por el hub."
+                                   FontSize="12" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </RadioButton>
+
+            <!-- Token -->
+            <TextBlock Text="Token de configuración" FontSize="12" Foreground="#94A3B8" Margin="0,4,0,4"/>
+            <TextBox x:Name="TokenBox" Style="{StaticResource Input.Text}" Height="64"
+                     TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                     FontFamily="Consolas" FontSize="11" TextChanged="Token_Changed"/>
+            <TextBlock x:Name="TokenHint" TextWrapping="Wrap" FontSize="11" Foreground="#64748B" Margin="0,6,0,0"
+                       Text="Pegá el token que te da GastroManager (o el agente principal). Trae la URL del hub, el AgentId y la API key."/>
+
+            <!-- Manual -->
+            <Expander Header="Configuración manual" Foreground="#60A5FA" Margin="0,14,0,0" FontSize="12">
+                <StackPanel Margin="0,10,0,0">
+                    <TextBlock Text="Server URL (hub)" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,3"/>
+                    <TextBox x:Name="ServerBox" Style="{StaticResource Input.Text}"/>
+                    <TextBlock Text="AgentId (GUID del local)" FontSize="11" Foreground="#94A3B8" Margin="0,8,0,3"/>
+                    <TextBox x:Name="AgentBox" Style="{StaticResource Input.Text}" FontFamily="Consolas"/>
+                    <TextBlock Text="API Key" FontSize="11" Foreground="#94A3B8" Margin="0,8,0,3"/>
+                    <TextBox x:Name="ApiKeyBox" Style="{StaticResource Input.Text}" FontFamily="Consolas"/>
+                </StackPanel>
+            </Expander>
+
+            <TextBlock x:Name="ErrorText" Foreground="#F87171" FontSize="12" TextWrapping="Wrap"
+                       Margin="0,12,0,0" Visibility="Collapsed"/>
+        </StackPanel>
+
+        <DockPanel Grid.Row="2" Margin="0,16,0,0">
+            <Button x:Name="ContinueBtn" Content="Continuar" DockPanel.Dock="Right"
+                    Style="{StaticResource Btn.Primary}" Height="38" Padding="20,0" Click="Continue_Click"/>
+        </DockPanel>
+    </Grid>
+</Window>
