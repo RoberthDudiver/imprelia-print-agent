@@ -235,6 +235,10 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
                                Text="{loc:Tr client.provisionHint}"/>
+                    <!-- Hint cuando no hay selección -->
+                    <TextBlock Text="{loc:Tr client.selectHint}" FontSize="11" Foreground="#F59E0B"
+                               TextWrapping="Wrap" Margin="0,6,0,0"
+                               Visibility="{Binding HasSelection, Converter={StaticResource InvBoolToVis}}"/>
                 </StackPanel>
             </Border>
 

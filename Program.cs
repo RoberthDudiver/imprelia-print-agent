@@ -122,6 +122,10 @@ public class TrayApp : ApplicationContext
         if (_mainWindow == null)
         {
             _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _ipp, _sender);
+            // CLAVE: sin esto, los TextBox de WPF NO reciben teclado cuando la ventana
+            // se muestra desde una app WinForms (el loop de mensajes es de WinForms por
+            // el NotifyIcon). EnableModelessKeyboardInterop enruta el teclado a WPF.
+            System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_mainWindow);
             _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
 

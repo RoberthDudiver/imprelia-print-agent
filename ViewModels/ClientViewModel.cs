@@ -97,7 +97,7 @@ public sealed class ClientViewModel : ViewModelBase
         AddCommand        = new RelayCommand(BeginAdd);
         EditCommand       = new RelayCommand(BeginEdit, () => HasSelection);
         DeleteCommand     = new RelayCommand(Delete, () => HasSelection);
-        SaveEditCommand   = new RelayCommand(CommitEdit, () => !string.IsNullOrWhiteSpace(EditLocalName) && !string.IsNullOrWhiteSpace(EditAgentId));
+        SaveEditCommand   = new RelayCommand(CommitEdit);
         CancelEditCommand = new RelayCommand(() => { IsEditing = false; Message = ""; });
         InstallCommand    = new RelayCommand(InstallSelected, () => HasSelection);
         UninstallCommand  = new RelayCommand(UninstallSelected, () => HasSelection);
@@ -131,7 +131,7 @@ public sealed class ClientViewModel : ViewModelBase
         IsNew = true;
         IsEditing = true;
         EditLocalName = "";
-        EditAgentId = _config.RemoteBridge.AgentId is { Length: > 0 } ? "" : "";
+        EditAgentId = "";
         EditPrinter = "";
         EditRoute = "";
         Message = "";
@@ -151,6 +151,13 @@ public sealed class ClientViewModel : ViewModelBase
 
     private void CommitEdit()
     {
+        // Validación con mensaje claro (el botón Guardar siempre está habilitado).
+        if (string.IsNullOrWhiteSpace(EditLocalName) || string.IsNullOrWhiteSpace(EditAgentId))
+        {
+            ShowError(Loc.T("client.needNameAgent"));
+            return;
+        }
+
         if (IsNew)
         {
             var vp = new ClientVirtualPrinter

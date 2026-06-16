@@ -218,6 +218,8 @@ internal static class Strings
         ["client.help4"] = "4. Seleccionala e Instalar en Windows (pide permisos de administrador).",
         ["client.help5"] = "5. Imprimí desde cualquier app eligiendo esa impresora.",
         ["client.helpHub"] = "El hub debe tener habilitado el endpoint de trabajos (ExposeHttpJobApi).",
+        ["client.needNameAgent"] = "Completá el nombre local y el AgentId del agente principal.",
+        ["client.selectHint"] = "Seleccioná una impresora de la lista (clic en la fila) para editarla, instalarla o quitarla.",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -427,5 +429,7 @@ internal static class Strings
         ["client.help4"] = "4. Select it and Install in Windows (asks for administrator permission).",
         ["client.help5"] = "5. Print from any app by choosing that printer.",
         ["client.helpHub"] = "The hub must have the jobs endpoint enabled (ExposeHttpJobApi).",
+        ["client.needNameAgent"] = "Fill in the local name and the principal agent's AgentId.",
+        ["client.selectHint"] = "Select a printer from the list (click the row) to edit, install or remove it.",
     };
 }
