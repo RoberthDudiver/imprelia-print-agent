@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Imprelia.PrintAgent.Localization;
 using Imprelia.PrintAgent.Services;
 using WpfApp = System.Windows.Application;
 
@@ -34,7 +35,9 @@ public sealed class ClientViewModel : ViewModelBase
     // ── Estado del servidor IPP ───────────────────────────────────────────────
 
     public bool ServerRunning => _ipp.IsRunning;
-    public string ServerStatusLabel => _ipp.IsRunning ? $"Servidor IPP activo (127.0.0.1:{_ipp.Port})" : "Servidor IPP detenido";
+    public string ServerStatusLabel => _ipp.IsRunning
+        ? $"{Loc.T("client.serverRunning")} (127.0.0.1:{_ipp.Port})"
+        : Loc.T("client.serverStopped");
 
     // ── Edición inline ────────────────────────────────────────────────────────
 
@@ -42,7 +45,9 @@ public sealed class ClientViewModel : ViewModelBase
     public bool IsEditing { get => _isEditing; private set => Set(ref _isEditing, value); }
 
     private bool _isNew;
-    public bool IsNew { get => _isNew; private set => Set(ref _isNew, value); }
+    public bool IsNew { get => _isNew; private set { Set(ref _isNew, value); OnPropertyChanged(nameof(EditFormTitle)); } }
+
+    public string EditFormTitle => Loc.T(_isNew ? "client.newTitle" : "client.editTitle");
 
     private string _editLocalName = "";
     public string EditLocalName { get => _editLocalName; set => Set(ref _editLocalName, value); }

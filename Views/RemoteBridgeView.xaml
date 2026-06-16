@@ -1,18 +1,15 @@
 <UserControl x:Class="Imprelia.PrintAgent.Views.RemoteBridgeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
              Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
         <StackPanel Margin="24,20,24,24" MaxWidth="620">
 
             <!-- Título -->
-            <TextBlock Style="{StaticResource T.PageTitle}" Text="Remote Print Bridge"/>
-            <TextBlock Style="{StaticResource T.PageSub}" TextWrapping="Wrap">
-                Recibí trabajos de impresión desde un backend remoto.
-                El agente se conecta hacia afuera — no abre puertos públicos.
-                Toda la comunicación es HTTPS/WSS.
-            </TextBlock>
+            <TextBlock Style="{StaticResource T.PageTitle}" Text="{loc:Tr bridge.title}"/>
+            <TextBlock Style="{StaticResource T.PageSub}" TextWrapping="Wrap" Text="{loc:Tr bridge.subtitle}"/>
 
             <!-- ── Estado de conexión ─────────────────────────────── -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,16">
@@ -63,10 +60,10 @@
                 <CheckBox IsChecked="{Binding Enabled, Mode=TwoWay}"
                           Style="{StaticResource Input.Check}">
                     <StackPanel>
-                        <TextBlock Text="Habilitar Remote Print Bridge"
+                        <TextBlock Text="{loc:Tr bridge.enable}"
                                    Foreground="{StaticResource Text.Primary}"
                                    FontSize="13" FontWeight="Medium"/>
-                        <TextBlock Text="Cuando está desactivado el agente no intenta conectarse a ningún servidor externo."
+                        <TextBlock Text="{loc:Tr bridge.enableSub}"
                                    Style="{StaticResource T.Muted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                     </StackPanel>
                 </CheckBox>
@@ -76,23 +73,19 @@
             <StackPanel IsEnabled="{Binding Enabled}">
 
                 <!-- Server URL -->
-                <TextBlock Text="Server URL" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBlock Text="{loc:Tr bridge.serverUrl}" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding ServerUrl, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource Input.Text}" Margin="0,0,0,4"/>
-                <TextBlock Style="{StaticResource T.Muted}" Margin="0,0,0,12">
-                    URL base del servidor. Ejemplo: https://api.tudominio.com
-                </TextBlock>
+                <TextBlock Text="{loc:Tr bridge.serverUrlHint}" Style="{StaticResource T.Muted}" Margin="0,0,0,12"/>
 
                 <!-- Agent ID -->
-                <TextBlock Text="Agent ID" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBlock Text="{loc:Tr bridge.agentId}" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                 <TextBox Text="{Binding AgentId, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource Input.Text}" Margin="0,0,0,4"/>
-                <TextBlock Style="{StaticResource T.Muted}" Margin="0,0,0,12">
-                    Identificador único de este agente en el servidor.
-                </TextBlock>
+                <TextBlock Text="{loc:Tr bridge.agentIdHint}" Style="{StaticResource T.Muted}" Margin="0,0,0,12"/>
 
                 <!-- API Key (code-behind maneja PasswordBox → ViewModel) -->
-                <TextBlock Text="API Key" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBlock Text="{loc:Tr bridge.apiKey}" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                 <PasswordBox x:Name="ApiKeyBox"
                              PasswordChanged="ApiKeyBox_PasswordChanged"
                              Background="{StaticResource Bg.Input}"
@@ -104,19 +97,19 @@
                              Margin="0,0,0,12"/>
 
                 <!-- Modo de conexión -->
-                <TextBlock Text="Modo de conexión" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
+                <TextBlock Text="{loc:Tr bridge.modeLabel}" Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                 <ComboBox SelectedValue="{Binding Mode, Mode=TwoWay}"
                           SelectedValuePath="Tag"
                           Style="{StaticResource Input.Combo}"
                           Margin="0,0,0,12">
-                    <ComboBoxItem Content="SignalR (recomendado)" Tag="signalr"/>
-                    <ComboBoxItem Content="Polling HTTP" Tag="polling"/>
+                    <ComboBoxItem Content="{loc:Tr bridge.modeSignalr}" Tag="signalr"/>
+                    <ComboBoxItem Content="{loc:Tr bridge.modePolling}" Tag="polling"/>
                 </ComboBox>
 
                 <!-- Intervalo polling (solo visible en modo polling) -->
                 <StackPanel Margin="0,0,0,12"
                             Visibility="{Binding IsPollingMode, Converter={StaticResource BoolToVis}}">
-                    <TextBlock Text="Intervalo de polling (segundos)"
+                    <TextBlock Text="{loc:Tr bridge.pollingInterval}"
                                Style="{StaticResource T.Label}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding PollingSeconds, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource Input.Number}"/>
@@ -124,23 +117,22 @@
 
                 <!-- Auto-reconexión -->
                 <CheckBox IsChecked="{Binding AutoReconnect, Mode=TwoWay}"
+                          Content="{loc:Tr bridge.autoReconnectFull}"
                           Style="{StaticResource Input.Check}"
-                          Margin="0,0,0,20">
-                    Reconectar automáticamente si se pierde la conexión
-                </CheckBox>
+                          Margin="0,0,0,20"/>
 
             </StackPanel>
 
             <!-- ── Botones ────────────────────────────────────────── -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <Button Content="Guardar y aplicar"
+                <Button Content="{loc:Tr bridge.save}"
                         Command="{Binding SaveCommand}"
                         Style="{StaticResource Btn.Primary}"
                         Margin="0,0,10,0"/>
                 <Button Command="{Binding TestConnectionCommand}"
                         Style="{StaticResource Btn.Ghost}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Probar conexión" VerticalAlignment="Center"/>
+                        <TextBlock Text="{loc:Tr bridge.testConnection}" VerticalAlignment="Center"/>
                         <TextBlock Text=" (…)" VerticalAlignment="Center"
                                    Visibility="{Binding IsTesting, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>

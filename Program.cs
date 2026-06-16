@@ -61,6 +61,7 @@ public class TrayApp : ApplicationContext
     public TrayApp()
     {
         _config = AppConfig.Load();
+        Localization.Loc.SetLanguage(_config.Language);
         _log    = new AgentLogService(Dispatcher.CurrentDispatcher);
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
         _bridge = new RemoteBridgeService(_config, _log);

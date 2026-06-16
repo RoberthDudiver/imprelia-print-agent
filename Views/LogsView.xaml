@@ -1,6 +1,7 @@
 <UserControl x:Class="Imprelia.PrintAgent.Views.LogsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
              Background="#0B1426">
 
     <Grid Margin="28,24">
@@ -19,9 +20,8 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Logs del agente" Style="{StaticResource T.PageTitle}"/>
-            <TextBlock Text="Consulta la actividad del agente para diagnóstico y solución de problemas."
-                       Style="{StaticResource T.PageSub}"/>
+            <TextBlock Text="{loc:Tr logs.title}" Style="{StaticResource T.PageTitle}"/>
+            <TextBlock Text="{loc:Tr logs.subtitle}" Style="{StaticResource T.PageSub}"/>
         </StackPanel>
 
         <!-- Toolbar -->
@@ -34,9 +34,9 @@
 
             <!-- Level filters -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                <TextBlock Text="Nivel:" FontSize="12" Foreground="#64748B"
+                <TextBlock Text="{loc:Tr logs.level}" FontSize="12" Foreground="#64748B"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <Button Content="Todos" Command="{Binding FilterAllCommand}" Margin="0,0,4,0">
+                <Button Content="{loc:Tr logs.all}" Command="{Binding FilterAllCommand}" Margin="0,0,4,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Btn.FilterTab}">
                             <Style.Triggers>
@@ -49,7 +49,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Content="Info" Command="{Binding FilterInfoCommand}" Margin="0,0,4,0">
+                <Button Content="{loc:Tr logs.info}" Command="{Binding FilterInfoCommand}" Margin="0,0,4,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Btn.FilterTab}">
                             <Style.Triggers>
@@ -62,7 +62,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Content="Warning" Command="{Binding FilterWarnCommand}" Margin="0,0,4,0">
+                <Button Content="{loc:Tr logs.warning}" Command="{Binding FilterWarnCommand}" Margin="0,0,4,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Btn.FilterTab}">
                             <Style.Triggers>
@@ -75,7 +75,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Content="Error" Command="{Binding FilterErrorCommand}">
+                <Button Content="{loc:Tr logs.error}" Command="{Binding FilterErrorCommand}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Btn.FilterTab}">
                             <Style.Triggers>
@@ -92,7 +92,7 @@
 
             <!-- Auto-refresh toggle -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                <TextBlock Text="Auto-actualizar" FontSize="12" Foreground="#64748B"
+                <TextBlock Text="{loc:Tr logs.autoRefresh}" FontSize="12" Foreground="#64748B"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <CheckBox IsChecked="{Binding AutoRefresh}" VerticalAlignment="Center"/>
             </StackPanel>
@@ -122,10 +122,10 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Fecha / Hora" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="Nivel" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="2" Text="Módulo" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="3" Text="Mensaje" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="0" Text="{loc:Tr logs.colTime}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Tr logs.colLevel}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="2" Text="{loc:Tr logs.colModule}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="3" Text="{loc:Tr logs.colMessage}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
                     </Grid>
                 </Border>
 
@@ -207,17 +207,17 @@
                 <Border Grid.Row="2" Background="#0B1E3A" CornerRadius="0,0,10,10" Padding="16,8">
                     <DockPanel>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                            <Button Content="📋 Copiar logs" Command="{Binding CopyLogsCommand}"
+                            <Button Content="{loc:Tr logs.copy}" Command="{Binding CopyLogsCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26"
                                     Padding="8,0" FontSize="11" Margin="0,0,6,0"/>
-                            <Button Content="🗑 Limpiar" Command="{Binding ClearLogsCommand}"
+                            <Button Content="{loc:Tr logs.clear}" Command="{Binding ClearLogsCommand}"
                                     Style="{StaticResource Btn.Danger}" Height="26"
                                     Padding="8,0" FontSize="11"/>
                         </StackPanel>
                         <TextBlock FontSize="11" Foreground="#64748B" VerticalAlignment="Center">
-                            Mostrando
+                            <Run Text="{loc:Tr logs.showingPre}"/>
                             <Run Text="{Binding FilteredLogs.Count, Mode=OneWay}"/>
-                            entradas
+                            <Run Text="{loc:Tr logs.showingPost}"/>
                         </TextBlock>
                     </DockPanel>
                 </Border>
@@ -227,9 +227,9 @@
         <!-- Summary panel -->
         <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="2" Style="{StaticResource Card}">
             <StackPanel>
-                <TextBlock Text="☰ Resumen de logs" Style="{StaticResource T.CardTitle}" Margin="0,0,0,16"/>
+                <TextBlock Text="{loc:Tr logs.summary}" Style="{StaticResource T.CardTitle}" Margin="0,0,0,16"/>
 
-                <TextBlock Text="Total de eventos hoy" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                <TextBlock Text="{loc:Tr logs.totalToday}" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                 <TextBlock Text="{Binding TotalToday}" FontSize="28" FontWeight="Bold"
                            Foreground="#E2E8F0" Margin="0,0,0,16"/>
 
@@ -258,12 +258,12 @@
                 <Separator Background="#1E293B" Margin="0,0,0,14"/>
 
                 <StackPanel Margin="0,0,0,8">
-                    <TextBlock Text="Última actualización" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
+                    <TextBlock Text="{loc:Tr logs.lastUpdate}" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
                     <TextBlock Text="{Binding LastUpdateFormatted}" FontSize="12"
                                Foreground="#E2E8F0" FontFamily="Consolas"/>
                 </StackPanel>
                 <StackPanel>
-                    <TextBlock Text="Primer evento hoy" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
+                    <TextBlock Text="{loc:Tr logs.firstToday}" FontSize="11" Foreground="#64748B" Margin="0,0,0,3"/>
                     <TextBlock Text="{Binding FirstTodayFormatted}" FontSize="12"
                                Foreground="#E2E8F0" FontFamily="Consolas"/>
                 </StackPanel>

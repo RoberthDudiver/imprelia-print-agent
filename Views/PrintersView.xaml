@@ -1,6 +1,7 @@
 <UserControl x:Class="Imprelia.PrintAgent.Views.PrintersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
              Background="#0B1426">
 
     <Grid Margin="28,24">
@@ -19,19 +20,18 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Impresoras instaladas" Style="{StaticResource T.PageTitle}"/>
-            <TextBlock Text="Administra tus impresoras: detecta, prueba y selecciona la predeterminada."
-                       Style="{StaticResource T.PageSub}"/>
+            <TextBlock Text="{loc:Tr printers.title}" Style="{StaticResource T.PageTitle}"/>
+            <TextBlock Text="{loc:Tr printers.subtitle}" Style="{StaticResource T.PageSub}"/>
         </StackPanel>
 
         <!-- Toolbar -->
         <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                <Button Content="↻ Actualizar lista" Command="{Binding RefreshCommand}"
+                <Button Content="{loc:Tr printers.refresh}" Command="{Binding RefreshCommand}"
                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0"/>
-                <Button Content="⊕ Usar como predeterminada" Command="{Binding SetAsDefaultCommand}"
+                <Button Content="{loc:Tr printers.setDefault}" Command="{Binding SetAsDefaultCommand}"
                         Style="{StaticResource Btn.Primary}" Margin="0,0,8,0"/>
-                <Button Content="🖨 Imprimir prueba" Command="{Binding PrintTestCommand}"
+                <Button Content="{loc:Tr printers.printTest}" Command="{Binding PrintTestCommand}"
                         Style="{StaticResource Btn.Ghost}"/>
             </StackPanel>
             <TextBox DockPanel.Dock="Right"
@@ -63,12 +63,12 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="120"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Nombre" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="Estado" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="2" Text="Tipo" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="3" Text="Capacidades" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="4" Text="Predeterminada" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="5" Text="Acciones" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="0" Text="{loc:Tr printers.colName}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Tr printers.colStatus}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="2" Text="{loc:Tr printers.colType}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="3" Text="{loc:Tr printers.colCaps}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="4" Text="{loc:Tr printers.colDefault}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="5" Text="{loc:Tr printers.colActions}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
                     </Grid>
                 </Border>
 
@@ -128,7 +128,7 @@
                                             </Ellipse>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Status}" FontSize="12" Foreground="#E2E8F0"/>
-                                                <TextBlock Text="En línea" FontSize="10" Foreground="#64748B"/>
+                                                <TextBlock Text="{loc:Tr printers.online}" FontSize="10" Foreground="#64748B"/>
                                             </StackPanel>
                                         </StackPanel>
 
@@ -156,7 +156,7 @@
                                         <Border Grid.Column="4" VerticalAlignment="Center"
                                                 Visibility="{Binding IsDefault, Converter={StaticResource BoolToVis}}"
                                                 Style="{StaticResource Badge.Green}" CornerRadius="12" Padding="8,3">
-                                            <TextBlock Text="✓ Predeterminada" FontSize="10"
+                                            <TextBlock Text="{loc:Tr printers.defaultBadge}" FontSize="10"
                                                        Foreground="#22C55E" FontWeight="SemiBold"/>
                                         </Border>
 
@@ -185,15 +185,13 @@
             <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource InvBoolToVis}}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="🖨" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                <TextBlock Text="Selecciona una impresora" FontSize="13"
-                           Foreground="#64748B" TextAlignment="Center"/>
-                <TextBlock Text="para ver sus detalles" FontSize="13"
-                           Foreground="#64748B" TextAlignment="Center"/>
+                <TextBlock Text="{loc:Tr printers.selectPrompt}" FontSize="13" MaxWidth="180"
+                           Foreground="#64748B" TextAlignment="Center" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- Printer detail -->
             <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="Detalles de la impresora" FontSize="12"
+                <TextBlock Text="{loc:Tr printers.detailTitle}" FontSize="12"
                            Foreground="#64748B" Margin="0,0,0,14"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -210,7 +208,8 @@
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                     <Ellipse Width="7" Height="7" Fill="#22C55E" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBlock Text="{Binding SelectedPrinter.Status}" FontSize="12" Foreground="#22C55E"/>
-                    <TextBlock Text=" · En línea" FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text=" · " FontSize="12" Foreground="#64748B"/>
+                    <TextBlock Text="{loc:Tr printers.online}" FontSize="12" Foreground="#64748B"/>
                 </StackPanel>
 
                 <Separator Background="#1E293B" Margin="0,0,0,14"/>
@@ -228,23 +227,23 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
-                        <TextBlock Text="Tipo" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <TextBlock Text="{loc:Tr printers.colType}" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
                         <TextBlock Text="{Binding SelectedPrinter.Type}" FontSize="12" Foreground="#E2E8F0"/>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
-                        <TextBlock Text="Estado" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <TextBlock Text="{loc:Tr printers.colStatus}" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
                         <TextBlock Text="{Binding SelectedPrinter.Status}" FontSize="12" Foreground="#22C55E"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
-                        <TextBlock Text="Predeterminada" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <TextBlock Text="{loc:Tr printers.colDefault}" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
                         <TextBlock FontSize="12">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="No"/>
+                                    <Setter Property="Text" Value="—"/>
                                     <Setter Property="Foreground" Value="#64748B"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding SelectedPrinter.IsDefault}" Value="True">
-                                            <Setter Property="Text" Value="✓ Sí"/>
+                                            <Setter Property="Text" Value="✓"/>
                                             <Setter Property="Foreground" Value="#22C55E"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -253,12 +252,12 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                        <TextBlock Text="Fuente" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
+                        <TextBlock Text="{loc:Tr printers.source}" FontSize="11" Foreground="#64748B" Margin="0,0,0,2"/>
                         <TextBlock Text="{Binding SelectedPrinter.Source}" FontSize="12" Foreground="#E2E8F0"/>
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="Capacidades soportadas" FontSize="11" Foreground="#64748B" Margin="0,0,0,8"/>
+                <TextBlock Text="{loc:Tr printers.capsSupported}" FontSize="11" Foreground="#64748B" Margin="0,0,0,8"/>
                 <WrapPanel Margin="0,0,0,16">
                     <Border Visibility="{Binding SelectedPrinter.SupportsPdf, Converter={StaticResource BoolToVis}}"
                             Background="#1E3A8A" CornerRadius="4" Padding="8,4" Margin="0,0,6,6">
@@ -281,9 +280,9 @@
                                TextWrapping="Wrap"/>
                 </Border>
 
-                <Button Content="🖨 Imprimir prueba" Command="{Binding PrintTestCommand}"
+                <Button Content="{loc:Tr printers.printTest}" Command="{Binding PrintTestCommand}"
                         Style="{StaticResource Btn.Primary}" HorizontalAlignment="Stretch" Height="38"/>
-                <Button Content="★ Usar como predeterminada" Command="{Binding SetAsDefaultCommand}"
+                <Button Content="{loc:Tr printers.setDefaultBtn}" Command="{Binding SetAsDefaultCommand}"
                         Style="{StaticResource Btn.Ghost}" HorizontalAlignment="Stretch"
                         Height="38" Margin="0,8,0,0"/>
             </StackPanel>

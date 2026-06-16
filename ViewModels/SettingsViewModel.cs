@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Imprelia.PrintAgent.Localization;
 
 namespace Imprelia.PrintAgent.ViewModels;
 
@@ -19,6 +20,19 @@ public sealed class SettingsViewModel : ViewModelBase
     public bool AllowCors { get => _allowCors; set => Set(ref _allowCors, value); }
     public string AllowedOrigins { get => _allowedOrigins; set => Set(ref _allowedOrigins, value); }
     public bool AutoStart { get => _autoStart; set { if (Set(ref _autoStart, value)) StartupRegistry.SetEnabled(value); } }
+
+    /// <summary>Idioma de la interfaz. Cambia en vivo y se guarda al instante.</summary>
+    public bool IsSpanish
+    {
+        get => _config.Language != "en";
+        set { if (value) ApplyLanguage("es"); }
+    }
+    public bool IsEnglish
+    {
+        get => _config.Language == "en";
+        set { if (value) ApplyLanguage("en"); }
+    }
+
     public string? Message { get => _message; private set => Set(ref _message, value); }
     public bool IsError { get => _isError; private set => Set(ref _isError, value); }
 
@@ -87,6 +101,17 @@ public sealed class SettingsViewModel : ViewModelBase
         LoadFromConfig();
         _log.Info("Configuración restaurada a valores por defecto.", "Config");
         ShowMessage("Valores restaurados.", isError: false);
+    }
+
+    private void ApplyLanguage(string lang)
+    {
+        if (_config.Language == lang) return;
+        _config.Language = lang;
+        _config.Save();
+        Loc.SetLanguage(lang);
+        OnPropertyChanged(nameof(IsSpanish));
+        OnPropertyChanged(nameof(IsEnglish));
+        _log.Info($"Idioma: {lang}", "Config");
     }
 
     private void ShowMessage(string msg, bool isError)

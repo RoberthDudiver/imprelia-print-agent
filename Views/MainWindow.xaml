@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Imprelia.PrintAgent.ViewModels"
         xmlns:views="clr-namespace:Imprelia.PrintAgent.Views"
+        xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
         Title="Imprelia Print Agent"
         Width="1200" Height="750"
         MinWidth="900" MinHeight="600"
@@ -69,7 +70,7 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Imprelia" FontSize="15" FontWeight="Bold"
                                    Foreground="White"/>
-                        <TextBlock Text="Print Agent" FontSize="11"
+                        <TextBlock Text="{loc:Tr sidebar.subtitle}" FontSize="11"
                                    Foreground="#64748B"/>
                     </StackPanel>
                 </StackPanel>
@@ -91,7 +92,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⌂" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Dashboard" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.dashboard}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -109,7 +110,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🖨" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Impresoras" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.printers}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -127,7 +128,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⇄" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Rutas" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.routes}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -145,7 +146,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⚙" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Configuración" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.settings}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -163,7 +164,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="☰" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Logs" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.logs}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -181,7 +182,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="⇡" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Remote Bridge" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.bridge}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -199,7 +200,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🖧" FontSize="16" Width="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="Impresión remota" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                        <TextBlock Text="{loc:Tr nav.client}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -212,15 +213,17 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                         <Ellipse Width="8" Height="8" Fill="#22C55E"
                                  VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock Text="Agente activo" FontSize="12"
+                        <TextBlock Text="{loc:Tr sidebar.active}" FontSize="12"
                                    Foreground="#22C55E" FontWeight="SemiBold"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                        <TextBlock Text="Versión  " FontSize="11" Foreground="#64748B"/>
+                        <TextBlock Text="{loc:Tr sidebar.version}" FontSize="11" Foreground="#64748B"/>
+                        <TextBlock Text="  " FontSize="11"/>
                         <TextBlock Text="{Binding AgentVersion}" FontSize="11" Foreground="#94A3B8"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Puerto  " FontSize="11" Foreground="#64748B"/>
+                        <TextBlock Text="{loc:Tr sidebar.port}" FontSize="11" Foreground="#64748B"/>
+                        <TextBlock Text="  " FontSize="11"/>
                         <TextBlock Text="{Binding AgentPort}" FontSize="11" Foreground="#94A3B8"/>
                     </StackPanel>
                 </StackPanel>
@@ -248,26 +251,26 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal"
                         VerticalAlignment="Center" Margin="20,0">
                 <TextBlock Text="🔒" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                <TextBlock Text="Seguro y local" FontSize="12" Foreground="#22C55E"
+                <TextBlock Text="{loc:Tr footer.secure}" FontSize="12" Foreground="#22C55E"
                            VerticalAlignment="Center" Margin="0,0,16,0" FontWeight="SemiBold"/>
                 <Ellipse Width="4" Height="4" Fill="#334155" VerticalAlignment="Center" Margin="0,0,16,0"/>
                 <TextBlock FontSize="12" Foreground="#64748B" VerticalAlignment="Center">
-                    El agente escucha en
+                    <Run Text="{loc:Tr footer.listening}"/>
                     <Run Text="{Binding ListeningAddress, Mode=OneWay}" Foreground="#60A5FA"/>
-                    por defecto
+                    <Run Text="{loc:Tr footer.bydefault}"/>
                 </TextBlock>
             </StackPanel>
 
             <!-- Right: actions -->
             <StackPanel Grid.Column="1" Orientation="Horizontal"
                         VerticalAlignment="Center" Margin="0,0,16,0">
-                <Button Content="📖 Guía API" Command="{Binding OpenApiGuideCommand}"
+                <Button Content="{loc:Tr footer.apiGuide}" Command="{Binding OpenApiGuideCommand}"
                         Style="{StaticResource Btn.Ghost}"
                         Height="28" Padding="10,0" FontSize="12" Margin="0,0,8,0"/>
-                <Button Content="⊟ Minimizar" Command="{Binding MinimizeCommand}"
+                <Button Content="{loc:Tr footer.minimize}" Command="{Binding MinimizeCommand}"
                         Style="{StaticResource Btn.Ghost}"
                         Height="28" Padding="10,0" FontSize="12" Margin="0,0,8,0"/>
-                <Button Content="⏻ Salir" Command="{Binding ExitCommand}"
+                <Button Content="{loc:Tr footer.exit}" Command="{Binding ExitCommand}"
                         Style="{StaticResource Btn.Danger}"
                         Height="28" Padding="10,0" FontSize="12"/>
             </StackPanel>
