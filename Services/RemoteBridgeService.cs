@@ -396,6 +396,23 @@ public sealed class RemoteBridgeService : IDisposable
         {
             if (_hub == null || _hub.State != HubConnectionState.Connected) return;
 
+            // En modo cliente NO publicamos: este agente es un emisor, no expone
+            // impresoras al hub. Si lo hiciéramos, otros clientes nos verían como
+            // un "principal" y descubrirían las impresoras locales del cliente.
+            // Además, publicamos una lista vacía para limpiar cualquier publicación
+            // anterior (cuando el agente venía operando como principal).
+            if (_config.ClientMode.Enabled)
+            {
+                try
+                {
+                    await _hub.InvokeAsync("PublishPrinters",
+                        _config.RemoteBridge.AgentId, new List<object>());
+                }
+                catch { /* el hub puede no soportarlo: no es crítico */ }
+                _log.Info("Bridge: modo cliente — impresoras locales no publicadas.", "Bridge");
+                return;
+            }
+
             var discovery = new WindowsPrinterDiscoveryService(_config);
             var printers = discovery.ListPrinters()
                 .Select(p => new { p.Name, p.Type, p.IsDefault })

@@ -131,17 +131,23 @@ public sealed class ClientViewModel : ViewModelBase
         try
         {
             var list = await _sender.DiscoverAgentsAsync();
+            // Excluir el propio agente: este cliente no es un principal candidato.
+            var self = _config.RemoteBridge.AgentId?.Trim() ?? "";
+            var others = list
+                .Where(a => !string.Equals(a.AgentId, self, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
             Agents.Clear();
-            foreach (var a in list) Agents.Add(a.AgentId);
+            foreach (var a in others) Agents.Add(a.AgentId);
             OnPropertyChanged(nameof(HasAgents));
 
-            if (list.Count == 0)
+            if (others.Count == 0)
                 ShowError(Loc.T("client.noAgents"));
             else
             {
                 // Si hay uno solo, lo seleccionamos directo.
-                if (list.Count == 1) DiscoverAgentId = list[0].AgentId;
-                ShowOk(string.Format(Loc.T("client.agentsFound"), list.Count));
+                if (others.Count == 1) DiscoverAgentId = others[0].AgentId;
+                ShowOk(string.Format(Loc.T("client.agentsFound"), others.Count));
             }
         }
         catch (Exception ex)
@@ -161,14 +167,26 @@ public sealed class ClientViewModel : ViewModelBase
         IsDiscovering = true;
         Discovered.Clear();
         Message = "";
+
+        // Defensa: si el usuario apuntó a su propio AgentId, eso traería las
+        // impresoras locales del cliente, no de un principal — error frecuente.
+        var target = DiscoverAgentId.Trim();
+        var self = _config.RemoteBridge.AgentId?.Trim() ?? "";
+        if (!string.IsNullOrEmpty(self) && string.Equals(target, self, StringComparison.OrdinalIgnoreCase))
+        {
+            IsDiscovering = false;
+            ShowError(Loc.T("client.discoverSelf"));
+            return;
+        }
+
         try
         {
-            var list = await _sender.DiscoverPrintersAsync(DiscoverAgentId.Trim());
+            var list = await _sender.DiscoverPrintersAsync(target);
             foreach (var p in list) Discovered.Add(p);
             if (list.Count == 0)
                 ShowOk(Loc.T("client.discoverEmpty"));
             else
-                ShowOk(string.Format(Loc.T("client.discoverOk"), list.Count, DiscoverAgentId.Trim()));
+                ShowOk(string.Format(Loc.T("client.discoverOk"), list.Count, target));
         }
         catch (Exception ex)
         {

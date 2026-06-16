@@ -242,6 +242,7 @@ internal static class Strings
         ["client.agentsFound"] = "{0} agente(s) principal(es) conectado(s). Elegí uno.",
         ["client.noAgents"] = "No hay agentes conectados al hub. Revisá que el principal esté con Remote Bridge conectado.",
         ["client.agentIdHelp"] = "Es el AgentId que pusiste en Remote Bridge del agente principal. Tocá Buscar agentes para verlos.",
+        ["client.discoverSelf"] = "Ese AgentId es el de esta máquina. Tenés que poner el AgentId del agente principal (la PC con las impresoras), no el de este cliente.",
     };
 
     private static readonly Dictionary<string, string> En = new()
@@ -475,5 +476,6 @@ internal static class Strings
         ["client.agentsFound"] = "{0} principal agent(s) connected. Pick one.",
         ["client.noAgents"] = "No agents connected to the hub. Make sure the principal has Remote Bridge connected.",
         ["client.agentIdHelp"] = "It's the AgentId you set in the principal's Remote Bridge. Click Find agents to see them.",
+        ["client.discoverSelf"] = "That AgentId belongs to this machine. You need the principal agent's AgentId (the PC with the printers), not this client's.",
     };
 }
