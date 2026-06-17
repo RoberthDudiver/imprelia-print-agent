@@ -13,10 +13,10 @@ public partial class MainWindow : Window
     private readonly AppConfig _config;
 
     public MainWindow(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge,
-                      IppPrintServer ipp, ClientSenderService sender)
+                      IppPrintServer ipp, ClientSenderService sender, MdnsAdvertiser mdns)
     {
         _config = config;
-        _vm = new MainViewModel(config, startedPort, log, bridge, ipp, sender);
+        _vm = new MainViewModel(config, startedPort, log, bridge, ipp, sender, mdns);
         _vm.MinimizeRequested += (_, _) => Hide();
         _vm.ExitRequested     += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
         _vm.Settings.ReconfigureRequested += (_, _) => ShowSetup();

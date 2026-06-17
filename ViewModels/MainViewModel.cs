@@ -46,7 +46,7 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand ExitCommand { get; }
 
     public MainViewModel(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge,
-                         IppPrintServer ipp, ClientSenderService sender)
+                         IppPrintServer ipp, ClientSenderService sender, MdnsAdvertiser mdns)
     {
         _config = config;
         _startedPort = startedPort;
@@ -60,7 +60,7 @@ public sealed class MainViewModel : ViewModelBase
         Settings  = new SettingsViewModel(config, startedPort, log);
         Logs      = new LogsViewModel(log);
         Bridge    = new RemoteBridgeViewModel(config, bridge, log);
-        Client    = new ClientViewModel(config, log, ipp, sender);
+        Client    = new ClientViewModel(config, log, ipp, sender, mdns);
 
         // Refrescar el AgentId de la sidebar cuando se guarda la config del bridge.
         Bridge.ConfigApplied += (_, _) =>

@@ -67,6 +67,7 @@ public class TrayApp : ApplicationContext
     private readonly RemoteBridgeService _bridge;
     private readonly ClientSenderService _sender;
     private readonly IppPrintServer _ipp;
+    private readonly MdnsAdvertiser _mdns;
     private MainWindow? _mainWindow;
 
     public TrayApp()
@@ -78,6 +79,7 @@ public class TrayApp : ApplicationContext
         _bridge = new RemoteBridgeService(_config, _log);
         _sender = new ClientSenderService(_config, _log);
         _ipp    = new IppPrintServer(_config, _log, _sender);
+        _mdns   = new MdnsAdvertiser(_config, _log);
 
         _tray = new NotifyIcon
         {
@@ -124,6 +126,7 @@ public class TrayApp : ApplicationContext
             }
 
             _ipp.Start();
+            _mdns.Start();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
 
@@ -147,7 +150,7 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _ipp, _sender);
+            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _ipp, _sender, _mdns);
             // CLAVE: sin esto, los TextBox de WPF NO reciben teclado cuando la ventana
             // se muestra desde una app WinForms (el loop de mensajes es de WinForms por
             // el NotifyIcon). EnableModelessKeyboardInterop enruta el teclado a WPF.
@@ -188,6 +191,7 @@ public class TrayApp : ApplicationContext
     {
         _server.Stop();
         _ipp.Stop();
+        _mdns.Dispose();
         _bridge.StopAsync().Wait(3000);
         _bridge.Dispose();
         _tray.Visible = false;

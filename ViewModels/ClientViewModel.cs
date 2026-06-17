@@ -15,6 +15,7 @@ public sealed class ClientViewModel : ViewModelBase
     private readonly AgentLogService _log;
     private readonly IppPrintServer _ipp;
     private readonly ClientSenderService _sender;
+    private readonly MdnsAdvertiser _mdns;
 
     public ObservableCollection<ClientVirtualPrinter> Printers { get; } = new();
     public ObservableCollection<DiscoveredPrinter> Discovered { get; } = new();
@@ -91,16 +92,18 @@ public sealed class ClientViewModel : ViewModelBase
     public RelayCommand CancelEditCommand { get; }
     public RelayCommand InstallCommand { get; }
     public RelayCommand UninstallCommand { get; }
+    public RelayCommand AddToWindowsCommand { get; }
     public RelayCommand TestHubCommand { get; }
     public RelayCommand DiscoverCommand { get; }
     public RelayCommand<DiscoveredPrinter> InstallDiscoveredCommand { get; }
 
-    public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender)
+    public ClientViewModel(AppConfig config, AgentLogService log, IppPrintServer ipp, ClientSenderService sender, MdnsAdvertiser mdns)
     {
         _config = config;
         _log = log;
         _ipp = ipp;
         _sender = sender;
+        _mdns = mdns;
 
         _enabled = config.ClientMode.Enabled;
         _ippPort = config.ClientMode.IppPort;
@@ -118,6 +121,7 @@ public sealed class ClientViewModel : ViewModelBase
         CancelEditCommand = new RelayCommand(() => { IsEditing = false; Message = ""; });
         InstallCommand    = new RelayCommand(InstallSelected, () => HasSelection);
         UninstallCommand  = new RelayCommand(UninstallSelected, () => HasSelection);
+        AddToWindowsCommand = new RelayCommand(AddToWindows, () => HasSelection);
         TestHubCommand    = new RelayCommand(async () => await TestHubAsync());
         DiscoverCommand   = new RelayCommand(async () => await DiscoverAsync(), () => !IsDiscovering);
         InstallDiscoveredCommand = new RelayCommand<DiscoveredPrinter>(InstallDiscovered);
@@ -186,24 +190,15 @@ public sealed class ClientViewModel : ViewModelBase
             string.Equals(x.LocalName, vp.LocalName, StringComparison.OrdinalIgnoreCase));
         if (existing != null) { Printers.Remove(existing); }
 
+        vp.Installed = true;
         Printers.Add(vp);
         Selected = vp;
-        Save();
+        Save();   // guarda + reanuncia por mDNS
 
-        if (!_ipp.IsRunning)
-        {
+        if (!_config.ClientMode.Enabled || !_ipp.IsRunning)
             ShowError(Loc.T("client.enableSaveFirst"));
-            return;
-        }
-
-        var result = VirtualPrinterProvisioner.Install(vp, _config.ClientMode.IppPort);
-        if (result.Success)
-        {
-            vp.Installed = true;
-            Save();
-            ShowOk(result.Message);
-        }
-        else ShowError(result.Message);
+        else
+            ShowOk(string.Format(Loc.T("client.publishedOk"), vp.LocalName));
     }
 
     private static string PaperSizeForType(string? type)
@@ -223,9 +218,10 @@ public sealed class ClientViewModel : ViewModelBase
         _config.ClientMode.VirtualPrinters = Printers.ToList();
         _config.Save();
 
-        // Reiniciar el servidor IPP con la nueva config.
+        // Reiniciar el servidor IPP y reanunciar por mDNS con la lista actual.
         _ipp.Stop();
         _ipp.Start();
+        _mdns.Refresh();
         RefreshServerStatus();
 
         ShowOk(Enabled
@@ -302,49 +298,75 @@ public sealed class ClientViewModel : ViewModelBase
     private void Delete()
     {
         if (Selected == null) return;
-        var name = Selected.LocalName;
-        var wasInstalled = Selected.Installed;
         Printers.Remove(Selected);
         Selected = null;
-        Save();
-
-        if (wasInstalled && VirtualPrinterProvisioner.PrinterExists(name))
-            ShowOk($"Ruta eliminada. La impresora '{name}' sigue en Windows — usá Quitar de Windows para borrarla.");
+        Save();   // reanuncia mDNS sin esta impresora
     }
 
-    // ── Provisión en Windows ──────────────────────────────────────────────────
+    // ── Publicar / quitar (vía mDNS, sin admin) ───────────────────────────────
 
     private void InstallSelected()
     {
         if (Selected == null) return;
 
-        if (!_ipp.IsRunning)
+        if (!_config.ClientMode.Enabled || !_ipp.IsRunning)
         {
             ShowError(Loc.T("client.enableSaveFirst"));
             return;
         }
 
-        var result = VirtualPrinterProvisioner.Install(Selected, _config.ClientMode.IppPort);
-        if (result.Success)
-        {
-            Selected.Installed = true;
-            Save();
-            ShowOk(result.Message);
-        }
-        else ShowError(result.Message);
+        // No hay "instalar por comando": se anuncia por mDNS y Windows la descubre.
+        Selected.Installed = true;
+        Save();                 // guarda + reanuncia mDNS
+        ShowOk(string.Format(Loc.T("client.publishedOk"), Selected.LocalName));
     }
 
     private void UninstallSelected()
     {
         if (Selected == null) return;
-        var result = VirtualPrinterProvisioner.Uninstall(Selected.LocalName);
-        if (result.Success)
+        var name = Selected.LocalName;
+
+        // Quitar la impresora real de Windows (paso elevado) además de la marca local.
+        var res = VirtualPrinterProvisioner.Uninstall(name);
+        Selected.Installed = false;
+        Save();                 // reanuncia mDNS sin esta
+        if (res.Success) ShowOk(res.Message);
+        else ShowError(res.Message);
+    }
+
+    /// <summary>
+    /// Camino confiable: agrega la impresora IPP a Windows con un paso elevado (UAC).
+    /// Activa la característica "Cliente de impresión por Internet" si falta y prueba
+    /// los métodos de alta hasta que uno funcione. (El mDNS es el atajo automático sin
+    /// admin, pero puede no andar si otro programa ocupa el puerto 5353.)
+    /// </summary>
+    private void AddToWindows()
+    {
+        if (Selected == null) return;
+
+        if (!_config.ClientMode.Enabled || !_ipp.IsRunning)
         {
-            Selected.Installed = false;
-            Save();
-            ShowOk(result.Message);
+            ShowError(Loc.T("client.enableSaveFirst"));
+            return;
         }
-        else ShowError(result.Message);
+
+        ShowOk(Loc.T("client.addWindowsWorking"));
+        var sel = Selected;
+        var port = _config.ClientMode.IppPort;
+        _ = Task.Run(() =>
+        {
+            var res = VirtualPrinterProvisioner.Install(sel, port);
+            WpfApp.Current?.Dispatcher.Invoke(() =>
+            {
+                if (res.Success)
+                {
+                    sel.Installed = true;
+                    Save();
+                    ShowOk(res.Message);
+                }
+                else ShowError(res.Message);
+            });
+        });
     }
 
     private async Task TestHubAsync()

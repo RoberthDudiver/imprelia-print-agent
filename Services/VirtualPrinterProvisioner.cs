@@ -12,16 +12,13 @@ public readonly record struct ProvisionResult(bool Success, string Message)
 }
 
 /// <summary>
-/// Crea o quita colas de impresión en Windows que apuntan al servidor IPP local,
-/// usando el driver de clase IPP incorporado (sin drivers de fabricante).
-///
-/// Requiere elevación (UAC): Add-Printer/Remove-Printer crean puertos del sistema.
-/// El servidor IPP debe estar corriendo al instalar, porque Windows consulta sus
-/// capacidades (Get-Printer-Attributes) durante el alta.
+/// Instala/quita la impresora IPP en Windows con un paso elevado (UAC). Activa la
+/// característica "Cliente de impresión por Internet" si falta y prueba varios
+/// métodos de alta (es la única forma confiable en Windows para una impresora IPP
+/// que apunta a un servidor local).
 /// </summary>
 public static class VirtualPrinterProvisioner
 {
-    /// <summary>¿Existe una cola con ese nombre en Windows?</summary>
     public static bool PrinterExists(string localName)
     {
         if (string.IsNullOrWhiteSpace(localName)) return false;
@@ -33,36 +30,48 @@ public static class VirtualPrinterProvisioner
         catch { return false; }
     }
 
-    /// <summary>Instala una impresora virtual apuntando a http://localhost:{port}/ipp/{id}.</summary>
     public static ProvisionResult Install(ClientVirtualPrinter vp, int ippPort)
     {
         if (string.IsNullOrWhiteSpace(vp.LocalName))
             return ProvisionResult.Fail("La impresora virtual no tiene nombre.");
 
         var name = Escape(vp.LocalName);
-        var httpUrl = $"http://localhost:{ippPort}/ipp/{vp.Id}";
-        var ippUrl  = $"ipp://localhost:{ippPort}/ipp/{vp.Id}";
+        var url  = $"http://localhost:{ippPort}/ipp/{vp.Id}";
 
-        // Dos intentos: esquema http y, si falla, ipp:// (Windows a veces exige uno u otro).
         var body = $@"
-$existing = Get-Printer -Name '{name}' -ErrorAction SilentlyContinue
-if ($existing) {{ Remove-Printer -Name '{name}' -ErrorAction SilentlyContinue }}
-try {{ Add-Printer -Name '{name}' -DeviceURL '{httpUrl}' -ErrorAction Stop }}
-catch {{ Add-Printer -Name '{name}' -DeviceURL '{ippUrl}' -ErrorAction Stop }}";
+$name='{name}'; $url='{url}'; $drv='Microsoft IPP Class Driver'
 
-        return RunElevated(body, $"Impresora '{vp.LocalName}' instalada.", "No se pudo instalar la impresora.");
+# 1) Asegurar la característica 'Cliente de impresión por Internet'.
+try {{
+    $f = Get-WindowsOptionalFeature -Online -FeatureName 'Printing-Foundation-InternetPrinting-Client' -ErrorAction SilentlyContinue
+    if ($f -and $f.State -ne 'Enabled') {{
+        Enable-WindowsOptionalFeature -Online -FeatureName 'Printing-Foundation-InternetPrinting-Client' -All -NoRestart -ErrorAction Stop | Out-Null
+        Start-Sleep -Seconds 2
+    }}
+}} catch {{ }}
+
+if (Get-Printer -Name $name -ErrorAction SilentlyContinue) {{ Remove-Printer -Name $name -ErrorAction SilentlyContinue }}
+
+$ok=$false; $errs=@()
+# A) Internet Print Provider (impresora compartida por nombre).
+if (-not $ok) {{ try {{ Add-Printer -ConnectionName $url -ErrorAction Stop; $ok=$true }} catch {{ $errs += 'ConnName: ' + $_.Exception.Message }} }}
+# B) DeviceURL.
+if (-not $ok) {{ try {{ Add-Printer -Name $name -DeviceURL $url -ErrorAction Stop; $ok=$true }} catch {{ $errs += 'DeviceURL: ' + $_.Exception.Message }} }}
+# C) Puerto con la URL + driver de clase IPP.
+if (-not $ok) {{ try {{ if (-not (Get-PrinterPort -Name $url -ErrorAction SilentlyContinue)) {{ Add-PrinterPort -Name $url -ErrorAction Stop }}; Add-Printer -Name $name -DriverName $drv -PortName $url -ErrorAction Stop; $ok=$true }} catch {{ $errs += 'PortDrv: ' + $_.Exception.Message }} }}
+
+if (-not $ok) {{ throw ($errs -join '  ||  ') }}";
+
+        return RunElevated(body, $"Impresora '{vp.LocalName}' agregada a Windows.", "No se pudo agregar la impresora.");
     }
 
-    /// <summary>Quita una impresora virtual de Windows.</summary>
     public static ProvisionResult Uninstall(string localName)
     {
         if (string.IsNullOrWhiteSpace(localName))
             return ProvisionResult.Fail("Nombre de impresora vacío.");
-
         var name = Escape(localName);
-        var body = $@"Remove-Printer -Name '{name}' -ErrorAction Stop";
-
-        return RunElevated(body, $"Impresora '{localName}' eliminada.", "No se pudo eliminar la impresora.");
+        return RunElevated($"Remove-Printer -Name '{name}' -ErrorAction Stop",
+            $"Impresora '{localName}' eliminada.", "No se pudo eliminar la impresora.");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -75,10 +84,8 @@ catch {{ Add-Printer -Name '{name}' -DeviceURL '{ippUrl}' -ErrorAction Stop }}";
             errFile = Path.Combine(Path.GetTempPath(), $"imprelia-err-{Guid.NewGuid():N}.txt");
             var errPath = errFile.Replace("'", "''");
 
-            // El cuerpo corre con try/catch; cualquier error se escribe al archivo
-            // para poder mostrárselo al usuario (el proceso elevado es oculto).
             var script = $@"
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference='Stop'
 try {{
 {body}
 }} catch {{
@@ -94,28 +101,24 @@ exit 0";
             {
                 FileName = "powershell.exe",
                 Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{temp}\"",
-                UseShellExecute = true,   // requerido para Verb=runas
-                Verb = "runas",            // dispara UAC
+                UseShellExecute = true,
+                Verb = "runas",
                 WindowStyle = ProcessWindowStyle.Hidden,
                 CreateNoWindow = true,
             };
 
             using var p = Process.Start(psi);
             if (p == null) return ProvisionResult.Fail(failMsg + " (no se pudo iniciar PowerShell).");
-
             p.WaitForExit();
             if (p.ExitCode == 0) return ProvisionResult.Ok(okMsg);
 
             var err = "";
             try { if (File.Exists(errFile)) err = File.ReadAllText(errFile).Trim(); } catch { }
             err = Shorten(err);
-            return ProvisionResult.Fail(string.IsNullOrEmpty(err)
-                ? $"{failMsg} (PowerShell código {p.ExitCode})."
-                : $"{failMsg} — {err}");
+            return ProvisionResult.Fail(string.IsNullOrEmpty(err) ? $"{failMsg} (código {p.ExitCode})." : $"{failMsg} — {err}");
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            // 1223 = ERROR_CANCELLED: el usuario rechazó el UAC.
             return ProvisionResult.Fail("Operación cancelada (se necesitan permisos de administrador).");
         }
         catch (Exception ex)
@@ -133,7 +136,7 @@ exit 0";
     {
         s = s.Replace("\r", " ").Replace("\n", " ").Trim();
         while (s.Contains("  ")) s = s.Replace("  ", " ");
-        return s.Length > 300 ? s[..300] + "…" : s;
+        return s.Length > 400 ? s[..400] + "…" : s;
     }
 
     private static string Escape(string s) => s.Replace("'", "''");
