@@ -115,7 +115,17 @@ exit 0";
             var err = "";
             try { if (File.Exists(errFile)) err = File.ReadAllText(errFile).Trim(); } catch { }
             err = Shorten(err);
-            return ProvisionResult.Fail(string.IsNullOrEmpty(err) ? $"{failMsg} (código {p.ExitCode})." : $"{failMsg} — {err}");
+            var msg = string.IsNullOrEmpty(err) ? $"{failMsg} (código {p.ExitCode})." : $"{failMsg} — {err}";
+
+            // Copia persistente del error (no se borra) por si hace falta revisarlo.
+            try
+            {
+                var persistent = Path.Combine(Path.GetTempPath(), "imprelia-last-install-error.txt");
+                File.WriteAllText(persistent, msg, new UTF8Encoding(false));
+            }
+            catch { }
+
+            return ProvisionResult.Fail(msg);
         }
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {

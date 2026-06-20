@@ -364,7 +364,23 @@ public sealed class ClientViewModel : ViewModelBase
                     Save();
                     ShowOk(res.Message);
                 }
-                else ShowError(res.Message);
+                else
+                {
+                    ShowError(res.Message);
+                    // El error suele ser largo y no se puede copiar del banner: lo
+                    // dejamos en el log, en el portapapeles y en un cartel copiable.
+                    _log.Warn($"Error al agregar impresora en Windows: {res.Message}", "Cliente");
+                    try { System.Windows.Clipboard.SetText(res.Message); } catch { }
+                    try
+                    {
+                        System.Windows.MessageBox.Show(
+                            res.Message + "\n\n(El texto ya está copiado en el portapapeles; podés pegarlo.)",
+                            "No se pudo agregar la impresora",
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Error);
+                    }
+                    catch { }
+                }
             });
         });
     }
