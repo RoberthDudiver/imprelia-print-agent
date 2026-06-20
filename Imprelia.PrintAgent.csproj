@@ -41,9 +41,8 @@
   <ItemGroup>
     <!-- Remote Print Bridge: cliente SignalR para conectarse al servidor remoto -->
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.*" />
-    <!-- mDNS/Bonjour: anunciar la impresora virtual para que Windows la descubra
-         automáticamente (IPP Everywhere) sin admin ni instalación por comando. -->
-    <PackageReference Include="Makaretu.Dns.Multicast" Version="0.27.0" />
+    <!-- mDNS/DNS-SD: el anuncio para que Windows descubra la impresora (IPP Everywhere)
+         lo hace MdnsAdvertiser vía la API nativa del SO (dnsapi.dll), sin paquetes. -->
   </ItemGroup>
 
 </Project>

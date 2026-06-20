@@ -335,10 +335,9 @@ public sealed class ClientViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Camino confiable: agrega la impresora IPP a Windows con un paso elevado (UAC).
-    /// Activa la característica "Cliente de impresión por Internet" si falta y prueba
-    /// los métodos de alta hasta que uno funcione. (El mDNS es el atajo automático sin
-    /// admin, pero puede no andar si otro programa ocupa el puerto 5353.)
+    /// Abre la pantalla de "Agregar impresora" de Windows. La impresora ya está
+    /// anunciada por mDNS (API nativa del SO), así que Windows la descubre sola y la
+    /// instala con el driver de clase IPP — por-usuario, sin admin, sin pegar URLs.
     /// </summary>
     private void AddToWindows()
     {
@@ -350,39 +349,10 @@ public sealed class ClientViewModel : ViewModelBase
             return;
         }
 
-        ShowOk(Loc.T("client.addWindowsWorking"));
-        var sel = Selected;
-        var port = _config.ClientMode.IppPort;
-        _ = Task.Run(() =>
-        {
-            var res = VirtualPrinterProvisioner.Install(sel, port);
-            WpfApp.Current?.Dispatcher.Invoke(() =>
-            {
-                if (res.Success)
-                {
-                    sel.Installed = true;
-                    Save();
-                    ShowOk(res.Message);
-                }
-                else
-                {
-                    ShowError(res.Message);
-                    // El error suele ser largo y no se puede copiar del banner: lo
-                    // dejamos en el log, en el portapapeles y en un cartel copiable.
-                    _log.Warn($"Error al agregar impresora en Windows: {res.Message}", "Cliente");
-                    try { System.Windows.Clipboard.SetText(res.Message); } catch { }
-                    try
-                    {
-                        System.Windows.MessageBox.Show(
-                            res.Message + "\n\n(El texto ya está copiado en el portapapeles; podés pegarlo.)",
-                            "No se pudo agregar la impresora",
-                            System.Windows.MessageBoxButton.OK,
-                            System.Windows.MessageBoxImage.Error);
-                    }
-                    catch { }
-                }
-            });
-        });
+        // Asegurar que esté anunciada antes de abrir la pantalla de descubrimiento.
+        _mdns.Refresh();
+        VirtualPrinterProvisioner.OpenAddPrinter();
+        ShowOk(string.Format(Loc.T("client.addWindowsHint"), Selected.LocalName));
     }
 
     private async Task TestHubAsync()
