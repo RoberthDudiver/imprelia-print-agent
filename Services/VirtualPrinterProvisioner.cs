@@ -47,6 +47,7 @@ public static class VirtualPrinterProvisioner
 
         var name = Escape(vp.LocalName);
         var file = Escape(outFile);
+        var (wmm, hmm) = PaperMm(vp.PaperSize);
 
         var body = $@"
 $name='{name}'; $port='{file}'; $drv='{DriverName}'
@@ -57,7 +58,20 @@ Get-PrinterPort -Name $port -ErrorAction SilentlyContinue | Remove-PrinterPort -
 
 # Puerto = archivo de salida (Local Port). El spooler escribe el PDF acá.
 Add-PrinterPort -Name $port -ErrorAction Stop
-Add-Printer -Name $name -DriverName $drv -PortName $port -ErrorAction Stop";
+Add-Printer -Name $name -DriverName $drv -PortName $port -ErrorAction Stop
+
+# Tamaño de papel por defecto, según el tipo (80mm térmica, etiqueta, A4…), para
+# que cualquier app (PedidosYa, Word, etc.) arme la página del tamaño correcto.
+try {{
+    Add-Type -AssemblyName System.Printing -ErrorAction Stop
+    $srv = New-Object System.Printing.LocalPrintServer
+    $q = $srv.GetPrintQueue($name)
+    $t = $q.DefaultPrintTicket
+    $toDip = {{ param($mm) [double]($mm / 25.4 * 96) }}
+    $t.PageMediaSize = New-Object System.Printing.PageMediaSize((& $toDip {wmm}), (& $toDip {hmm}))
+    $q.DefaultPrintTicket = $t
+    $q.Commit()
+}} catch {{ }}";
 
         return RunElevated(body,
             $"Impresora '{vp.LocalName}' instalada. Imprimí a ella desde cualquier app.",
@@ -138,6 +152,15 @@ exit 0";
             try { if (errFile != null && File.Exists(errFile)) File.Delete(errFile); } catch { }
         }
     }
+
+    /// <summary>Ancho×alto en mm del papel por defecto según el tipo de impresora.</summary>
+    private static (double w, double h) PaperMm(string? paperSize) => (paperSize ?? "a4").ToLowerInvariant() switch
+    {
+        "thermal80" => (80, 297),   // rollo térmico 80mm (largo generoso; el corte lo da la térmica)
+        "thermal58" => (58, 297),   // rollo térmico 58mm
+        "letter"    => (216, 279),  // carta
+        _           => (210, 297),  // A4
+    };
 
     private static string Shorten(string s)
     {
