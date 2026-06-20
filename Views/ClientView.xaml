@@ -286,8 +286,6 @@
                     <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                         <Button Content="{loc:Tr client.install}" Command="{Binding InstallCommand}"
                                 Style="{StaticResource Btn.Primary}" Margin="0,0,8,0"/>
-                        <Button Content="{loc:Tr client.addWindows}" Command="{Binding AddToWindowsCommand}"
-                                Style="{StaticResource Btn.Primary}" Margin="0,0,8,0"/>
                         <Button Content="{loc:Tr client.uninstall}" Command="{Binding UninstallCommand}"
                                 Style="{StaticResource Btn.Ghost}"/>
                     </StackPanel>

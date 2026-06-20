@@ -66,8 +66,7 @@ public class TrayApp : ApplicationContext
     private readonly AgentLogService _log;
     private readonly RemoteBridgeService _bridge;
     private readonly ClientSenderService _sender;
-    private readonly IppPrintServer _ipp;
-    private readonly MdnsAdvertiser _mdns;
+    private readonly PdfSpoolService _spool;
     private MainWindow? _mainWindow;
 
     public TrayApp()
@@ -78,8 +77,7 @@ public class TrayApp : ApplicationContext
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
         _bridge = new RemoteBridgeService(_config, _log);
         _sender = new ClientSenderService(_config, _log);
-        _ipp    = new IppPrintServer(_config, _log, _sender);
-        _mdns   = new MdnsAdvertiser(_config, _log);
+        _spool  = new PdfSpoolService(_config, _log, _sender);
 
         _tray = new NotifyIcon
         {
@@ -121,12 +119,12 @@ public class TrayApp : ApplicationContext
             {
                 // CLIENTE: emisor puro. NO levanta :9100 ni se registra en el hub
                 // (si se registrara con el mismo AgentId del tenant, pisaría al
-                // principal). Solo usa HTTP para descubrir y mandar trabajos.
-                _log.Info("Modo cliente: API local (:9100) y receptor del hub desactivados. Solo emite al hub.", "Cliente");
+                // principal). Captura los PDF de las impresoras virtuales y los manda
+                // al hub. Solo usa HTTP para descubrir y enviar trabajos.
+                _log.Info("Modo cliente: API local (:9100) y receptor del hub desactivados. Captura impresión y emite al hub.", "Cliente");
+                _spool.Start();
             }
 
-            _ipp.Start();
-            _mdns.Start();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
 
@@ -150,7 +148,7 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _ipp, _sender, _mdns);
+            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _spool, _sender);
             // CLAVE: sin esto, los TextBox de WPF NO reciben teclado cuando la ventana
             // se muestra desde una app WinForms (el loop de mensajes es de WinForms por
             // el NotifyIcon). EnableModelessKeyboardInterop enruta el teclado a WPF.
@@ -190,8 +188,7 @@ public class TrayApp : ApplicationContext
     private void ExitApp()
     {
         _server.Stop();
-        _ipp.Stop();
-        _mdns.Dispose();
+        _spool.Dispose();
         _bridge.StopAsync().Wait(3000);
         _bridge.Dispose();
         _tray.Visible = false;
