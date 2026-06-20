@@ -50,6 +50,17 @@ public sealed class ImpreliaHub : Hub
         }
     }
 
+    /// <summary>
+    /// El agente principal publica su lista de impresoras para que los clientes
+    /// puedan descubrirlas y crear impresoras virtuales que las espejen.
+    /// </summary>
+    public Task PublishPrinters(string agentId, List<Models.RemotePrinterInfo> printers)
+    {
+        if (!string.IsNullOrWhiteSpace(agentId))
+            _registry.SetPrinters(agentId, printers ?? new List<Models.RemotePrinterInfo>());
+        return Task.CompletedTask;
+    }
+
     /// <summary>El agente reporta el resultado de un trabajo.</summary>
     public Task ReportStatus(string jobId, string status, string? error = null)
     {

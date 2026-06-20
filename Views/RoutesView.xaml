@@ -1,6 +1,7 @@
 <UserControl x:Class="Imprelia.PrintAgent.Views.RoutesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
              Background="#0B1426">
 
     <Grid Margin="28,24">
@@ -21,20 +22,19 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Rutas por propósito" Style="{StaticResource T.PageTitle}"/>
-            <TextBlock Text="Cada propósito envía el contenido a una impresora específica y en el formato adecuado."
-                       Style="{StaticResource T.PageSub}"/>
+            <TextBlock Text="{loc:Tr routes.title}" Style="{StaticResource T.PageTitle}"/>
+            <TextBlock Text="{loc:Tr routes.subtitle}" Style="{StaticResource T.PageSub}"/>
         </StackPanel>
 
         <!-- Toolbar -->
         <DockPanel Grid.Row="2" Grid.Column="0">
-            <Button Content="＋ Nueva ruta" Command="{Binding AddRouteCommand}"
+            <Button Content="{loc:Tr routes.new}" Command="{Binding AddRouteCommand}"
                     Style="{StaticResource Btn.Primary}" DockPanel.Dock="Left"/>
-            <Button Content="✏ Editar" Command="{Binding EditRouteCommand}"
+            <Button Content="{loc:Tr routes.edit}" Command="{Binding EditRouteCommand}"
                     Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
-            <Button Content="▷ Probar" Command="{Binding TestRouteCommand}"
+            <Button Content="{loc:Tr routes.test}" Command="{Binding TestRouteCommand}"
                     Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
-            <Button Content="🗑 Eliminar" Command="{Binding DeleteRouteCommand}"
+            <Button Content="{loc:Tr routes.delete}" Command="{Binding DeleteRouteCommand}"
                     Style="{StaticResource Btn.Danger}" Margin="8,0,0,0" DockPanel.Dock="Left"/>
         </DockPanel>
 
@@ -43,18 +43,8 @@
                 Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}}"
                 Style="{StaticResource Card}" Padding="16">
             <StackPanel>
-                <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#E2E8F0" Margin="0,0,0,14">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="Editar ruta"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsNewRoute}" Value="True">
-                                    <Setter Property="Text" Value="Nueva ruta"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                <TextBlock Text="{Binding RouteFormTitle}" FontSize="13" FontWeight="SemiBold"
+                           Foreground="#E2E8F0" Margin="0,0,0,14"/>
 
                 <!-- Error -->
                 <Border Visibility="{Binding EditError, Converter={StaticResource StrToVis}}"
@@ -72,23 +62,23 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Propósito" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr routes.purposeLabel}" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                         <TextBox Text="{Binding EditPurpose, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource Input.Text}"
                                  IsReadOnly="{Binding IsNewRoute, Converter={StaticResource InvBoolToVis}}"/>
-                        <TextBlock Text="Solo letras, números y guiones bajos" FontSize="10"
+                        <TextBlock Text="{loc:Tr routes.purposeHint}" FontSize="10"
                                    Foreground="#64748B" Margin="0,4,0,0"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="Impresora" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr routes.printerLabel}" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                         <ComboBox ItemsSource="{Binding AvailablePrinters}"
                                   SelectedItem="{Binding EditPrinterName}"
                                   Style="{StaticResource Input.Combo}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
-                        <TextBlock Text="Tipo de contenido" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock Text="{loc:Tr routes.typeLabel}" FontSize="11" Foreground="#64748B" Margin="0,0,0,6"/>
                         <ComboBox ItemsSource="{Binding ContentTypes}"
                                   SelectedItem="{Binding EditContentType}"
                                   Style="{StaticResource Input.Combo}"/>
@@ -96,9 +86,9 @@
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                    <Button Content="Cancelar" Command="{Binding CancelEditCommand}"
+                    <Button Content="{loc:Tr routes.cancelBtn}" Command="{Binding CancelEditCommand}"
                             Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0"/>
-                    <Button Content="Guardar ruta" Command="{Binding SaveEditCommand}"
+                    <Button Content="{loc:Tr routes.saveBtn}" Command="{Binding SaveEditCommand}"
                             Style="{StaticResource Btn.Primary}"/>
                 </StackPanel>
             </StackPanel>
@@ -123,11 +113,11 @@
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="110"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Propósito" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="1" Text="Impresora" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="2" Text="Tipo" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="3" Text="Estado" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Column="4" Text="Acciones" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="0" Text="{loc:Tr routes.colPurpose}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Tr routes.colPrinter}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="2" Text="{loc:Tr routes.colType}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="3" Text="{loc:Tr routes.colStatus}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="4" Text="{loc:Tr routes.colActions}" FontSize="11" Foreground="#64748B" FontWeight="SemiBold"/>
                     </Grid>
                 </Border>
 
@@ -168,7 +158,7 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding PrinterName, TargetNullValue='(sin asignar)'}"
+                                            <TextBlock Text="{Binding PrinterName, TargetNullValue='—'}"
                                                        FontSize="12" Foreground="#94A3B8"/>
                                         </StackPanel>
 
@@ -240,7 +230,7 @@
                                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Ellipse Width="7" Height="7" Fill="#22C55E"
                                                      VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                            <TextBlock Text="Activa" FontSize="12" Foreground="#22C55E"/>
+                                            <TextBlock Text="{loc:Tr routes.active}" FontSize="12" Foreground="#22C55E"/>
                                         </StackPanel>
 
                                         <!-- Acciones -->
@@ -265,10 +255,7 @@
                 <!-- Footer hint -->
                 <Border Grid.Row="2" Background="#0B1E3A" CornerRadius="0,0,10,10" Padding="16,10">
                     <DockPanel>
-                        <TextBlock FontSize="11" Foreground="#64748B" TextWrapping="Wrap">
-                            💡 Ejemplos: ticket, kitchen_order, report, label, fiscal.
-                            Solo letras, números y guiones bajos.
-                        </TextBlock>
+                        <TextBlock Text="{loc:Tr routes.footerHint}" FontSize="11" Foreground="#64748B" TextWrapping="Wrap"/>
                         <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding Routes}" IsHitTestVisible="False">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -295,31 +282,29 @@
             <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource InvBoolToVis}}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="⇄" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,12" Foreground="#334155"/>
-                <TextBlock Text="Selecciona una ruta" FontSize="13"
-                           Foreground="#64748B" TextAlignment="Center"/>
-                <TextBlock Text="para ver sus detalles" FontSize="13"
-                           Foreground="#64748B" TextAlignment="Center"/>
+                <TextBlock Text="{loc:Tr routes.selectPrompt}" FontSize="13" MaxWidth="180"
+                           Foreground="#64748B" TextAlignment="Center" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- Detail -->
             <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="Detalles de la ruta seleccionada"
+                <TextBlock Text="{loc:Tr routes.detailTitle}"
                            FontSize="12" Foreground="#64748B" Margin="0,0,0,16"/>
 
                 <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Propósito" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Tr routes.colPurpose}" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
                     <TextBlock Text="{Binding SelectedRoute.Purpose}" FontSize="16"
                                Foreground="#E2E8F0" FontWeight="Bold" FontFamily="Consolas"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Impresora" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding SelectedRoute.PrinterName, TargetNullValue='(sin asignar)'}"
+                    <TextBlock Text="{loc:Tr routes.colPrinter}" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedRoute.PrinterName, TargetNullValue='—'}"
                                FontSize="13" Foreground="#E2E8F0"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Tipo de contenido" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Tr routes.typeLabel}" FontSize="11" Foreground="#64748B" Margin="0,0,0,4"/>
                     <Border CornerRadius="4" Padding="8,4" HorizontalAlignment="Left"
                             Background="#1E3A8A">
                         <TextBlock Text="{Binding SelectedRoute.ContentType}" FontSize="12"
@@ -330,26 +315,26 @@
                 <Separator Background="#1E293B" Margin="0,10,0,14"/>
 
                 <StackPanel Margin="0,0,0,10">
-                    <TextBlock Text="Validaciones recomendadas" FontSize="11"
+                    <TextBlock Text="{loc:Tr routes.validations}" FontSize="11"
                                Foreground="#64748B" Margin="0,0,0,8"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                         <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
-                        <TextBlock Text="El propósito debe ser único." FontSize="12" Foreground="#94A3B8"/>
+                        <TextBlock Text="{loc:Tr routes.val1}" FontSize="12" Foreground="#94A3B8"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                         <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
-                        <TextBlock Text="La impresora debe estar disponible." FontSize="12" Foreground="#94A3B8"/>
+                        <TextBlock Text="{loc:Tr routes.val2}" FontSize="12" Foreground="#94A3B8"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="✓ " Foreground="#22C55E" FontSize="12"/>
-                        <TextBlock Text="El tipo debe coincidir con la app." FontSize="12"
+                        <TextBlock Text="{loc:Tr routes.val3}" FontSize="12"
                                    Foreground="#94A3B8" TextWrapping="Wrap"/>
                     </StackPanel>
                 </StackPanel>
 
                 <Separator Background="#1E293B" Margin="0,10,0,14"/>
 
-                <Button Content="▷ Probar esta ruta" Command="{Binding TestRouteCommand}"
+                <Button Content="{loc:Tr routes.testThis}" Command="{Binding TestRouteCommand}"
                         Style="{StaticResource Btn.Primary}" HorizontalAlignment="Stretch" Height="38"/>
             </StackPanel>
             </Grid>

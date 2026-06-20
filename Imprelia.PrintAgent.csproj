@@ -16,7 +16,7 @@
     <Copyright>© 2026 Roberth Dudiver — dudiver.net</Copyright>
     <Description>Local print agent with HTTP API for Windows printers (ESC/POS, RAW, ZPL, PDF).</Description>
     <PackageProjectUrl>https://www.dudiver.net</PackageProjectUrl>
-    <Version>1.1.6</Version>
+    <Version>1.1.7</Version>
     <!-- Para publicar como un solo .exe portable, ver README del agente. -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>false</SelfContained>
@@ -41,6 +41,8 @@
   <ItemGroup>
     <!-- Remote Print Bridge: cliente SignalR para conectarse al servidor remoto -->
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.*" />
+    <!-- mDNS/DNS-SD: el anuncio para que Windows descubra la impresora (IPP Everywhere)
+         lo hace MdnsAdvertiser vía la API nativa del SO (dnsapi.dll), sin paquetes. -->
   </ItemGroup>
 
 </Project>

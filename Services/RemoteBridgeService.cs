@@ -141,7 +141,7 @@ public sealed class RemoteBridgeService : IDisposable
                 // CLAVE: al reconectar, la connectionId cambia → hay que volver a
                 // registrarse, si no el servidor no sabe a quién mandarle los trabajos
                 // (síntoma: "andaba y de golpe no imprime hasta deshabilitar/habilitar").
-                try { await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? ""); }
+                try { await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? ""); await PublishPrintersAsync(); }
                 catch (Exception ex) { _log.Warn($"Bridge: re-registro tras reconexión falló — {ex.Message}", "Bridge"); }
                 SetState(BridgeConnectionState.Connected);
                 _lastConnectedAt = DateTime.Now;
@@ -163,6 +163,9 @@ public sealed class RemoteBridgeService : IDisposable
 
             // Registrar el agente en el servidor
             await _hub.InvokeAsync("RegisterAgent", cfg.AgentId, cfg.ApiKey ?? "", ct);
+
+            // Publicar las impresoras locales para que los clientes las descubran.
+            await PublishPrintersAsync();
 
             SetState(BridgeConnectionState.Connected);
             _lastConnectedAt = DateTime.Now;
@@ -255,13 +258,18 @@ public sealed class RemoteBridgeService : IDisposable
 
     private async Task HandleJobAsync(RemotePrintJob job, CancellationToken ct)
     {
-        _log.Info($"Job remoto: {job.JobId} → ruta '{job.Route}'", "Bridge");
+        // Una impresora explícita (modo cliente/impresora virtual) llega por metadata.
+        var explicitPrinter = GetMeta(job, "printer");
+
+        _log.Info(
+            $"Job remoto: {job.JobId} → {(string.IsNullOrWhiteSpace(explicitPrinter) ? $"ruta '{job.Route}'" : $"impresora '{explicitPrinter}'")}",
+            "Bridge");
         await ReportStatusAsync(job, "received_by_agent", null);
 
-        if (string.IsNullOrWhiteSpace(job.Route))
+        if (string.IsNullOrWhiteSpace(job.Route) && string.IsNullOrWhiteSpace(explicitPrinter))
         {
-            await ReportStatusAsync(job, "invalid_payload", "Route es obligatorio");
-            _log.Warn($"Job {job.JobId} rechazado: Route vacío.", "Bridge");
+            await ReportStatusAsync(job, "invalid_payload", "Falta Route o printer");
+            _log.Warn($"Job {job.JobId} rechazado: sin ruta ni impresora.", "Bridge");
             return;
         }
 
@@ -269,16 +277,33 @@ public sealed class RemoteBridgeService : IDisposable
         {
             await ReportStatusAsync(job, "printing", null);
 
-            var printReq = new PrintByPurposeRequest
-            {
-                Purpose = job.Route,
-                ContentType = NormalizeType(job.Type),
-                Content = job.Content,
-                Copies = Math.Max(1, job.Copies),
-                JobName = $"Remote/{job.JobId[..Math.Min(8, job.JobId.Length)]}",
-            };
+            var jobName = $"Remote/{job.JobId[..Math.Min(8, job.JobId.Length)]}";
 
-            var response = _print.PrintByPurpose(printReq);
+            PrintResponse response;
+            if (!string.IsNullOrWhiteSpace(explicitPrinter))
+            {
+                // Impresión directa a una impresora nombrada en el principal.
+                response = _print.Print(new UniversalPrintRequest
+                {
+                    PrinterName = explicitPrinter,
+                    ContentType = NormalizeType(job.Type),
+                    Content = job.Content,
+                    Copies = Math.Max(1, job.Copies),
+                    JobName = jobName,
+                }, "/remote/explicit");
+            }
+            else
+            {
+                // Impresión por ruta/propósito configurado.
+                response = _print.PrintByPurpose(new PrintByPurposeRequest
+                {
+                    Purpose = job.Route,
+                    ContentType = NormalizeType(job.Type),
+                    Content = job.Content,
+                    Copies = Math.Max(1, job.Copies),
+                    JobName = jobName,
+                });
+            }
 
             if (response.Success)
             {
@@ -363,6 +388,48 @@ public sealed class RemoteBridgeService : IDisposable
                msg.Contains("Unauthorized", StringComparison.OrdinalIgnoreCase) ||
                msg.Contains("Forbidden", StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>Envía la lista de impresoras locales al hub (descubrimiento por clientes).</summary>
+    private async Task PublishPrintersAsync()
+    {
+        try
+        {
+            if (_hub == null || _hub.State != HubConnectionState.Connected) return;
+
+            // En modo cliente NO publicamos: este agente es un emisor, no expone
+            // impresoras al hub. Si lo hiciéramos, otros clientes nos verían como
+            // un "principal" y descubrirían las impresoras locales del cliente.
+            // Además, publicamos una lista vacía para limpiar cualquier publicación
+            // anterior (cuando el agente venía operando como principal).
+            if (_config.ClientMode.Enabled)
+            {
+                try
+                {
+                    await _hub.InvokeAsync("PublishPrinters",
+                        _config.RemoteBridge.AgentId, new List<object>());
+                }
+                catch { /* el hub puede no soportarlo: no es crítico */ }
+                _log.Info("Bridge: modo cliente — impresoras locales no publicadas.", "Bridge");
+                return;
+            }
+
+            var discovery = new WindowsPrinterDiscoveryService(_config);
+            var printers = discovery.ListPrinters()
+                .Select(p => new { p.Name, p.Type, p.IsDefault })
+                .ToList();
+
+            await _hub.InvokeAsync("PublishPrinters", _config.RemoteBridge.AgentId, printers);
+            _log.Info($"Bridge: {printers.Count} impresoras publicadas para descubrimiento.", "Bridge");
+        }
+        catch (Exception ex)
+        {
+            // El hub puede no soportar PublishPrinters (versión vieja): no es crítico.
+            _log.Warn($"Bridge: no se pudieron publicar impresoras — {ex.Message}", "Bridge");
+        }
+    }
+
+    private static string? GetMeta(RemotePrintJob job, string key) =>
+        job.Metadata != null && job.Metadata.TryGetValue(key, out var v) ? v : null;
 
     private static string NormalizeType(string? type) =>
         (type?.ToLowerInvariant() ?? "escpos") switch

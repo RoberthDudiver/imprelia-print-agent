@@ -39,6 +39,17 @@ static class Program
             wpfApp.Resources.MergedDictionaries.Add(styles);
         }
 
+        // Onboarding del primer arranque (rol principal/cliente + token). Va ACÁ,
+        // antes del loop de WinForms: un WPF ShowDialog corre su propio frame de
+        // dispatcher y funciona standalone. (Si se hace dentro de TrayApp, el loop
+        // todavía no arrancó y la ventana no se muestra bien.)
+        var bootConfig = AppConfig.Load();
+        Localization.Loc.SetLanguage(bootConfig.Language);
+        if (!bootConfig.SetupCompleted)
+        {
+            try { new SetupWindow(bootConfig).ShowDialog(); } catch { /* si falla, sigue como principal */ }
+        }
+
         Application.Run(new TrayApp());
     }
 }
@@ -54,14 +65,19 @@ public class TrayApp : ApplicationContext
     private readonly LocalServer _server;
     private readonly AgentLogService _log;
     private readonly RemoteBridgeService _bridge;
+    private readonly ClientSenderService _sender;
+    private readonly PdfSpoolService _spool;
     private MainWindow? _mainWindow;
 
     public TrayApp()
     {
         _config = AppConfig.Load();
+        Localization.Loc.SetLanguage(_config.Language);
         _log    = new AgentLogService(Dispatcher.CurrentDispatcher);
         _server = new LocalServer(_config, () => _config.DefaultPrinter);
         _bridge = new RemoteBridgeService(_config, _log);
+        _sender = new ClientSenderService(_config, _log);
+        _spool  = new PdfSpoolService(_config, _log, _sender);
 
         _tray = new NotifyIcon
         {
@@ -89,11 +105,28 @@ public class TrayApp : ApplicationContext
 
         try
         {
-            _server.Start();
-            _ = _bridge.StartAsync();
+            // En modo cliente la máquina es un emisor puro: NO levantamos el API
+            // local (:9100). Así GastroManager no imprime local y usa el hub que
+            // ya tiene programado. La impresión local solo existe en el principal.
+            if (!_config.ClientMode.Enabled)
+            {
+                // PRINCIPAL: API local + receptor del hub (se registra, recibe, publica).
+                _server.Start();
+                _log.Info($"Escuchando en puerto {_config.Port}.");
+                _ = _bridge.StartAsync();
+            }
+            else
+            {
+                // CLIENTE: emisor puro. NO levanta :9100 ni se registra en el hub
+                // (si se registrara con el mismo AgentId del tenant, pisaría al
+                // principal). Captura los PDF de las impresoras virtuales y los manda
+                // al hub. Solo usa HTTP para descubrir y enviar trabajos.
+                _log.Info("Modo cliente: API local (:9100) y receptor del hub desactivados. Captura impresión y emite al hub.", "Cliente");
+                _spool.Start();
+            }
+
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
-            _log.Info($"Escuchando en puerto {_config.Port}.");
 
             _tray.ShowBalloonTip(3500, "Imprelia Print Agent",
                 "Agente de impresion activo. Hace doble click aca para configurarlo.",
@@ -115,7 +148,11 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge);
+            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge, _spool, _sender);
+            // CLAVE: sin esto, los TextBox de WPF NO reciben teclado cuando la ventana
+            // se muestra desde una app WinForms (el loop de mensajes es de WinForms por
+            // el NotifyIcon). EnableModelessKeyboardInterop enruta el teclado a WPF.
+            System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_mainWindow);
             _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
 
@@ -135,7 +172,7 @@ public class TrayApp : ApplicationContext
     private static void ShowAbout()
     {
         var version = System.Reflection.Assembly.GetExecutingAssembly()
-            .GetName().Version?.ToString(3) ?? "1.1.1";
+            .GetName().Version?.ToString(3) ?? "1.1.7";
         MessageBox.Show(
             $"Imprelia Print Agent  v{version}\n\n" +
             "Agente local de impresión para aplicaciones web.\n" +
@@ -151,6 +188,7 @@ public class TrayApp : ApplicationContext
     private void ExitApp()
     {
         _server.Stop();
+        _spool.Dispose();
         _bridge.StopAsync().Wait(3000);
         _bridge.Dispose();
         _tray.Visible = false;

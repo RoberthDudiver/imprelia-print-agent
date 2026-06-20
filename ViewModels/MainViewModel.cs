@@ -21,6 +21,7 @@ public sealed class MainViewModel : ViewModelBase
     public SettingsViewModel Settings { get; }
     public LogsViewModel Logs { get; }
     public RemoteBridgeViewModel Bridge { get; }
+    public ClientViewModel Client { get; }
 
     public ViewModelBase CurrentPage { get => _currentPage; private set => Set(ref _currentPage, value); }
     public int SelectedNavIndex { get => _selectedNavIndex; private set => Set(ref _selectedNavIndex, value); }
@@ -28,6 +29,10 @@ public sealed class MainViewModel : ViewModelBase
     public string AgentVersion => LocalServer.Version;
     public int AgentPort => _startedPort;
     public string ListeningAddress => $"127.0.0.1:{_startedPort}";
+    public string AgentId => string.IsNullOrWhiteSpace(_config.RemoteBridge.AgentId)
+        ? Localization.Loc.T("sidebar.agentIdMissing")
+        : _config.RemoteBridge.AgentId;
+    public bool HasAgentId => !string.IsNullOrWhiteSpace(_config.RemoteBridge.AgentId);
 
     public ICommand NavDashboardCommand { get; }
     public ICommand NavPrintersCommand { get; }
@@ -35,11 +40,13 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand NavSettingsCommand { get; }
     public ICommand NavLogsCommand { get; }
     public ICommand NavBridgeCommand { get; }
+    public ICommand NavClientCommand { get; }
     public ICommand OpenApiGuideCommand { get; }
     public ICommand MinimizeCommand { get; }
     public ICommand ExitCommand { get; }
 
-    public MainViewModel(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge)
+    public MainViewModel(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge,
+                         PdfSpoolService spool, ClientSenderService sender)
     {
         _config = config;
         _startedPort = startedPort;
@@ -53,6 +60,14 @@ public sealed class MainViewModel : ViewModelBase
         Settings  = new SettingsViewModel(config, startedPort, log);
         Logs      = new LogsViewModel(log);
         Bridge    = new RemoteBridgeViewModel(config, bridge, log);
+        Client    = new ClientViewModel(config, log, spool, sender);
+
+        // Refrescar el AgentId de la sidebar cuando se guarda la config del bridge.
+        Bridge.ConfigApplied += (_, _) =>
+        {
+            OnPropertyChanged(nameof(AgentId));
+            OnPropertyChanged(nameof(HasAgentId));
+        };
 
         _currentPage = Dashboard;
 
@@ -62,6 +77,7 @@ public sealed class MainViewModel : ViewModelBase
         NavSettingsCommand  = new RelayCommand(() => Navigate(Settings,  3));
         NavLogsCommand      = new RelayCommand(() => Navigate(Logs,      4));
         NavBridgeCommand    = new RelayCommand(() => Navigate(Bridge,    5));
+        NavClientCommand    = new RelayCommand(() => Navigate(Client,    6));
         OpenApiGuideCommand = new RelayCommand(OpenApiGuide);
         MinimizeCommand     = new RelayCommand(() => MinimizeRequested?.Invoke(this, EventArgs.Empty));
         ExitCommand         = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
@@ -77,6 +93,7 @@ public sealed class MainViewModel : ViewModelBase
             case 3: Navigate(Settings,  3); break;
             case 4: Navigate(Logs,      4); break;
             case 5: Navigate(Bridge,    5); break;
+            case 6: Navigate(Client,    6); break;
         }
     }
 

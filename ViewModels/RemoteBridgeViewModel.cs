@@ -22,22 +22,25 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
     public string ServerUrl
     {
         get => _serverUrl;
-        set { Set(ref _serverUrl, value); }
+        set { Set(ref _serverUrl, value); OnPropertyChanged(nameof(ClientToken)); }
     }
 
     private string _agentId = "";
     public string AgentId
     {
         get => _agentId;
-        set { Set(ref _agentId, value); }
+        set { Set(ref _agentId, value); OnPropertyChanged(nameof(ClientToken)); }
     }
 
     private string _apiKey = "";
     public string ApiKey
     {
         get => _apiKey;
-        set { Set(ref _apiKey, value); }
+        set { Set(ref _apiKey, value); OnPropertyChanged(nameof(ClientToken)); }
     }
+
+    /// <summary>Token base64 para configurar clientes con un solo pegado.</summary>
+    public string ClientToken => Services.SetupToken.Encode(_serverUrl, _agentId, _apiKey);
 
     private string _mode = "signalr";
     public string Mode
@@ -128,6 +131,7 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
 
     public RelayCommand SaveCommand { get; }
     public RelayCommand TestConnectionCommand { get; }
+    public RelayCommand CopyTokenCommand { get; }
 
     public RemoteBridgeViewModel(AppConfig config, RemoteBridgeService bridge, AgentLogService log)
     {
@@ -149,6 +153,11 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
                                                 () => !IsTesting &&
                                                       !string.IsNullOrWhiteSpace(ServerUrl) &&
                                                       !string.IsNullOrWhiteSpace(AgentId));
+
+        CopyTokenCommand = new RelayCommand(() =>
+        {
+            try { System.Windows.Clipboard.SetText(ClientToken); TestResult = "✓ Token copiado. Pegalo en el cliente."; } catch { }
+        }, () => !string.IsNullOrWhiteSpace(ServerUrl) && !string.IsNullOrWhiteSpace(AgentId));
 
         _bridge.StateChanged += OnBridgeStateChanged;
         OnBridgeStateChanged(null, _bridge.State);
@@ -176,6 +185,7 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
         _config.Save();
         TestResult = "";
         _log.Info("Remote Bridge: configuración guardada.", "Bridge");
+        ConfigApplied?.Invoke(this, EventArgs.Empty);
 
         _ = Task.Run(async () =>
         {
@@ -183,6 +193,9 @@ public sealed class RemoteBridgeViewModel : ViewModelBase
             await _bridge.StartAsync();
         });
     }
+
+    /// <summary>Se dispara cuando la config (en particular AgentId) cambió y otros VMs deben refrescar.</summary>
+    public event EventHandler? ConfigApplied;
 
     private void ApplyToConfig()
     {

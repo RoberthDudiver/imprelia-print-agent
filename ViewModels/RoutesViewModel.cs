@@ -30,7 +30,9 @@ public sealed class RoutesViewModel : ViewModelBase
 
     public bool HasSelection => _selectedRoute != null;
     public bool IsEditing { get => _isEditing; private set => Set(ref _isEditing, value); }
-    public bool IsNewRoute { get => _isNewRoute; private set => Set(ref _isNewRoute, value); }
+    public bool IsNewRoute { get => _isNewRoute; private set { Set(ref _isNewRoute, value); OnPropertyChanged(nameof(RouteFormTitle)); } }
+
+    public string RouteFormTitle => Localization.Loc.T(_isNewRoute ? "routes.newTitle" : "routes.editTitle");
 
     public string EditPurpose { get => _editPurpose; set => Set(ref _editPurpose, value); }
     public string EditPrinterName { get => _editPrinterName; set => Set(ref _editPrinterName, value); }

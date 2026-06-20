@@ -19,6 +19,7 @@
   <a href="#english">English</a> ·
   <a href="#español">Español</a> ·
   <a href="#screenshots--capturas">Screenshots</a> ·
+  <a href="#remote-printing--impresión-remota">Remote Printing</a> ·
   <a href="docs/API.md">API</a> ·
   <a href="docs/INSTALLATION.md">Installation</a> ·
   <a href="docs/STORE_SUBMISSION.md">Store</a> ·
@@ -73,6 +74,41 @@ Real-time agent activity for diagnostics: filter by level (Info / Warning / Erro
 
 ---
 
+## Remote Printing · Impresión remota
+
+Any Windows app can print to a printer on **another machine** through the hub —
+like a network printer, but over the hub. No manufacturer drivers: it uses the
+Windows inbox **IPP class driver**; the job travels as PDF and the principal
+machine prints it. Works for delivery tickets (Rappi/PedidosYa), reports, kitchen
+orders, etc. **Microsoft Store compatible** (loopback IPP, no port monitor, no drivers).
+
+```
+[Any app] --Ctrl+P--> [Printer "Cocina (Remota)"]   (Windows inbox IPP driver)
+                              | HTTP (PDF)
+                              v
+        [CLIENT agent: IPP server 127.0.0.1:9110 captures the PDF]
+                              | POST {hub}/imprelia/jobs
+                              v
+                           [HUB] --SignalR--> [PRINCIPAL agent]
+                                               prints the PDF on "Cocina"
+```
+
+**Quick setup**
+
+| Machine | Role | What to configure |
+|---|---|---|
+| With the printer | **Principal** | *Remote Bridge*: enable, hub URL, an `AgentId`, API key → Connected |
+| Where you print from | **Client** | *Remote Printing*: enable client mode, add a virtual printer → target `AgentId` + printer/route → *Install in Windows* |
+| Server | **Hub** | `ExposeHttpJobApi = true` |
+
+Full step-by-step (both languages): **[docs/REMOTE_PRINTING.md](docs/REMOTE_PRINTING.md)**.
+
+> ⚠️ Transparent printing carries the **visual content** of any app. Dynamic raw
+> commands (open cash drawer on cash payment, precise ZPL) aren't carried — use the
+> direct agent API for those.
+
+---
+
 ## English
 
 **Imprelia Print Agent** is a Windows tray application that allows web apps to print locally without exposing printers directly to the network. It listens on `127.0.0.1` by default and provides backward-compatible legacy endpoints plus a modern `/api` surface for multi-printer workflows.
@@ -90,7 +126,8 @@ Created by **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Print by explicit printer name or by configured purpose.
 - Supports `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl`, and `fiscal` contracts.
 - Configurable port, CORS origins, routes, default printer, and optional API key.
-- Modern WPF + MVVM interface with a dark theme.
+- Modern WPF + MVVM interface with a dark theme, **Spanish/English** (live switch).
+- **[Remote printing](docs/REMOTE_PRINTING.md)**: print to a printer on another machine through the hub, as a virtual printer — any Windows app, no manufacturer drivers.
 - **Optional [Remote Print Bridge](docs/REMOTE_PRINT_BRIDGE.md)**: a backend can push print jobs to the agent over an outbound secure connection (no public ports) via the [`Imprelia.Server`](Imprelia.Server) NuGet package.
 
 ### Quick Start
@@ -167,7 +204,8 @@ Creado por **Roberth Dudiver** · [dudiver.net](https://dudiver.net)
 - Impresión por impresora explícita o por propósito configurado.
 - Contratos para `epos`, `raw`, `text`, `pdf`, `zpl`, `tspl`, `epl`, `dpl` y `fiscal`.
 - Puerto, CORS, orígenes, rutas, impresora default y API key opcional configurables.
-- Interfaz moderna en WPF + MVVM con tema oscuro.
+- Interfaz moderna en WPF + MVVM con tema oscuro, **español/inglés** (cambio en vivo).
+- **[Impresión remota](docs/REMOTE_PRINTING.md)**: imprimí a una impresora de otra máquina a través del hub, como impresora virtual — cualquier app de Windows, sin drivers de fabricante.
 - **[Puente de impresión remota](docs/REMOTE_PRINT_BRIDGE.md) opcional**: un backend puede empujar trabajos al agente por una conexión saliente segura (sin puertos públicos) usando el paquete NuGet [`Imprelia.Server`](Imprelia.Server).
 
 ### Inicio rápido

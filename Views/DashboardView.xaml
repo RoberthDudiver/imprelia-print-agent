@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:Imprelia.PrintAgent.ViewModels"
+             xmlns:loc="clr-namespace:Imprelia.PrintAgent.Localization"
              Background="#0B1426">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -14,8 +15,8 @@
 
             <!-- Header -->
             <StackPanel Grid.Row="0">
-                <TextBlock Text="Dashboard" Style="{StaticResource T.PageTitle}"/>
-                <TextBlock Text="Estado general del agente de impresión." Style="{StaticResource T.PageSub}"/>
+                <TextBlock Text="{loc:Tr dash.title}" Style="{StaticResource T.PageTitle}"/>
+                <TextBlock Text="{loc:Tr dash.subtitle}" Style="{StaticResource T.PageSub}"/>
             </StackPanel>
 
             <!-- Main grid: 2 columns, cada una con StackPanel -->
@@ -43,7 +44,7 @@
                             <DockPanel Grid.Row="0">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                     <TextBlock Text="⚡" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Estado del agente" Style="{StaticResource T.CardTitle}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{loc:Tr dash.agentStatus}" Style="{StaticResource T.CardTitle}" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <Ellipse DockPanel.Dock="Right" Width="12" Height="12"
                                          VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -61,7 +62,7 @@
                             </DockPanel>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,40,0,8"
-                                   Text="El agente está funcionando correctamente."
+                                   Text="{loc:Tr dash.runningOk}"
                                    Foreground="#64748B" FontSize="13" Grid.RowSpan="2"/>
 
                             <!-- Info grid -->
@@ -82,7 +83,7 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                             <TextBlock Text="🌐 " FontSize="12" Foreground="#64748B"/>
-                                            <TextBlock Text="Puerto HTTP" FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="{loc:Tr dash.httpPort}" FontSize="12" Foreground="#64748B"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding Port}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
                                     </StackPanel>
@@ -93,7 +94,7 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                             <TextBlock Text="&lt;/&gt; " FontSize="12" Foreground="#64748B" FontFamily="Consolas"/>
-                                            <TextBlock Text="Versión" FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="{loc:Tr dash.version}" FontSize="12" Foreground="#64748B"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding Version}" FontSize="22" FontWeight="Bold" Foreground="#E2E8F0"/>
                                     </StackPanel>
@@ -104,7 +105,7 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                             <TextBlock Text="🔗 " FontSize="12" Foreground="#64748B"/>
-                                            <TextBlock Text="URL local" FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="{loc:Tr dash.localUrl}" FontSize="12" Foreground="#64748B"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding LocalUrl}" FontSize="14" Foreground="#60A5FA" FontFamily="Consolas"/>
                                     </StackPanel>
@@ -115,7 +116,7 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                             <TextBlock Text="🛡 " FontSize="12" Foreground="#64748B"/>
-                                            <TextBlock Text="Estado" FontSize="12" Foreground="#64748B"/>
+                                            <TextBlock Text="{loc:Tr dash.status}" FontSize="12" Foreground="#64748B"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding TechnicalStatus}" FontSize="14" Foreground="#22C55E"/>
                                     </StackPanel>
@@ -124,15 +125,15 @@
 
                             <!-- Quick actions -->
                             <StackPanel Grid.Row="4">
-                                <TextBlock Text="⚡ Acciones rápidas" FontSize="12" Foreground="#64748B" Margin="0,0,0,10"/>
+                                <TextBlock Text="{loc:Tr dash.quickActions}" FontSize="12" Foreground="#64748B" Margin="0,0,0,10"/>
                                 <WrapPanel>
-                                    <Button Content="🔗 Copiar URL" Command="{Binding CopyUrlCommand}"
+                                    <Button Content="{loc:Tr dash.copyUrl}" Command="{Binding CopyUrlCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                    <Button Content="&lt;/&gt; Copiar endpoint" Command="{Binding CopyEndpointCommand}"
+                                    <Button Content="{loc:Tr dash.copyEndpoint}" Command="{Binding CopyEndpointCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                    <Button Content="🖨 Imprimir prueba" Command="{Binding PrintTestCommand}"
+                                    <Button Content="{loc:Tr dash.printTest}" Command="{Binding PrintTestCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,8,8" Height="32"/>
-                                    <Button Content="📖 Guía API" Command="{Binding OpenApiGuideCommand}"
+                                    <Button Content="{loc:Tr footer.apiGuide}" Command="{Binding OpenApiGuideCommand}"
                                         Style="{StaticResource Btn.Ghost}" Margin="0,0,0,8" Height="32"/>
                                 </WrapPanel>
                             </StackPanel>
@@ -148,12 +149,12 @@
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                     <TextBlock Text="🖨 " FontSize="14"/>
                                     <TextBlock Style="{StaticResource T.CardTitle}">
-                                    Impresoras detectadas
+                                    <Run Text="{loc:Tr dash.printersDetected}"/>
                                     <Run Text="{Binding PrinterCount, StringFormat='  {0}', Mode=OneWay}"
                                          Foreground="#2563EB" FontWeight="Bold"/>
                                     </TextBlock>
                                 </StackPanel>
-                                <Button Content="Ver todas →" DockPanel.Dock="Right"
+                                <Button Content="{loc:Tr dash.viewAll}" DockPanel.Dock="Right"
                                     Command="{Binding NavPrintersCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
                             </DockPanel>
@@ -199,12 +200,12 @@
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                     <TextBlock Text="⇄ " FontSize="14"/>
                                     <TextBlock Style="{StaticResource T.CardTitle}">
-                                    Rutas configuradas
+                                    <Run Text="{loc:Tr dash.routesConfigured}"/>
                                     <Run Text="{Binding RouteCount, StringFormat='  {0}', Mode=OneWay}"
                                          Foreground="#2563EB" FontWeight="Bold"/>
                                     </TextBlock>
                                 </StackPanel>
-                                <Button Content="Ver todas →" DockPanel.Dock="Right"
+                                <Button Content="{loc:Tr dash.viewAll}" DockPanel.Dock="Right"
                                     Command="{Binding NavRoutesCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
                             </DockPanel>
@@ -216,7 +217,7 @@
                                                 <TextBlock Text="{Binding Purpose}" FontSize="13"
                                                        Foreground="#E2E8F0" FontWeight="SemiBold" Width="120"/>
                                                 <TextBlock FontSize="12" Foreground="#64748B" Margin="4,0">→</TextBlock>
-                                                <TextBlock Text="{Binding PrinterName, TargetNullValue='(sin impresora)'}"
+                                                <TextBlock Text="{Binding PrinterName, TargetNullValue='—'}"
                                                        FontSize="12" Foreground="#94A3B8" VerticalAlignment="Center"/>
                                                 <Border DockPanel.Dock="Right" Background="#1E293B"
                                                     CornerRadius="4" Padding="6,2">
@@ -243,9 +244,9 @@
                             <DockPanel Margin="0,0,0,14">
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                     <TextBlock Text="☰ " FontSize="14"/>
-                                    <TextBlock Text="Últimos eventos" Style="{StaticResource T.CardTitle}"/>
+                                    <TextBlock Text="{loc:Tr dash.recentEvents}" Style="{StaticResource T.CardTitle}"/>
                                 </StackPanel>
-                                <Button Content="Ver logs →" DockPanel.Dock="Right"
+                                <Button Content="{loc:Tr dash.viewLogs}" DockPanel.Dock="Right"
                                     Command="{Binding NavLogsCommand}"
                                     Style="{StaticResource Btn.Ghost}" Height="26" Padding="8,0" FontSize="11"/>
                             </DockPanel>
@@ -275,7 +276,7 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                                 <TextBlock Text="📊 " FontSize="14"/>
-                                <TextBlock Text="Resumen rápido" Style="{StaticResource T.CardTitle}"/>
+                                <TextBlock Text="{loc:Tr dash.quickSummary}" Style="{StaticResource T.CardTitle}"/>
                             </StackPanel>
 
                             <Grid>
@@ -292,34 +293,34 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Estado del agente"
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{loc:Tr dash.agentStatus}"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
                                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Badge.Green}"
                                     CornerRadius="4" Padding="8,3">
-                                    <TextBlock Text="Activo" FontSize="11" Foreground="#22C55E" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{loc:Tr dash.active}" FontSize="11" Foreground="#22C55E" FontWeight="SemiBold"/>
                                 </Border>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Puerto HTTP"
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Tr dash.httpPort}"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Port}"
                                        Foreground="#E2E8F0" FontSize="12"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Versión"
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Tr dash.version}"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Version}"
                                        Foreground="#E2E8F0" FontSize="12"/>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Uptime"
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="{loc:Tr dash.uptime}"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Uptime}"
                                        Foreground="#E2E8F0" FontSize="12" FontFamily="Consolas"/>
 
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="URL local"
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="{loc:Tr dash.localUrl}"
                                        Foreground="#64748B" FontSize="12" Margin="0,0,0,10"/>
                                 <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LocalUrl}"
                                        Foreground="#60A5FA" FontSize="11" FontFamily="Consolas"/>
 
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Impresoras"
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="{loc:Tr dash.printers}"
                                        Foreground="#64748B" FontSize="12"/>
                                 <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding PrinterCount}"
                                        Foreground="#E2E8F0" FontSize="12"/>
