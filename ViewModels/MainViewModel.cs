@@ -7,7 +7,7 @@ public sealed class MainViewModel : ViewModelBase
 {
     private readonly AppConfig _config;
     private readonly AgentLogService _log;
-    private readonly int _startedPort;
+    private readonly LocalServer _server;
 
     private ViewModelBase _currentPage;
     private int _selectedNavIndex;
@@ -26,8 +26,8 @@ public sealed class MainViewModel : ViewModelBase
     public int SelectedNavIndex { get => _selectedNavIndex; private set => Set(ref _selectedNavIndex, value); }
 
     public string AgentVersion => LocalServer.Version;
-    public int AgentPort => _startedPort;
-    public string ListeningAddress => $"127.0.0.1:{_startedPort}";
+    public int AgentPort => _server.BoundPort;
+    public string ListeningAddress => $"127.0.0.1:{_server.BoundPort}";
 
     public ICommand NavDashboardCommand { get; }
     public ICommand NavPrintersCommand { get; }
@@ -39,20 +39,27 @@ public sealed class MainViewModel : ViewModelBase
     public ICommand MinimizeCommand { get; }
     public ICommand ExitCommand { get; }
 
-    public MainViewModel(AppConfig config, int startedPort, AgentLogService log, RemoteBridgeService bridge)
+    public MainViewModel(AppConfig config, LocalServer server, AgentLogService log, RemoteBridgeService bridge)
     {
         _config = config;
-        _startedPort = startedPort;
+        _server = server;
         _log = log;
 
         var discovery = new WindowsPrinterDiscoveryService(config);
 
-        Dashboard = new DashboardViewModel(config, startedPort, log, discovery, NavigateTo);
+        Dashboard = new DashboardViewModel(config, server, log, discovery, NavigateTo);
         Printers  = new PrintersViewModel(config, log, discovery);
         Routes    = new RoutesViewModel(config, log, discovery);
-        Settings  = new SettingsViewModel(config, startedPort, log);
+        Settings  = new SettingsViewModel(config, server, log);
         Logs      = new LogsViewModel(log);
         Bridge    = new RemoteBridgeViewModel(config, bridge, log);
+
+        // Cuando el listener se re-vincula (cambio de puerto en caliente), refrescamos lo que muestra el puerto.
+        _server.Restarted += (_, _) =>
+        {
+            OnPropertyChanged(nameof(AgentPort));
+            OnPropertyChanged(nameof(ListeningAddress));
+        };
 
         _currentPage = Dashboard;
 
@@ -92,7 +99,7 @@ public sealed class MainViewModel : ViewModelBase
         try
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            { FileName = $"http://localhost:{_startedPort}/docs", UseShellExecute = true });
+            { FileName = $"http://127.0.0.1:{_server.BoundPort}/docs", UseShellExecute = true });
         }
         catch { }
     }

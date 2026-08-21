@@ -5,7 +5,7 @@ namespace Imprelia.PrintAgent.ViewModels;
 public sealed class SettingsViewModel : ViewModelBase
 {
     private readonly AppConfig _config;
-    private readonly int _startedPort;
+    private readonly LocalServer _server;
     private readonly AgentLogService _log;
 
     private int _port;
@@ -26,15 +26,15 @@ public sealed class SettingsViewModel : ViewModelBase
     public ICommand RestoreDefaultsCommand { get; }
     public ICommand CopyUrlCommand { get; }
 
-    public SettingsViewModel(AppConfig config, int startedPort, AgentLogService log)
+    public SettingsViewModel(AppConfig config, LocalServer server, AgentLogService log)
     {
         _config = config;
-        _startedPort = startedPort;
+        _server = server;
         _log = log;
 
         SaveCommand = new RelayCommand(Save);
         RestoreDefaultsCommand = new RelayCommand(RestoreDefaults);
-        CopyUrlCommand = new RelayCommand(() => SetClipboard($"http://localhost:{_startedPort}"));
+        CopyUrlCommand = new RelayCommand(() => SetClipboard($"http://127.0.0.1:{_server.BoundPort}"));
 
         LoadFromConfig();
     }
@@ -55,12 +55,14 @@ public sealed class SettingsViewModel : ViewModelBase
             return;
         }
 
-        if (Port != _startedPort && !IsPortAvailable(Port))
+        bool portChanged = Port != _server.BoundPort;
+        if (portChanged && !IsPortAvailable(Port))
         {
             ShowMessage($"El puerto {Port} está ocupado.", isError: true);
             return;
         }
 
+        int previousPort = _server.BoundPort;
         _config.Port = Port;
         _config.AllowCors = AllowCors;
         _config.AllowedOrigins = AllowedOrigins
@@ -70,10 +72,30 @@ public sealed class SettingsViewModel : ViewModelBase
         _config.Save();
         _log.Info("Configuración guardada.", "Config");
 
-        if (Port != _startedPort)
-            ShowMessage("Puerto guardado. Reinicia el agente para aplicar el nuevo listener.", isError: false);
+        if (portChanged)
+        {
+            // Aplicamos el puerto EN CALIENTE: re-vinculamos el listener sin reiniciar la app.
+            if (_server.TryRestart(out var error))
+            {
+                _log.Info($"Listener re-vinculado al puerto {Port}.", "Config");
+                if (_server.LastBindWarning != null) _log.Error(_server.LastBindWarning);
+                ShowMessage($"Puerto cambiado a {Port} y aplicado (sin reiniciar). Actualizá también la URL en la app web.", isError: false);
+            }
+            else
+            {
+                // Falló el re-vinculado → volvemos al puerto anterior para no dejar el agente caído.
+                _config.Port = previousPort;
+                _config.Save();
+                _server.TryRestart(out _);
+                Port = previousPort;
+                _log.Error($"No se pudo cambiar al puerto {Port}: {error}", "Config");
+                ShowMessage($"No se pudo aplicar el puerto: {error}", isError: true);
+            }
+        }
         else
+        {
             ShowMessage("Configuración guardada correctamente.", isError: false);
+        }
     }
 
     private void RestoreDefaults()
@@ -84,6 +106,7 @@ public sealed class SettingsViewModel : ViewModelBase
         _config.AllowedOrigins = new List<string>();
         _config.EnsureDefaults();
         _config.Save();
+        if (_server.BoundPort != _config.Port) _server.TryRestart(out _);
         LoadFromConfig();
         _log.Info("Configuración restaurada a valores por defecto.", "Config");
         ShowMessage("Valores restaurados.", isError: false);

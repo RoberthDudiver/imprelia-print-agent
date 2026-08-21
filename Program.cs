@@ -89,11 +89,13 @@ public class TrayApp : ApplicationContext
 
         try
         {
-            _server.Start();
+            var bound = _server.Start();
             _ = _bridge.StartAsync();
             UpdateTrayText();
             _log.Info("Agente iniciado correctamente.");
-            _log.Info($"Escuchando en puerto {_config.Port}.");
+            _log.Info($"Escuchando en: {string.Join(", ", bound)}");
+            if (_server.LastBindWarning != null)
+                _log.Error(_server.LastBindWarning);
 
             _tray.ShowBalloonTip(3500, "Imprelia Print Agent",
                 "Agente de impresion activo. Hace doble click aca para configurarlo.",
@@ -115,7 +117,7 @@ public class TrayApp : ApplicationContext
     {
         if (_mainWindow == null)
         {
-            _mainWindow = new MainWindow(_config, _config.Port, _log, _bridge);
+            _mainWindow = new MainWindow(_config, _server, _log, _bridge);
             _mainWindow.ExitRequested += (_, _) => ExitApp();
         }
 

@@ -58,7 +58,7 @@ public static class ApiDocumentation
                 },
                 ["/api/jobs/recent"] = Path("Recent jobs.", "Returns recent in-memory print jobs and errors.", "JobsResponse"),
                 ["/openapi.json"] = Path("OpenAPI document.", "Returns this OpenAPI JSON document.", "Object"),
-                ["/docs"] = Path("Scalar API guide.", "Interactive API documentation rendered with Scalar.", "String"),
+                ["/docs"] = Path("API guide (offline).", "Self-contained interactive API guide rendered from this OpenAPI document. Works without internet.", "String"),
             },
             components = new
             {
@@ -79,26 +79,116 @@ public static class ApiDocumentation
         return JsonSerializer.Serialize(document, new JsonSerializerOptions { WriteIndented = true });
     }
 
-    public static string ScalarHtml() =>
+    /// <summary>
+    /// Guía de la API 100% OFFLINE: HTML+CSS+JS autocontenido, sin CDN.
+    /// Lee /openapi.json (local) y arma la referencia en el navegador. Funciona sin internet.
+    /// </summary>
+    public static string GuideHtml() =>
         """
         <!doctype html>
-        <html lang="en">
+        <html lang="es">
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Imprelia Print Agent API</title>
+          <title>Imprelia Print Agent — Guía de la API</title>
           <style>
-            body { margin: 0; }
+            :root { --bg:#0f1420; --card:#161c2b; --line:#26304a; --ink:#e2e8f0; --muted:#94a3b8; --accent:#5654e0; --accent2:#b06cff; --get:#16a34a; --post:#2563eb; --put:#d97706; }
+            * { box-sizing: border-box; }
+            body { margin:0; background:var(--bg); color:var(--ink); font-family:Segoe UI,system-ui,Arial,sans-serif; line-height:1.5; }
+            header { padding:26px 28px; border-bottom:1px solid var(--line); background:linear-gradient(120deg,#141a29,#0f1420); }
+            header h1 { margin:0 0 4px; font-size:20px; }
+            header .sub { color:var(--muted); font-size:13px; }
+            header .pill { display:inline-block; margin-top:10px; padding:4px 10px; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#fff; font-size:12px; font-weight:600; }
+            main { max-width:960px; margin:0 auto; padding:24px 20px 64px; }
+            .ep { background:var(--card); border:1px solid var(--line); border-radius:12px; margin:0 0 14px; overflow:hidden; }
+            .ep summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:14px 16px; }
+            .ep summary::-webkit-details-marker { display:none; }
+            .m { font-weight:700; font-size:11px; letter-spacing:.5px; padding:4px 8px; border-radius:6px; color:#fff; min-width:52px; text-align:center; }
+            .m.get{background:var(--get);} .m.post{background:var(--post);} .m.put{background:var(--put);} .m.delete{background:#dc2626;}
+            .path { font-family:Consolas,monospace; font-size:14px; }
+            .sum { color:var(--muted); font-size:13px; margin-left:auto; text-align:right; }
+            .body { padding:0 16px 16px; border-top:1px solid var(--line); }
+            .body p { color:var(--muted); font-size:13.5px; }
+            .lbl { text-transform:uppercase; letter-spacing:.5px; font-size:11px; color:var(--muted); margin:14px 0 6px; }
+            pre { background:#0b0f18; border:1px solid var(--line); border-radius:8px; padding:12px; overflow:auto; font-size:12.5px; }
+            code { font-family:Consolas,monospace; }
+            .err { background:#2a1620; border:1px solid #5b2130; color:#fca5a5; padding:16px; border-radius:10px; }
+            a { color:var(--accent2); }
           </style>
         </head>
         <body>
-          <script
-            id="api-reference"
-            data-url="/openapi.json"
-            data-theme="default"
-            data-layout="modern">
+          <header>
+            <h1>Imprelia Print Agent — Guía de la API</h1>
+            <div class="sub">Referencia local de la API de impresión. Esta página funciona sin internet.</div>
+            <div class="pill" id="ver">cargando…</div>
+          </header>
+          <main id="app"><p style="color:var(--muted)">Cargando la especificación…</p></main>
+          <script>
+            const mc = { get:'get', post:'post', put:'put', delete:'delete' };
+            function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+            function schemaName(ref){ return ref ? ref.split('/').pop() : null; }
+            fetch('/openapi.json').then(r => r.json()).then(doc => {
+              document.getElementById('ver').textContent = (doc.info?.title || 'API') + ' v' + (doc.info?.version || '');
+              const app = document.getElementById('app');
+              app.innerHTML = '';
+              if (doc.info?.description) {
+                const d = document.createElement('p'); d.style.color = 'var(--muted)'; d.textContent = doc.info.description; app.appendChild(d);
+              }
+              const schemas = doc.components?.schemas || {};
+              const paths = doc.paths || {};
+              for (const [path, ops] of Object.entries(paths)) {
+                for (const [method, op] of Object.entries(ops)) {
+                  if (!mc[method]) continue;
+                  const det = document.createElement('details'); det.className = 'ep';
+                  const reqRef = op.requestBody?.content?.['application/json']?.schema?.$ref;
+                  const reqName = schemaName(reqRef);
+                  let bodyExample = '';
+                  if (reqName && schemas[reqName]) {
+                    bodyExample = '<div class="lbl">Request body (' + esc(reqName) + ')</div><pre><code>' +
+                                  esc(JSON.stringify(sample(schemas[reqName], schemas), null, 2)) + '</code></pre>';
+                  }
+                  const curlBody = reqName ? " \\\n  -H \"Content-Type: application/json\" \\\n  -d '" + JSON.stringify(sample(schemas[reqName], schemas)) + "'" : '';
+                  const curl = 'curl -X ' + method.toUpperCase() + ' http://127.0.0.1:' +
+                    (location.port || '9100') + esc(path) + curlBody;
+                  det.innerHTML =
+                    '<summary><span class="m ' + method + '">' + method.toUpperCase() + '</span>' +
+                    '<span class="path">' + esc(path) + '</span>' +
+                    '<span class="sum">' + esc(op.summary || '') + '</span></summary>' +
+                    '<div class="body">' +
+                      (op.description ? '<p>' + esc(op.description) + '</p>' : '') +
+                      bodyExample +
+                      '<div class="lbl">Ejemplo (cURL)</div><pre><code>' + esc(curl) + '</code></pre>' +
+                    '</div>';
+                  app.appendChild(det);
+                }
+              }
+            }).catch(e => {
+              document.getElementById('app').innerHTML =
+                '<div class="err"><b>No se pudo cargar /openapi.json.</b><br>' + esc(e.message) +
+                '<br><br>El documento crudo está en <a href="/openapi.json">/openapi.json</a>.</div>';
+            });
+            // Genera un objeto de ejemplo a partir de un schema (soporta $ref, properties, allOf, example).
+            function sample(schema, all, depth){
+              depth = depth || 0; if (!schema || depth > 6) return {};
+              if (schema.$ref) return sample(all[schemaName(schema.$ref)], all, depth+1);
+              if (schema.allOf) return Object.assign({}, ...schema.allOf.map(s => sample(s, all, depth+1)));
+              if (schema.type === 'object' || schema.properties) {
+                const o = {};
+                for (const [k, p] of Object.entries(schema.properties || {})) o[k] = leaf(p, all, depth);
+                return o;
+              }
+              return leaf(schema, all, depth);
+            }
+            function leaf(p, all, depth){
+              if (p.$ref) return sample(all[schemaName(p.$ref)], all, depth+1);
+              if ('example' in p) return p.example;
+              if (p.type === 'array') return [ leaf(p.items || {}, all, depth+1) ];
+              if (p.type === 'object' || p.properties) return sample(p, all, depth+1);
+              if (p.type === 'integer' || p.type === 'number') return 0;
+              if (p.type === 'boolean') return false;
+              return '';
+            }
           </script>
-          <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
         </body>
         </html>
         """;

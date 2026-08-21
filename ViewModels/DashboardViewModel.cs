@@ -9,7 +9,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly AppConfig _config;
     private readonly AgentLogService _log;
     private readonly IPrinterDiscoveryService _discovery;
-    private readonly int _port;
+    private readonly LocalServer _server;
     private readonly Action<int> _navigateTo;
     private readonly DispatcherTimer _uptimeTimer;
     private readonly DateTime _startedAt = DateTime.Now;
@@ -18,8 +18,8 @@ public sealed class DashboardViewModel : ViewModelBase
     public string Status => "Activo";
     public bool IsRunning => true;
     public string Version => LocalServer.Version;
-    public int Port => _port;
-    public string LocalUrl => $"http://localhost:{_port}";
+    public int Port => _server.BoundPort;
+    public string LocalUrl => $"http://localhost:{_server.BoundPort}";
     public string TechnicalStatus => "Conectado y listo";
 
     public string Uptime { get => _uptime; private set => Set(ref _uptime, value); }
@@ -41,19 +41,26 @@ public sealed class DashboardViewModel : ViewModelBase
     public ICommand NavRoutesCommand { get; }
     public ICommand NavLogsCommand { get; }
 
-    public DashboardViewModel(AppConfig config, int port, AgentLogService log,
+    public DashboardViewModel(AppConfig config, LocalServer server, AgentLogService log,
         IPrinterDiscoveryService discovery, Action<int> navigateTo)
     {
         _config = config;
-        _port = port;
+        _server = server;
         _log = log;
         _discovery = discovery;
         _navigateTo = navigateTo;
 
         CopyUrlCommand = new RelayCommand(() => SetClipboard(LocalUrl));
-        CopyEndpointCommand = new RelayCommand(() => SetClipboard($"http://localhost:{_port}/api/print"));
+        CopyEndpointCommand = new RelayCommand(() => SetClipboard($"http://127.0.0.1:{_server.BoundPort}/api/print"));
         PrintTestCommand = new RelayCommand(DoPrintTest);
-        OpenApiGuideCommand = new RelayCommand(() => OpenUrl($"http://localhost:{_port}/docs"));
+        OpenApiGuideCommand = new RelayCommand(() => OpenUrl($"http://127.0.0.1:{_server.BoundPort}/docs"));
+
+        // Refresca la URL/puerto mostrados cuando el listener se re-vincula.
+        _server.Restarted += (_, _) =>
+        {
+            OnPropertyChanged(nameof(Port));
+            OnPropertyChanged(nameof(LocalUrl));
+        };
         NavPrintersCommand = new RelayCommand(() => navigateTo(1));
         NavRoutesCommand = new RelayCommand(() => navigateTo(2));
         NavLogsCommand = new RelayCommand(() => navigateTo(4));

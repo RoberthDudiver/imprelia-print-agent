@@ -20,7 +20,11 @@ namespace Imprelia.PrintAgent;
 /// </summary>
 public class LocalServer
 {
-    private readonly HttpListener _listener = new();
+    // Un HttpListener por prefijo, arrancados de forma independiente: si 'localhost'
+    // falla (típico "acceso denegado" por falta de urlacl en algunas PCs), al menos
+    // 127.0.0.1 queda escuchando y el agente funciona igual.
+    private readonly List<HttpListener> _listeners = new();
+    private readonly List<string> _boundPrefixes = new();
     private readonly AppConfig _config;
     private readonly Func<string?> _getDefaultPrinter;
     private readonly DateTime _startedAt = DateTime.Now;
@@ -30,7 +34,16 @@ public class LocalServer
     private readonly IPrintService _printService;
     private CancellationTokenSource? _cts;
 
-    public const string Version = "1.1.6";
+    public const string Version = "1.2.0";
+
+    /// <summary>Puerto en el que quedó efectivamente escuchando (tras Start/TryRestart).</summary>
+    public int BoundPort { get; private set; }
+    /// <summary>Prefijos que realmente se vincularon (ej: http://127.0.0.1:9100/).</summary>
+    public IReadOnlyList<string> BoundPrefixes => _boundPrefixes;
+    /// <summary>Aviso accionable si algún prefijo no se pudo registrar (ej: localhost sin urlacl). null si todo bien.</summary>
+    public string? LastBindWarning { get; private set; }
+    /// <summary>Se dispara cuando el listener se re-vincula (cambio de puerto en caliente).</summary>
+    public event EventHandler? Restarted;
 
     public LocalServer(AppConfig config, Func<string?> getDefaultPrinter)
     {
@@ -41,30 +54,96 @@ public class LocalServer
         _routes = new PrinterRouteService(_config);
         _history = new JobHistoryService();
         _printService = new PrintService(_printers, _routes, _history);
-        // Escuchamos en 127.0.0.1 (no en 0.0.0.0) — solo accesible desde esta PC.
-        _listener.Prefixes.Add($"http://{_config.Host}:{_config.Port}/");
-        if (!_config.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
-            _listener.Prefixes.Add($"http://localhost:{_config.Port}/");
     }
 
-    public void Start()
+    // Direcciones candidatas en orden de preferencia. 127.0.0.1 primero: es una IP
+    // explícita y NO requiere reserva de URL (urlacl) para usuarios estándar.
+    private IEnumerable<string> CandidatePrefixes()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var host in new[] { "127.0.0.1", "localhost", _config.Host })
+        {
+            if (string.IsNullOrWhiteSpace(host)) continue;
+            var prefix = $"http://{host}:{_config.Port}/";
+            if (seen.Add(prefix)) yield return prefix;
+        }
+    }
+
+    /// <summary>Arranca el servidor. Vincula cada prefijo por separado; solo lanza excepción si NINGUNO pudo escuchar.</summary>
+    public IReadOnlyList<string> Start()
     {
         _cts = new CancellationTokenSource();
-        _listener.Start();
-        _ = Task.Run(() => LoopAsync(_cts.Token));
+        _boundPrefixes.Clear();
+        LastBindWarning = null;
+        var errors = new List<string>();
+        var token = _cts.Token;
+
+        foreach (var prefix in CandidatePrefixes())
+        {
+            var listener = new HttpListener();
+            listener.Prefixes.Add(prefix);
+            try
+            {
+                listener.Start();
+                _listeners.Add(listener);
+                _boundPrefixes.Add(prefix);
+                _ = Task.Run(() => LoopAsync(listener, token));
+            }
+            catch (Exception ex)
+            {
+                try { listener.Close(); } catch { /* ignore */ }
+                errors.Add($"{prefix} → {ex.Message}");
+            }
+        }
+
+        if (_boundPrefixes.Count == 0)
+            throw new InvalidOperationException(
+                $"No se pudo escuchar en el puerto {_config.Port}. " +
+                "Puede que otro programa esté usando ese puerto. Detalle: " + string.Join(" | ", errors));
+
+        BoundPort = _config.Port;
+        if (errors.Count > 0)
+            LastBindWarning =
+                $"El agente está activo en http://127.0.0.1:{_config.Port}. " +
+                $"No se pudo registrar algún acceso ({string.Join(" | ", errors)}). " +
+                $"Para habilitar http://localhost:{_config.Port} ejecutá una vez, en CMD como administrador: " +
+                $"netsh http add urlacl url=http://localhost:{_config.Port}/ user=Todos";
+
+        return _boundPrefixes;
     }
 
     public void Stop()
     {
-        try { _cts?.Cancel(); _listener.Stop(); } catch { /* ignore */ }
+        try { _cts?.Cancel(); } catch { /* ignore */ }
+        foreach (var l in _listeners) { try { l.Stop(); l.Close(); } catch { /* ignore */ } }
+        _listeners.Clear();
+        _boundPrefixes.Clear();
     }
 
-    private async Task LoopAsync(CancellationToken ct)
+    /// <summary>Re-vincula el listener al puerto/host actual de la config (cambio de puerto SIN reiniciar la app).</summary>
+    public bool TryRestart(out string? error)
+    {
+        error = null;
+        try
+        {
+            Stop();
+            Start();
+            Restarted?.Invoke(this, EventArgs.Empty);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+    }
+
+    private async Task LoopAsync(HttpListener listener, CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
         {
             HttpListenerContext ctx;
-            try { ctx = await _listener.GetContextAsync(); }
+            try { ctx = await listener.GetContextAsync(); }
             catch { break; } // listener cerrado
             _ = Task.Run(() => HandleAsync(ctx));
         }
@@ -97,7 +176,7 @@ public class LocalServer
 
             if (req.HttpMethod == "GET" && (path == "/docs" || path == "/api/docs"))
             {
-                WriteHtml(res, 200, ApiDocumentation.ScalarHtml());
+                WriteHtml(res, 200, ApiDocumentation.GuideHtml());
                 return;
             }
 
@@ -222,7 +301,12 @@ public class LocalServer
                     return;
                 }
                 UpdateSettings(data);
-                WriteJson(res, 200, ToSettingsPayload(restartRequired: data.Port != oldPort || data.Host != oldHost));
+                bool needsRebind = data.Port != oldPort || data.Host != oldHost;
+                // Respondemos primero (con el puerto viejo, que es por donde vino la request);
+                // ya no hace falta reiniciar la app: re-vinculamos el listener en caliente.
+                WriteJson(res, 200, ToSettingsPayload(restartRequired: false));
+                if (needsRebind)
+                    _ = Task.Run(async () => { await Task.Delay(300); TryRestart(out _); });
                 return;
             }
 
